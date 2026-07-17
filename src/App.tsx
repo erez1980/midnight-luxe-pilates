@@ -28,7 +28,7 @@ import CoachingSession from './components/CoachingSession';
 import { buildShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
 import { pullCloudLessons, pushCloudLessons, signInAnonymously, supabaseSqlGuide } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
-import { AuthProfile, getAuthProfile, signInWithGoogle, signOut } from './utils/auth';
+import { AuthProfile, getAuthProfile, listenToAuthChanges, signInWithGoogle, signOut } from './utils/auth';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -62,11 +62,19 @@ export default function App() {
     getAuthProfile().then(setAuthProfile);
   }, []);
 
+  useEffect(() => {
+    const subscription = listenToAuthChanges((profile) => {
+      setAuthProfile(profile);
+      if (profile) setUiNotice('התחברת בהצלחה עם Google.');
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   const isAuthenticated = Boolean(authProfile);
 
   const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
     if (!isAuthenticated) {
-      setActiveScreen(screen);
+      setActiveScreen('home');
       setUiNotice('האזור הזה מוגבל למדריכות מחוברות. התחברי עם Google כדי לבנות ולשמור שיעורים.');
       return;
     }
