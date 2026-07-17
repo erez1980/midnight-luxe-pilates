@@ -263,90 +263,107 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                   {exercises.map((el, index) => (
                     <motion.div
                       key={el.exercise.id}
-                      initial={{ opacity: 0, x: 30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -30 }}
-                      className="border border-white/5 bg-background p-4 relative group hover:border-secondary/20 transition-all flex flex-col md:flex-row gap-4 justify-between items-start md:items-center"
+                      initial={{ opacity: 0, y: 18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -18 }}
+                      className="relative overflow-hidden rounded-2xl border border-white/8 bg-gradient-to-br from-[#141414] to-[#0b0b0b] p-5 md:p-6 group hover:border-secondary/30 hover:shadow-[0_0_0_1px_rgba(212,175,55,0.12)] transition-all"
                     >
-                      {/* Left: Reorder controls + details */}
-                      <div className="flex items-start gap-3 w-full md:w-auto">
-                        <div className="flex flex-col gap-1">
-                          <button
-                            type="button"
-                            onClick={() => handleMoveUp(index)}
-                            disabled={index === 0}
-                            className={`p-1 border border-white/5 text-on-surface-variant hover:text-secondary rounded-sm transition-colors ${index === 0 ? 'opacity-25 cursor-not-allowed' : ''}`}
-                            title="העבר למעלה"
-                          >
-                            <ArrowUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMoveDown(index)}
-                            disabled={index === exercises.length - 1}
-                            className={`p-1 border border-white/5 text-on-surface-variant hover:text-secondary rounded-sm transition-colors ${index === exercises.length - 1 ? 'opacity-25 cursor-not-allowed' : ''}`}
-                            title="העבר למטה"
-                          >
-                            <ArrowDown className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                      <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-secondary/80 via-secondary/30 to-transparent" />
 
-                        <div>
-                          <div className="flex gap-2 items-center mb-1">
-                            <span className="text-[10px] font-mono uppercase bg-secondary/10 text-secondary px-1.5 py-0.5 font-bold">
-                              {el.exercise.apparatusLabel}
-                            </span>
-                            <span className="text-[10px] bg-white/5 text-on-surface-variant px-1.5 py-0.5 rounded-sm">
-                              {el.exercise.difficultyLabel}
-                            </span>
+                      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex items-start gap-4 min-w-0 flex-1">
+                          <div className="flex flex-col items-center gap-2 pt-1">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-secondary/25 bg-secondary/10 text-secondary font-bold text-sm">
+                              {index + 1}
+                            </div>
+                            <div className="flex flex-col gap-1 rounded-xl border border-white/8 bg-white/[0.03] p-1">
+                              <button
+                                type="button"
+                                onClick={() => handleMoveUp(index)}
+                                disabled={index === 0}
+                                className={`p-1.5 text-on-surface-variant hover:text-secondary rounded-lg transition-colors ${index === 0 ? 'opacity-25 cursor-not-allowed' : ''}`}
+                                title="העבר למעלה"
+                              >
+                                <ArrowUp className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveDown(index)}
+                                disabled={index === exercises.length - 1}
+                                className={`p-1.5 text-on-surface-variant hover:text-secondary rounded-lg transition-colors ${index === exercises.length - 1 ? 'opacity-25 cursor-not-allowed' : ''}`}
+                                title="העבר למטה"
+                              >
+                                <ArrowDown className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
-                          <h4 className="font-bold text-white">{el.exercise.name}</h4>
-                          <input
-                            type="text"
-                            placeholder="הוסיפי דגש הדרכה מיוחד לשיעור זה (לדוגמה: לשים לב לגב תחתון)..."
-                            value={el.notes || ''}
-                            onChange={(e) => handleUpdateNotes(el.exercise.id, e.target.value)}
-                            className="text-xs text-secondary w-full max-w-[280px] md:max-w-[400px] mt-2 bg-transparent border-b border-white/5 focus:border-secondary focus:outline-none transition-colors py-1 placeholder-white/20"
-                          />
-                        </div>
-                      </div>
 
-                      {/* Right: duration adjustment & delete */}
-                      <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end pt-3 md:pt-0 border-t md:border-t-0 border-white/5">
-                        {/* Time controls */}
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-on-surface-variant">זמן:</span>
-                          <div className="flex items-center border border-white/10 rounded-sm">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap gap-2 items-center mb-2">
+                              <span className="rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[10px] font-semibold text-secondary">
+                                {el.exercise.apparatusLabel}
+                              </span>
+                              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] text-on-surface-variant">
+                                {el.exercise.difficultyLabel}
+                              </span>
+                              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] text-on-surface-variant">
+                                {el.customDuration} דק׳
+                              </span>
+                            </div>
+
+                            <h4 className="text-lg md:text-xl font-bold text-white mb-1 truncate">{el.exercise.name}</h4>
+                            <p className="text-[11px] md:text-xs text-on-surface-variant font-mono mb-3 truncate">{el.exercise.englishName}</p>
+
+                            <div className="flex flex-wrap gap-1.5 mb-4">
+                              {el.exercise.targetMuscles.slice(0, 3).map((muscle, muscleIndex) => (
+                                <span key={muscleIndex} className="rounded-md bg-white/5 px-2 py-1 text-[11px] text-on-surface-variant">
+                                  {muscle}
+                                </span>
+                              ))}
+                            </div>
+
+                            <input
+                              type="text"
+                              placeholder="דגש הדרכה לשיעור הזה..."
+                              value={el.notes || ''}
+                              onChange={(e) => handleUpdateNotes(el.exercise.id, e.target.value)}
+                              className="w-full rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/25 focus:border-secondary/60 focus:outline-none transition-colors"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex w-full lg:w-auto flex-row lg:flex-col items-center lg:items-end justify-between gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/8">
+                          <div className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/[0.03] p-1">
                             <button
                               type="button"
                               onClick={() => handleUpdateDuration(el.exercise.id, -1)}
-                              className="px-2 py-1 text-on-surface-variant hover:text-white transition-colors bg-white/5"
+                              className="h-9 w-9 rounded-lg bg-white/5 text-on-surface-variant hover:text-white hover:bg-white/10 transition-colors"
                             >
                               -
                             </button>
-                            <span className="px-3 text-sm text-white font-mono font-bold">
-                              {el.customDuration}
-                            </span>
+                            <div className="min-w-[56px] text-center">
+                              <div className="text-base font-bold text-white font-mono leading-none">{el.customDuration}</div>
+                              <div className="text-[10px] text-on-surface-variant mt-1">דקות</div>
+                            </div>
                             <button
                               type="button"
                               onClick={() => handleUpdateDuration(el.exercise.id, 1)}
-                              className="px-2 py-1 text-on-surface-variant hover:text-white transition-colors bg-white/5"
+                              className="h-9 w-9 rounded-lg bg-secondary text-background hover:bg-white transition-colors font-bold"
                             >
                               +
                             </button>
                           </div>
-                          <span className="text-xs text-on-surface-variant">דק׳</span>
-                        </div>
 
-                        {/* Delete button */}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveExercise(el.exercise.id)}
-                          className="p-2 text-rose-500/70 hover:text-rose-400 border border-white/5 hover:border-rose-500/20 transition-colors bg-white/5"
-                          title="הסר תרגיל"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveExercise(el.exercise.id)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-300 hover:bg-rose-500/15 hover:text-rose-200 transition-colors"
+                            title="הסר תרגיל"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            הסרה
+                          </button>
+                        </div>
                       </div>
                     </motion.div>
                   ))}
