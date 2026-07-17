@@ -26,6 +26,8 @@ import LessonBuilder from './components/LessonBuilder';
 import MyLessons from './components/MyLessons';
 import CoachingSession from './components/CoachingSession';
 import { buildShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
+import { pullCloudLessons, pushCloudLessons, signInAnonymously, supabaseSqlGuide } from './utils/cloudSync';
+import { supabaseEnabled } from './lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -34,6 +36,7 @@ export default function App() {
   const [activeSessionLesson, setActiveSessionLesson] = useState<Lesson | null>(null);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [templates, setTemplates] = useState<Lesson[]>([]);
+  const [cloudStatus, setCloudStatus] = useState(supabaseEnabled ? 'Cloud available' : 'Cloud not configured');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Load lessons from localStorage on mount, fall back to initial ones
@@ -87,6 +90,32 @@ export default function App() {
     } catch {
       alert('קובץ הגיבוי לא תקין.');
     }
+  };
+
+  const handleCloudLogin = async () => {
+    const result = await signInAnonymously();
+    if (!result.ok) {
+      alert(result.reason === 'disabled' ? 'Supabase עדיין לא מוגדר. צריך להכניס URL + anon key ב-env.' : `Cloud login failed: ${result.reason}`);
+      return;
+    }
+    setCloudStatus('Cloud connected');
+    alert('Cloud login בוצע.');
+  };
+
+  const handleCloudSync = async () => {
+    const push = await pushCloudLessons(lessons, templates);
+    if (!push.ok) {
+      alert(push.reason === 'disabled' ? `Cloud לא מוגדר עדיין.\n\nSupabase SQL:\n${supabaseSqlGuide}` : `Sync failed: ${push.reason}`);
+      return;
+    }
+    const pulled = await pullCloudLessons();
+    if (pulled.lessons.length) saveLessonsToStorage(pulled.lessons);
+    if (pulled.templates.length) {
+      setTemplates(pulled.templates);
+      writeTemplates(pulled.templates);
+    }
+    setCloudStatus('Cloud synced');
+    alert('Cloud sync הושלם.');
   };
 
   const handleCopyShareLink = async (lesson: Lesson) => {
@@ -486,6 +515,10 @@ export default function App() {
               onExportBundle={handleExportBundle}
               onImportBundle={handleImportBundle}
               onCopyShareLink={handleCopyShareLink}
+              cloudEnabled={supabaseEnabled}
+              cloudStatus={cloudStatus}
+              onCloudLogin={handleCloudLogin}
+              onCloudSync={handleCloudSync}
             />
           </div>
         )}

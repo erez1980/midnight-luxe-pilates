@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, Copy, Download, Upload, Bookmark } from 'lucide-react';
+import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, Copy, Download, Upload, Bookmark, Cloud, CloudOff, LogIn } from 'lucide-react';
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
 
@@ -14,6 +14,10 @@ interface MyLessonsProps {
   onExportBundle: () => void;
   onImportBundle: (file: File) => void;
   onCopyShareLink: (lesson: Lesson) => void;
+  cloudEnabled: boolean;
+  cloudStatus: string;
+  onCloudLogin: () => void;
+  onCloudSync: () => void;
 }
 
 export default function MyLessons({
@@ -26,7 +30,11 @@ export default function MyLessons({
   onSaveTemplate,
   onExportBundle,
   onImportBundle,
-  onCopyShareLink
+  onCopyShareLink,
+  cloudEnabled,
+  cloudStatus,
+  onCloudLogin,
+  onCloudSync
 }: MyLessonsProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   return (
@@ -49,6 +57,21 @@ export default function MyLessons({
         >
           <Plus className="w-4 h-4" />
           בני שיעור חדש
+        </button>
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className={`px-3 py-2 rounded-xl border text-xs inline-flex items-center gap-2 ${cloudEnabled ? 'border-emerald-500/20 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-on-surface-variant bg-white/5'}`}>
+          {cloudEnabled ? <Cloud className="w-4 h-4" /> : <CloudOff className="w-4 h-4" />}
+          {cloudStatus}
+        </div>
+        <button onClick={onCloudLogin} className="px-4 py-2 rounded-xl border border-white/10 text-white hover:border-secondary/40 transition-all inline-flex items-center gap-2 text-sm">
+          <LogIn className="w-4 h-4" />
+          Cloud login
+        </button>
+        <button onClick={onCloudSync} className="px-4 py-2 rounded-xl border border-white/10 text-white hover:border-secondary/40 transition-all inline-flex items-center gap-2 text-sm">
+          <Cloud className="w-4 h-4" />
+          Sync now
         </button>
       </div>
 
