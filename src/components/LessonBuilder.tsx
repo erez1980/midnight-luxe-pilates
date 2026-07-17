@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, FileText, ChevronRight, Compass, Sparkles, BookOpen } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, BookOpen, X } from 'lucide-react';
 import { Exercise, Lesson, LessonExercise } from '../types';
 import ExerciseLibrary from './ExerciseLibrary';
+import { INITIAL_EXERCISES } from '../data';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface LessonBuilderProps {
@@ -18,6 +19,9 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [exercises, setExercises] = useState<LessonExercise[]>(existingLessonToEdit?.exercises || []);
   const [errors, setErrors] = useState<string[]>([]);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [builderSearchQuery, setBuilderSearchQuery] = useState('');
+  const [builderApparatus, setBuilderApparatus] = useState<string>('all');
+  const [builderDifficulty, setBuilderDifficulty] = useState<string>('all');
 
   const levelLabels = {
     beginner: 'מתחילים',
@@ -131,6 +135,35 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
   const totalCalculatedDuration = exercises.reduce((acc, curr) => acc + curr.customDuration, 0);
   const activeExerciseIds = exercises.map(e => e.exercise.id);
+
+  const apparatusOptions = [
+    { value: 'all', label: 'כל המכשירים' },
+    { value: 'mat', label: 'מזרן' },
+    { value: 'reformer', label: 'רפורמר' },
+    { value: 'cadillac', label: 'קאדילק' },
+    { value: 'chair', label: 'כיסא' },
+    { value: 'props', label: 'עזרים' }
+  ];
+
+  const difficultyOptions = [
+    { value: 'all', label: 'כל הרמות' },
+    { value: 'beginner', label: 'מתחילים' },
+    { value: 'intermediate', label: 'בינוני' },
+    { value: 'advanced', label: 'מתקדם' }
+  ];
+
+  const quickFilteredExercises = useMemo(() => {
+    return INITIAL_EXERCISES.filter((exercise) => {
+      const matchesSearch = !builderSearchQuery ||
+        exercise.name.toLowerCase().includes(builderSearchQuery.toLowerCase()) ||
+        exercise.englishName.toLowerCase().includes(builderSearchQuery.toLowerCase()) ||
+        exercise.targetMuscles.some((muscle) => muscle.toLowerCase().includes(builderSearchQuery.toLowerCase()));
+
+      const matchesApparatus = builderApparatus === 'all' || exercise.apparatus === builderApparatus;
+      const matchesDifficulty = builderDifficulty === 'all' || exercise.difficulty === builderDifficulty;
+      return matchesSearch && matchesApparatus && matchesDifficulty;
+    }).slice(0, 24);
+  }, [builderSearchQuery, builderApparatus, builderDifficulty]);
 
   return (
     <div className="w-full">
@@ -394,8 +427,124 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             </h3>
           </div>
           <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
-            לחצי על <strong>״הוסיפי לשיעור״</strong> בתרגילי פילאטיס הבאים כדי לשלב אותם במערך השיעור הנוכחי. תוכלי לחפש ולסנן את התרגילים בקלות.
+            לחצי על <strong>״הוסיפי לשיעור״</strong> כדי לשלב תרגיל במערך. הוספתי כאן גם חיפוש וסינון מהיר כדי שלא תלכי לאיבוד בתוך כל המאגר.
           </p>
+
+          <div className="mb-5 space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+            <div className="relative">
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant w-4 h-4" />
+              <input
+                type="text"
+                placeholder="חיפוש מהיר לפי שם תרגיל, English או קבוצת שריר..."
+                value={builderSearchQuery}
+                onChange={(e) => setBuilderSearchQuery(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-background pr-11 pl-10 py-3 text-sm text-white focus:outline-none focus:border-secondary transition-colors"
+              />
+              {builderSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setBuilderSearchQuery('')}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {apparatusOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setBuilderApparatus(opt.value)}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
+                    builderApparatus === opt.value
+                      ? 'bg-secondary border-secondary text-background font-bold'
+                      : 'border-white/10 text-on-surface hover:border-secondary/50'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2 items-center justify-between">
+              <div className="flex flex-wrap gap-2">
+                {difficultyOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setBuilderDifficulty(opt.value)}
+                    className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
+                      builderDifficulty === opt.value
+                        ? 'bg-white/10 border-secondary/50 text-secondary font-bold'
+                        : 'border-white/10 text-on-surface hover:border-white/20'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              {(builderSearchQuery || builderApparatus !== 'all' || builderDifficulty !== 'all') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBuilderSearchQuery('');
+                    setBuilderApparatus('all');
+                    setBuilderDifficulty('all');
+                  }}
+                  className="text-xs text-secondary hover:underline"
+                >
+                  איפוס סינונים
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {quickFilteredExercises.map((exercise) => {
+                const isAdded = activeExerciseIds.includes(exercise.id);
+                return (
+                  <button
+                    key={exercise.id}
+                    type="button"
+                    onClick={() => handleAddExercise(exercise)}
+                    className={`text-right rounded-2xl border p-4 transition-all ${
+                      isAdded
+                        ? 'border-emerald-500/30 bg-emerald-500/10'
+                        : 'border-white/8 bg-background hover:border-secondary/30 hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div>
+                        <div className="text-white font-bold text-sm md:text-base">{exercise.name}</div>
+                        <div className="text-[11px] text-on-surface-variant font-mono">{exercise.englishName}</div>
+                      </div>
+                      <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] text-on-surface-variant whitespace-nowrap">
+                        {exercise.durationMinutes} דק׳
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      <span className="rounded-full bg-secondary/10 px-2 py-1 text-[10px] text-secondary">{exercise.apparatusLabel}</span>
+                      <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] text-on-surface-variant">{exercise.difficultyLabel}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {exercise.targetMuscles.slice(0, 3).map((muscle, idx) => (
+                        <span key={idx} className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-on-surface-variant">{muscle}</span>
+                      ))}
+                    </div>
+                    <div className={`text-xs font-bold ${isAdded ? 'text-emerald-300' : 'text-secondary'}`}>
+                      {isAdded ? 'נוסף לשיעור' : 'הוסיפי לשיעור'}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="text-[11px] text-on-surface-variant">
+              מוצגות 24 תוצאות ראשונות לחיפוש מהיר. מתחתיהן עדיין זמינה הספרייה המלאה.
+            </div>
+          </div>
 
           <div className="max-h-[85vh] overflow-y-auto pr-1">
             <ExerciseLibrary 

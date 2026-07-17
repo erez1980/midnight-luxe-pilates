@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Midnight Luxe Pilates icon">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f5d97b"/>
+      <stop offset="100%" stop-color="#c79a2b"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#0b0b0b"/>
+  <path d="M18 24c4 2 9 3 14 3s10-1 14-3L32.5 46a1 1 0 0 1-1 0L18 24Z" fill="url(#g)"/>
+  <path d="M32 10c8 0 15 1.2 20 3.6 2.7 1.3 4 2.8 4 4.4 0 1.7-1.5 3.2-4.4 4.6-4.9 2.3-11.7 3.4-19.6 3.4s-14.7-1.1-19.6-3.4C9.5 21.2 8 19.7 8 18c0-1.6 1.3-3.1 4-4.4C17 11.2 24 10 32 10Zm0 4c-7.3 0-13.7 1-18.1 3 4.5 1.9 10.9 3 18.1 3s13.7-1.1 18.1-3C45.7 15 39.3 14 32 14Z" fill="url(#g)"/>
+</svg>
