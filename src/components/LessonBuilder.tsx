@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, BookOpen, X } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, BookOpen, X, Wand2, Printer, MessageCircle } from 'lucide-react';
 import { Exercise, Lesson, LessonExercise } from '../types';
 import ExerciseLibrary from './ExerciseLibrary';
 import { INITIAL_EXERCISES } from '../data';
+import { lessonToWhatsappText, openLessonPrint } from '../utils/lessonExport';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface LessonBuilderProps {
@@ -23,6 +24,8 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [builderApparatus, setBuilderApparatus] = useState<string>('all');
   const [builderDifficulty, setBuilderDifficulty] = useState<string>('all');
   const [builderCategory, setBuilderCategory] = useState<string>('all');
+  const [autoBuildDuration, setAutoBuildDuration] = useState<number>(45);
+  const [copiedWhatsapp, setCopiedWhatsapp] = useState(false);
 
   const levelLabels = {
     beginner: 'מתחילים',
@@ -95,6 +98,86 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     setExercises(newExercises);
   };
 
+  useEffect(() => {
+    const draftKey = existingLessonToEdit ? `pilates_lesson_draft_${existingLessonToEdit.id}` : 'pilates_lesson_builder_draft';
+    const draft = { lessonName, description, level, targetFocus, exercises, autoBuildDuration };
+    localStorage.setItem(draftKey, JSON.stringify(draft));
+  }, [lessonName, description, level, targetFocus, exercises, autoBuildDuration, existingLessonToEdit]);
+
+  const buildCurrentLessonPayload = (): Lesson => ({
+    id: existingLessonToEdit?.id || `custom_lesson_${Date.now()}`,
+    name: lessonName || 'שיעור ללא שם',
+    description: description || 'אין תיאור לשיעור זה.',
+    level,
+    levelLabel: levelLabels[level],
+    targetFocus,
+    exercises,
+    totalDuration: exercises.reduce((acc, curr) => acc + curr.customDuration, 0),
+    createdAt: new Date().toISOString().split('T')[0],
+    isCustom: true
+  });
+
+  const autoBuildLesson = () => {
+    const acceptedLevels = level === 'mixed' ? ['beginner', 'intermediate'] : [level];
+    const preferredApparatus = builderApparatus === 'all' ? null : builderApparatus;
+    const blocks = [
+      ['warmup', Math.max(5, Math.round(autoBuildDuration * 0.16))],
+      ['mobility', Math.max(4, Math.round(autoBuildDuration * 0.14))],
+      ['core', Math.max(10, Math.round(autoBuildDuration * 0.24))],
+      ['glutes', Math.max(8, Math.round(autoBuildDuration * 0.2))],
+      ['balance', Math.max(6, Math.round(autoBuildDuration * 0.14))],
+      ['cooldown', Math.max(4, Math.round(autoBuildDuration * 0.12))]
+    ] as const;
+
+    const used = new Set<string>();
+    const generated: LessonExercise[] = [];
+
+    blocks.forEach(([category, targetMinutes]) => {
+      let remaining = targetMinutes;
+      const pool = INITIAL_EXERCISES.filter((exercise) => {
+        const matchesCategory = exercise.category === category;
+        const matchesLevel = level === 'mixed' || acceptedLevels.includes(exercise.difficulty);
+        const matchesApparatus = !preferredApparatus || exercise.apparatus === preferredApparatus;
+        return matchesCategory && matchesLevel && matchesApparatus && !used.has(exercise.id);
+      });
+
+      for (const exercise of pool) {
+        if (remaining <= 0) break;
+        used.add(exercise.id);
+        const customDuration = Math.min(Math.max(2, exercise.durationMinutes), remaining);
+        generated.push({
+          exercise,
+          customDuration,
+          notes: category === 'cooldown' ? 'לסיים עם נשימה, הארכה והורדת עומס' : ''
+        });
+        remaining -= customDuration;
+      }
+    });
+
+    if (generated.length) {
+      setExercises(generated);
+      if (!lessonName.trim()) setLessonName(`שיעור אוטומטי ${autoBuildDuration} דקות`);
+      if (!description.trim()) setDescription('שיעור שנבנה אוטומטית לפי זמן, רמה, מכשיר וזרימת שיעור מומלצת.');
+    }
+  };
+
+  const handlePrintLesson = () => {
+    if (exercises.length === 0) return;
+    openLessonPrint(buildCurrentLessonPayload());
+  };
+
+  const handleCopyWhatsapp = async () => {
+    if (exercises.length === 0) return;
+    const text = lessonToWhatsappText(buildCurrentLessonPayload());
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedWhatsapp(true);
+      setTimeout(() => setCopiedWhatsapp(false), 2500);
+    } catch {
+      window.prompt('העתיקי את התוכן ל-WhatsApp:', text);
+    }
+  };
+
   // Save full lesson
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,19 +197,9 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
     setErrors([]);
 
-    const totalDuration = exercises.reduce((acc, curr) => acc + curr.customDuration, 0);
-
     const savedLesson: Lesson = {
-      id: existingLessonToEdit?.id || `custom_lesson_${Date.now()}`,
+      ...buildCurrentLessonPayload(),
       name: lessonName,
-      description: description || 'אין תיאור לשיעור זה.',
-      level,
-      levelLabel: levelLabels[level],
-      targetFocus,
-      exercises,
-      totalDuration,
-      createdAt: new Date().toISOString().split('T')[0],
-      isCustom: true
     };
 
     onSaveLesson(savedLesson);
@@ -283,6 +356,36 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             </div>
           </div>
 
+          <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 space-y-4">
+            <div className="flex items-center gap-2 text-secondary">
+              <Wand2 className="w-4 h-4" />
+              <div className="text-xs font-bold uppercase tracking-[0.2em]">Auto Build</div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
+              <div>
+                <label className="block text-xs font-bold text-secondary uppercase mb-2">משך שיעור אוטומטי</label>
+                <input
+                  type="range"
+                  min={20}
+                  max={90}
+                  step={5}
+                  value={autoBuildDuration}
+                  onChange={(e) => setAutoBuildDuration(Number(e.target.value))}
+                  className="w-full"
+                />
+                <div className="text-xs text-on-surface-variant mt-2">{autoBuildDuration} דקות · לפי רמה, מכשיר וזרימת שיעור חכמה</div>
+              </div>
+              <button
+                type="button"
+                onClick={autoBuildLesson}
+                className="px-5 py-3 rounded-xl bg-secondary text-background font-bold hover:bg-white transition-colors inline-flex items-center justify-center gap-2"
+              >
+                <Wand2 className="w-4 h-4" />
+                בנה לי שיעור
+              </button>
+            </div>
+          </div>
+
           {/* Active Flow (Selected Exercises) */}
           <div className="bg-surface-container-high border border-white/5 p-6 rounded-lg">
             <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
@@ -420,7 +523,27 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
           </div>
 
           {/* Action buttons */}
-          <div className="flex justify-between items-center pt-4">
+          <div className="flex flex-wrap justify-between items-center gap-3 pt-4">
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handlePrintLesson}
+                disabled={exercises.length === 0}
+                className="px-4 py-3 rounded-xl border border-white/10 text-white hover:border-secondary/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all inline-flex items-center gap-2"
+              >
+                <Printer className="w-4 h-4" />
+                ייצוא PDF / הדפסה
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyWhatsapp}
+                disabled={exercises.length === 0}
+                className="px-4 py-3 rounded-xl border border-white/10 text-white hover:border-secondary/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all inline-flex items-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4" />
+                {copiedWhatsapp ? 'הועתק ל-WhatsApp' : 'WhatsApp-ready'}
+              </button>
+            </div>
             <button
               type="submit"
               className="px-8 py-4 bg-secondary text-background font-bold tracking-widest uppercase hover:bg-white transition-all flex items-center gap-2 shadow-2xl"
