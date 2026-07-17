@@ -81,7 +81,6 @@ export function getExerciseMedia(exercise: Exercise) {
 
   return {
     youtubeId,
-    embedUrl: `https://www.youtube.com/embed/${youtubeId}`,
     watchUrl: `https://www.youtube.com/watch?v=${youtubeId}`,
     thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
     searchUrl: `https://www.youtube.com/results?search_query=${searchQuery}`,

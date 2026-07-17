@@ -382,15 +382,29 @@ export default function ExerciseLibrary({
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="aspect-video bg-black border-b border-white/5">
-                <iframe
-                  src={getExerciseMedia(selectedExercise).embedUrl}
-                  title={selectedExercise.name}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
+              <div className="relative aspect-video bg-black border-b border-white/5 overflow-hidden">
+                <img
+                  src={getExerciseMedia(selectedExercise).coverUrl}
+                  alt={`${selectedExercise.name} cover`}
+                  className="absolute inset-0 w-full h-full object-cover opacity-70"
                 />
+                <img
+                  src={getExerciseMedia(selectedExercise).thumbnailUrl}
+                  alt={selectedExercise.name}
+                  className="relative w-full h-full object-cover mix-blend-screen"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <a
+                    href={getExerciseMedia(selectedExercise).watchUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-3 rounded-full bg-black/60 px-5 py-3 text-white border border-white/15 hover:border-secondary/50"
+                  >
+                    <PlayCircle className="w-5 h-5" />
+                    פתחי את הסרטון ביוטיוב
+                  </a>
+                </div>
               </div>
 
               <div className="p-6 md:p-8">
