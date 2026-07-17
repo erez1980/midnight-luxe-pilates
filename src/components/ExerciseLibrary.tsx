@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Search, Info, Dumbbell, Activity, Check, Plus, X, Sparkles } from 'lucide-react';
+import { Search, Info, Dumbbell, Activity, Check, Plus, X, Sparkles, PlayCircle, ExternalLink } from 'lucide-react';
 import { Exercise } from '../types';
 import { INITIAL_EXERCISES } from '../data';
+import { getExerciseMedia } from '../utils/exerciseMedia';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ExerciseLibraryProps {
@@ -231,9 +232,28 @@ export default function ExerciseLibrary({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
-                className="group border border-white/5 bg-surface-container hover:border-secondary/30 transition-all duration-300 p-6 flex flex-col justify-between relative"
+                className="group border border-white/5 bg-surface-container hover:border-secondary/30 transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
               >
-                <div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedExercise(exercise)}
+                  className="relative block w-full aspect-video overflow-hidden"
+                >
+                  <img
+                    src={getExerciseMedia(exercise).thumbnailUrl}
+                    alt={exercise.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="rounded-full bg-white/15 backdrop-blur-sm p-3 text-white border border-white/20">
+                      <PlayCircle className="w-8 h-8" />
+                    </div>
+                  </div>
+                </button>
+
+                <div className="p-6">
                   {/* Category & Badge */}
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex flex-wrap gap-2">
@@ -260,6 +280,15 @@ export default function ExerciseLibrary({
                     {exercise.name}
                   </h3>
                   <p className="text-xs text-on-surface-variant font-mono mb-4">{exercise.englishName}</p>
+                  <a
+                    href={getExerciseMedia(exercise).watchUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-secondary hover:text-white transition-colors mb-4"
+                  >
+                    <PlayCircle className="w-3.5 h-3.5" />
+                    סרטון הדגמה
+                  </a>
 
                   {/* Muscle Targets */}
                   <div className="flex flex-wrap gap-1.5 mb-6">
@@ -337,7 +366,7 @@ export default function ExerciseLibrary({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', duration: 0.4 }}
-              className="relative w-full max-w-2xl bg-surface border border-secondary/30 shadow-2xl p-6 md:p-8 overflow-y-auto max-h-[90vh]"
+              className="relative w-full max-w-4xl bg-surface border border-secondary/30 shadow-2xl overflow-y-auto max-h-[90vh]"
             >
               {/* Close button */}
               <button
@@ -347,32 +376,65 @@ export default function ExerciseLibrary({
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Tag & Level */}
-              <div className="flex gap-2 items-center mb-3">
-                <span className="text-xs uppercase tracking-wider text-secondary font-semibold bg-secondary/10 px-3 py-1">
-                  {selectedExercise.apparatusLabel}
-                </span>
-                <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
-                  {selectedExercise.difficultyLabel}
-                </span>
-                <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
-                  {selectedExercise.durationMinutes} דקות
-                </span>
-                {selectedExercise.categoryLabel && (
-                  <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
-                    {selectedExercise.categoryLabel}
-                  </span>
-                )}
+              <div className="aspect-video bg-black border-b border-white/5">
+                <iframe
+                  src={getExerciseMedia(selectedExercise).embedUrl}
+                  title={selectedExercise.name}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
               </div>
 
-              {/* Title */}
-              <h2 className="serif-text text-2xl md:text-4xl font-bold text-white mb-1">
-                {selectedExercise.name}
-              </h2>
-              <p className="text-sm font-mono text-secondary mb-6">{selectedExercise.englishName}</p>
+              <div className="p-6 md:p-8">
+                {/* Tag & Level */}
+                <div className="flex gap-2 items-center mb-3 flex-wrap">
+                  <span className="text-xs uppercase tracking-wider text-secondary font-semibold bg-secondary/10 px-3 py-1">
+                    {selectedExercise.apparatusLabel}
+                  </span>
+                  <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
+                    {selectedExercise.difficultyLabel}
+                  </span>
+                  <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
+                    {selectedExercise.durationMinutes} דקות
+                  </span>
+                  {selectedExercise.categoryLabel && (
+                    <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
+                      {selectedExercise.categoryLabel}
+                    </span>
+                  )}
+                </div>
 
-              {/* Main Info Columns */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* Title */}
+                <h2 className="serif-text text-2xl md:text-4xl font-bold text-white mb-1">
+                  {selectedExercise.name}
+                </h2>
+                <p className="text-sm font-mono text-secondary mb-6">{selectedExercise.englishName}</p>
+
+                <div className="flex flex-wrap gap-3 mb-8">
+                  <a
+                    href={getExerciseMedia(selectedExercise).watchUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-secondary px-4 py-2 text-sm font-bold text-background hover:bg-white transition-colors"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    פתחי ביוטיוב
+                  </a>
+                  <a
+                    href={getExerciseMedia(selectedExercise).searchUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm text-white hover:border-secondary/40 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    חיפוש וריאציות ביוטיוב
+                  </a>
+                </div>
+
+                {/* Main Info Columns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Targeted Muscles */}
                 <div className="bg-surface-container p-4 border border-white/5 rounded-sm">
                   <h4 className="text-xs font-bold tracking-wider text-secondary uppercase mb-2 flex items-center gap-1.5">
@@ -394,10 +456,10 @@ export default function ExerciseLibrary({
                     {selectedExercise.breathing}
                   </p>
                 </div>
-              </div>
+                </div>
 
-              {/* Instructions */}
-              <div className="mb-8">
+                {/* Instructions */}
+                <div className="mb-8">
                 <h3 className="serif-text text-xl font-bold text-white mb-4 flex items-center gap-2">
                   שלבי הביצוע (Instructions)
                 </h3>
@@ -411,44 +473,45 @@ export default function ExerciseLibrary({
                     </li>
                   ))}
                 </ol>
-              </div>
+                </div>
 
-              {/* Benefits */}
-              <div className="border-t border-white/10 pt-6">
+                {/* Benefits */}
+                <div className="border-t border-white/10 pt-6">
                 <h4 className="text-xs font-bold tracking-wider text-secondary uppercase mb-2">יתרונות מרכזיים</h4>
                 <p className="text-sm text-on-surface-variant leading-relaxed">
                   {selectedExercise.benefits}
                 </p>
-              </div>
-
-              {/* Custom Selector mode extra action */}
-              {isSelectorMode && onAddToLesson && (
-                <div className="mt-8 pt-6 border-t border-white/10 flex justify-end">
-                  <button
-                    onClick={() => {
-                      onAddToLesson(selectedExercise);
-                      setSelectedExercise(null);
-                    }}
-                    className={`px-6 py-3 font-bold transition-all flex items-center gap-2 ${
-                      addedExerciseIds.includes(selectedExercise.id)
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-secondary text-background hover:bg-white'
-                    }`}
-                  >
-                    {addedExerciseIds.includes(selectedExercise.id) ? (
-                      <>
-                        <Check className="w-4 h-4" />
-                        כבר נוסף לשיעור
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4" />
-                        הוסיפי לשיעור עכשיו
-                      </>
-                    )}
-                  </button>
                 </div>
-              )}
+
+                {/* Custom Selector mode extra action */}
+                {isSelectorMode && onAddToLesson && (
+                  <div className="mt-8 pt-6 border-t border-white/10 flex justify-end">
+                    <button
+                      onClick={() => {
+                        onAddToLesson(selectedExercise);
+                        setSelectedExercise(null);
+                      }}
+                      className={`px-6 py-3 font-bold transition-all flex items-center gap-2 ${
+                        addedExerciseIds.includes(selectedExercise.id)
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-secondary text-background hover:bg-white'
+                      }`}
+                    >
+                      {addedExerciseIds.includes(selectedExercise.id) ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          כבר נוסף לשיעור
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4" />
+                          הוסיפי לשיעור עכשיו
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </div>
         )}
