@@ -266,6 +266,10 @@ export default function App() {
           <div className="flex items-center gap-5">
             {authProfile ? (
               <div className="hidden sm:flex items-center gap-3">
+                <div className="text-right">
+                  <div className="text-sm text-white font-semibold leading-tight">{authProfile.name || authProfile.email || 'Pilates Instructor'}</div>
+                  {authProfile.email && <div className="text-[11px] text-on-surface-variant leading-tight">{authProfile.email}</div>}
+                </div>
                 <button
                   onClick={() => goToProtected('lessons')}
                   className="w-10 h-10 rounded-full border border-white/20 bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all overflow-hidden bg-surface-container"
@@ -585,13 +589,8 @@ export default function App() {
                 onDeleteLesson={handleDeleteLesson}
                 onCreateNewLesson={() => { setEditingLesson(null); goToProtected('builder'); }}
                 onSaveTemplate={handleSaveTemplate}
-                onExportBundle={handleExportBundle}
-                onImportBundle={handleImportBundle}
                 onCopyShareLink={handleCopyShareLink}
-                cloudEnabled={supabaseEnabled}
-                cloudStatus={cloudStatus}
-                onCloudLogin={handleCloudLogin}
-                onCloudSync={handleCloudSync}
+                onBackHome={() => setActiveScreen('home')}
               />
             ) : (
               <LockedWorkspace onGoogleLogin={handleGoogleLogin} />

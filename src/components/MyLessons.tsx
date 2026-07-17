@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, Copy, Download, Upload, Bookmark, Cloud, CloudOff, LogIn } from 'lucide-react';
+import React from 'react';
+import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, Copy, Bookmark } from 'lucide-react';
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
 
@@ -11,13 +11,8 @@ interface MyLessonsProps {
   onDeleteLesson: (id: string) => void;
   onCreateNewLesson: () => void;
   onSaveTemplate: (lesson: Lesson) => void;
-  onExportBundle: () => void;
-  onImportBundle: (file: File) => void;
   onCopyShareLink: (lesson: Lesson) => void;
-  cloudEnabled: boolean;
-  cloudStatus: string;
-  onCloudLogin: () => void;
-  onCloudSync: () => void;
+  onBackHome: () => void;
 }
 
 export default function MyLessons({
@@ -28,20 +23,17 @@ export default function MyLessons({
   onDeleteLesson,
   onCreateNewLesson,
   onSaveTemplate,
-  onExportBundle,
-  onImportBundle,
   onCopyShareLink,
-  cloudEnabled,
-  cloudStatus,
-  onCloudLogin,
-  onCloudSync
+  onBackHome
 }: MyLessonsProps) {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   return (
     <div className="w-full">
       {/* Intro Header */}
       <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
+          <button onClick={onBackHome} className="mb-4 text-sm text-secondary hover:text-white transition-colors">
+            ← חזרה לדף הבית
+          </button>
           <div className="inline-block mb-3 px-4 py-1 border-l border-r border-secondary/40">
             <span className="uppercase tracking-[0.2em] text-secondary text-xs font-semibold">MY SAVED PLAYLISTS</span>
           </div>
@@ -58,43 +50,6 @@ export default function MyLessons({
           <Plus className="w-4 h-4" />
           בני שיעור חדש
         </button>
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className={`px-3 py-2 rounded-xl border text-xs inline-flex items-center gap-2 ${cloudEnabled ? 'border-emerald-500/20 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-on-surface-variant bg-white/5'}`}>
-          {cloudEnabled ? <Cloud className="w-4 h-4" /> : <CloudOff className="w-4 h-4" />}
-          {cloudStatus}
-        </div>
-        <button onClick={onCloudLogin} className="px-4 py-2 rounded-xl border border-white/10 text-white hover:border-secondary/40 transition-all inline-flex items-center gap-2 text-sm">
-          <LogIn className="w-4 h-4" />
-          Cloud login
-        </button>
-        <button onClick={onCloudSync} className="px-4 py-2 rounded-xl border border-white/10 text-white hover:border-secondary/40 transition-all inline-flex items-center gap-2 text-sm">
-          <Cloud className="w-4 h-4" />
-          Sync now
-        </button>
-      </div>
-
-      <div className="mb-8 flex flex-wrap gap-3">
-        <button onClick={onExportBundle} className="px-4 py-2 rounded-xl border border-white/10 text-white hover:border-secondary/40 transition-all inline-flex items-center gap-2 text-sm">
-          <Download className="w-4 h-4" />
-          ייצוא גיבוי JSON
-        </button>
-        <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 rounded-xl border border-white/10 text-white hover:border-secondary/40 transition-all inline-flex items-center gap-2 text-sm">
-          <Upload className="w-4 h-4" />
-          ייבוא גיבוי
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/json"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) onImportBundle(file);
-            e.currentTarget.value = '';
-          }}
-        />
       </div>
 
       {templates.length > 0 && (

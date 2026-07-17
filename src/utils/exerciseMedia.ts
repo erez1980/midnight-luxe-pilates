@@ -1,5 +1,5 @@
 import { Exercise } from '../types';
-import { curatedVideoEmbeds } from './realExerciseMedia';
+import { curatedVideoEmbeds, categoryVideoEmbeds } from './realExerciseMedia';
 
 const manualKeys: Array<{ match: RegExp; key: keyof typeof curatedVideoEmbeds; label: string }> = [
   { match: /(hundred|המאות)/i, key: 'hundred' as keyof typeof curatedVideoEmbeds, label: 'The Hundred' },
@@ -35,11 +35,14 @@ export function getExerciseMedia(exercise: Exercise) {
   const curated = matched ? curatedVideoEmbeds[matched.key] : undefined;
   const coverUrl = exercise.imageUrl || (exercise.category && coverByCategory[exercise.category]) || coverByApparatus[exercise.apparatus];
 
+  // Choose inline embed: curated first, then category fallback
+  const categoryEmbed = exercise.category ? categoryVideoEmbeds[exercise.category] : undefined;
+  const inlineVideo = curated || categoryEmbed;
   return {
-    hasInlineVideo: Boolean(curated?.embedUrl),
-    embedUrl: curated?.embedUrl,
+    hasInlineVideo: Boolean(inlineVideo?.embedUrl),
+    embedUrl: inlineVideo?.embedUrl,
     thumbnailUrl: coverUrl,
     coverUrl,
-    mediaLabel: curated?.label || matched?.label || 'תמונת תרגיל והנחיות ביצוע'
+    mediaLabel: inlineVideo?.label || curated?.label || matched?.label || 'תמונת תרגיל והנחיות ביצוע'
   };
 }

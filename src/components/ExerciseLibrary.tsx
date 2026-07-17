@@ -379,14 +379,7 @@ export default function ExerciseLibrary({
 
               <div className="relative aspect-video bg-black border-b border-white/5 overflow-hidden">
                 {getExerciseMedia(selectedExercise).hasInlineVideo && getExerciseMedia(selectedExercise).embedUrl ? (
-                  <iframe
-                    src={getExerciseMedia(selectedExercise).embedUrl}
-                    title={selectedExercise.name}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                  />
+                  <div className="absolute inset-0 flex items-center justify-center text-white text-sm">וידאו מאומת יופיע כאן</div>
                 ) : (
                   <>
                     <img
