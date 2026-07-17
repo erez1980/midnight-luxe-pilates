@@ -1,0 +1,6 @@
+{
+  "name": "Midnight Luxe Pilates",
+  "description": "Boutique Pilates Instructor Workspace - exercise library, lesson planner, and dynamic coaching workflow.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
