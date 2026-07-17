@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Volume2, VolumeX, X, HelpCircle, Activity, Award } from 'lucide-react';
 import { Lesson, LessonExercise } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
+import Button from './ui/Button';
 
 interface CoachingSessionProps {
   lesson: Lesson;
@@ -142,12 +143,9 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
             </div>
           </div>
 
-          <button
-            onClick={onFinishSession}
-            className="w-full h-14 bg-secondary text-background hover:bg-white font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
-          >
+          <Button onClick={onFinishSession} variant="primary" size="lg" fullWidth>
             חזרה לרשימת השיעורים
-          </button>
+          </Button>
         </motion.div>
       </div>
     );
@@ -158,13 +156,14 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
       {/* Top Session Header */}
       <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <button
+          <Button
             onClick={onFinishSession}
-            className="text-on-surface-variant hover:text-white border border-white/10 hover:border-white/30 p-2 transition-colors rounded-sm"
+            variant="surface"
+            size="icon-sm"
             title="עזבי שיעור"
           >
             <X className="w-4 h-4" />
-          </button>
+          </Button>
           <div>
             <span className="text-[10px] font-bold text-secondary uppercase tracking-widest block">מצב אימון פעיל</span>
             <h3 className="serif-text font-bold text-white text-base leading-tight">{lesson.name}</h3>
@@ -172,13 +171,14 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
         </div>
 
         {/* Audio control */}
-        <button
+        <Button
           onClick={() => setIsSoundEnabled(!isSoundEnabled)}
-          className="text-on-surface-variant hover:text-white p-2 rounded-sm border border-white/10"
+          variant="surface"
+          size="icon-sm"
           title={isSoundEnabled ? "השתק צליל מעבר" : "אפשר צליל מעבר"}
         >
           {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-        </button>
+        </Button>
       </div>
 
       {/* Global Lesson Progress Bar */}
@@ -239,43 +239,46 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
 
           {/* Timer Controls */}
           <div className="flex items-center gap-6 mb-8">
-            <button
+            <Button
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className={`p-3 border border-white/10 hover:border-white/30 text-white rounded-sm transition-all bg-white/5 ${
-                currentIndex === 0 ? 'opacity-25 cursor-not-allowed' : 'hover:bg-white/10'
-              }`}
+              variant="surface"
+              size="icon"
               title="לתרגיל הקודם"
             >
               <ChevronRight className="w-5 h-5" />
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={handleTogglePlay}
-              className="w-16 h-16 rounded-full bg-secondary text-background hover:bg-white transition-all flex items-center justify-center shadow-lg group"
+              variant="primary"
+              className="w-16 h-16 rounded-full p-0 shadow-lg group"
+              aria-label={isPlaying ? 'השהה' : 'נגן'}
             >
               {isPlaying ? (
                 <Pause className="w-6 h-6 fill-background" />
               ) : (
                 <Play className="w-6 h-6 fill-background translate-x-[-1px]" />
               )}
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={handleReset}
-              className="p-3 border border-white/10 hover:border-white/30 text-white rounded-sm transition-all bg-white/5 hover:bg-white/10"
+              variant="surface"
+              size="icon"
               title="איפוס זמן תרגיל"
             >
               <RotateCcw className="w-5 h-5" />
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={handleNext}
-              className="p-3 border border-white/10 hover:border-white/30 text-white rounded-sm transition-all bg-white/5 hover:bg-white/10"
+              variant="surface"
+              size="icon"
               title="לתרגיל הבא"
             >
               <ChevronLeft className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
 
           {/* Progress numeric marker */}

@@ -273,9 +273,9 @@ export default function ExerciseLibrary({
                       )}
                     </div>
                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                      exercise.difficulty === 'beginner' ? 'bg-emerald-500/10 text-emerald-400' :
-                      exercise.difficulty === 'intermediate' ? 'bg-amber-500/10 text-amber-400' :
-                      'bg-rose-500/10 text-rose-400'
+                      exercise.difficulty === 'beginner' ? 'bg-emerald-500/20 text-emerald-300' :
+                      exercise.difficulty === 'intermediate' ? 'bg-amber-500/20 text-amber-300' :
+                      'bg-rose-500/20 text-rose-300'
                     }`}>
                       {exercise.difficultyLabel}
                     </span>
@@ -314,10 +314,10 @@ export default function ExerciseLibrary({
                   {isSelectorMode && onAddToLesson && (
                     <button
                       onClick={() => onAddToLesson(exercise)}
-                      className={`px-3 py-1.5 text-xs font-bold transition-all flex items-center gap-1 ${
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                         isAdded
                           ? 'bg-emerald-600 text-white'
-                          : 'bg-secondary text-background hover:bg-white'
+                          : 'bg-secondary text-background hover:bg-secondary-fixed'
                       }`}
                     >
                       {isAdded ? (
@@ -484,10 +484,10 @@ export default function ExerciseLibrary({
                         onAddToLesson(selectedExercise);
                         setSelectedExercise(null);
                       }}
-                      className={`px-6 py-3 font-bold transition-all flex items-center gap-2 ${
+                      className={`px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2 ${
                         addedExerciseIds.includes(selectedExercise.id)
                           ? 'bg-emerald-600 text-white'
-                          : 'bg-secondary text-background hover:bg-white'
+                          : 'bg-secondary text-background hover:bg-secondary-fixed'
                       }`}
                     >
                       {addedExerciseIds.includes(selectedExercise.id) ? (

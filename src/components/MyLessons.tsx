@@ -2,6 +2,7 @@ import React from 'react';
 import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, Copy, Bookmark } from 'lucide-react';
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
+import Button from './ui/Button';
 
 interface MyLessonsProps {
   lessons: Lesson[];
@@ -43,13 +44,10 @@ export default function MyLessons({
           </p>
         </div>
 
-        <button
-          onClick={onCreateNewLesson}
-          className="px-6 py-3.5 bg-secondary text-background hover:bg-white transition-all font-bold tracking-widest uppercase flex items-center gap-2 group whitespace-nowrap"
-        >
+        <Button onClick={onCreateNewLesson} variant="primary" size="md" className="group whitespace-nowrap">
           <Plus className="w-4 h-4" />
           בני שיעור חדש
-        </button>
+        </Button>
       </div>
 
       {templates.length > 0 && (
@@ -64,8 +62,8 @@ export default function MyLessons({
                 <div className="text-white font-bold mb-1">{lesson.name}</div>
                 <div className="text-xs text-on-surface-variant mb-4">{lesson.levelLabel} · {lesson.totalDuration} דק׳</div>
                 <div className="flex gap-2 flex-wrap">
-                  <button onClick={() => onEditLesson(lesson)} className="px-3 py-2 rounded-lg bg-secondary text-background text-xs font-bold">השתמשי כתבנית</button>
-                  <button onClick={() => onCopyShareLink(lesson)} className="px-3 py-2 rounded-lg border border-white/10 text-white text-xs inline-flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" />שיתוף</button>
+                  <Button onClick={() => onEditLesson(lesson)} variant="primary" size="sm">השתמשי כתבנית</Button>
+                  <Button onClick={() => onCopyShareLink(lesson)} variant="surface" size="sm"><Copy className="w-3.5 h-3.5" />שיתוף</Button>
                 </div>
               </div>
             ))}
@@ -81,12 +79,9 @@ export default function MyLessons({
           <p className="text-on-surface-variant mb-8 max-w-md text-sm leading-relaxed">
             עדיין לא שמרת אף מערך שיעור מותאם אישית. לחצי על הכפתור למטה כדי ליצור את הזרימה האישית שלך עכשיו.
           </p>
-          <button
-            onClick={onCreateNewLesson}
-            className="px-6 py-3 border border-secondary text-secondary hover:bg-secondary hover:text-background transition-all font-bold tracking-widest text-xs"
-          >
+          <Button onClick={onCreateNewLesson} variant="outline" size="md">
             בניית שיעור פילאטיס ראשון
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -146,46 +141,47 @@ export default function MyLessons({
               {/* Action Footer */}
               <div className="bg-background/40 p-6 border-t border-white/5 flex items-center justify-between mt-auto">
                 {/* Main Action: Play Lesson */}
-                <button
-                  onClick={() => onStartLesson(lesson)}
-                  className="px-4 py-2 bg-secondary text-background hover:bg-white transition-all font-bold text-xs tracking-widest uppercase flex items-center gap-1.5"
-                >
+                <Button onClick={() => onStartLesson(lesson)} variant="primary" size="sm">
                   <Play className="w-3.5 h-3.5 fill-background" />
                   התחילי שיעור
-                </button>
+                </Button>
 
                 {/* Edit & Delete Actions */}
                 <div className="flex items-center gap-2 flex-wrap justify-end">
                   {lesson.isCustom && (
                     <>
-                      <button
+                      <Button
                         onClick={() => onSaveTemplate(lesson)}
-                        className="p-2 text-on-surface-variant hover:text-white border border-white/5 hover:border-white/20 transition-all rounded-sm bg-white/5"
+                        variant="surface"
+                        size="icon-sm"
                         title="שמירה כתבנית"
                       >
                         <Bookmark className="w-3.5 h-3.5" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => onCopyShareLink(lesson)}
-                        className="p-2 text-on-surface-variant hover:text-white border border-white/5 hover:border-white/20 transition-all rounded-sm bg-white/5"
+                        variant="surface"
+                        size="icon-sm"
                         title="העתקת קישור שיתוף"
                       >
                         <Copy className="w-3.5 h-3.5" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => onEditLesson(lesson)}
-                        className="p-2 text-on-surface-variant hover:text-white border border-white/5 hover:border-white/20 transition-all rounded-sm bg-white/5"
+                        variant="surface"
+                        size="icon-sm"
                         title="עריכת שיעור"
                       >
                         <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => onDeleteLesson(lesson.id)}
-                        className="p-2 text-rose-500/70 hover:text-rose-400 border border-white/5 hover:border-rose-500/20 transition-all rounded-sm bg-white/5"
+                        variant="danger"
+                        size="icon-sm"
                         title="מחיקת שיעור"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      </Button>
                     </>
                   )}
                 </div>

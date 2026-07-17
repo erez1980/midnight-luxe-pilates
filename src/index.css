@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Manrope:wght@200..800&family=Be+Vietnam+Pro:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Manrope:wght@200..800&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -77,5 +77,29 @@ body {
 
 .serif-text {
   font-family: 'Playfair Display', serif;
+}
+
+/*
+  Radius scale — use these two tokens only.
+  Controls / buttons -> --radius-control (8px). Cards / panels -> --radius-card (16px).
+  Avoid mixing rounded-sm / xl / 2xl / 3xl on the same surface type.
+*/
+:root {
+  --radius-control: 0.5rem;
+  --radius-card: 1rem;
+}
+
+/*
+  Hebrew text should never carry wide letter-spacing — it hurts legibility.
+  Latin utility labels can still opt in via .latin-caps.
+*/
+[dir="rtl"] button:not(.latin-caps),
+[dir="rtl"] .no-latin-caps {
+  letter-spacing: normal;
+}
+
+.latin-caps {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 

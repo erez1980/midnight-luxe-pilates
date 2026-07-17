@@ -6,6 +6,7 @@ import { INITIAL_EXERCISES } from '../data';
 import { getExerciseMedia } from '../utils/exerciseMedia';
 import { lessonToWhatsappText, openLessonPrint } from '../utils/lessonExport';
 import { motion, AnimatePresence } from 'motion/react';
+import Button from './ui/Button';
 
 interface LessonBuilderProps {
   onSaveLesson: (lesson: Lesson) => void;
@@ -380,14 +381,10 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 />
                 <div className="text-xs text-on-surface-variant mt-2">{autoBuildDuration} דקות · לפי רמה, מכשיר וזרימת שיעור חכמה</div>
               </div>
-              <button
-                type="button"
-                onClick={autoBuildLesson}
-                className="px-5 py-3 rounded-xl bg-secondary text-background font-bold hover:bg-white transition-colors inline-flex items-center justify-center gap-2"
-              >
+              <Button type="button" onClick={autoBuildLesson} variant="primary" size="md">
                 <Wand2 className="w-4 h-4" />
                 בנה לי שיעור
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -522,21 +519,22 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                             <button
                               type="button"
                               onClick={() => handleUpdateDuration(el.exercise.id, 1)}
-                              className="h-9 w-9 rounded-lg bg-secondary text-background hover:bg-white transition-colors font-bold"
+                              className="h-9 w-9 rounded-lg bg-secondary text-background hover:bg-secondary-fixed transition-colors font-bold"
                             >
                               +
                             </button>
                           </div>
 
-                          <button
+                          <Button
                             type="button"
                             onClick={() => handleRemoveExercise(el.exercise.id)}
-                            className="inline-flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-300 hover:bg-rose-500/15 hover:text-rose-200 transition-colors"
+                            variant="danger"
+                            size="sm"
                             title="הסר תרגיל"
                           >
                             <Trash2 className="w-4 h-4" />
                             הסרה
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </motion.div>
@@ -549,32 +547,31 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
           {/* Action buttons */}
           <div className="flex flex-wrap justify-between items-center gap-3 pt-4">
             <div className="flex flex-wrap gap-3">
-              <button
+              <Button
                 type="button"
                 onClick={handlePrintLesson}
                 disabled={exercises.length === 0}
-                className="px-4 py-3 rounded-xl border border-white/10 text-white hover:border-secondary/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all inline-flex items-center gap-2"
+                variant="surface"
+                size="md"
               >
                 <Printer className="w-4 h-4" />
                 ייצוא PDF / הדפסה
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleCopyWhatsapp}
                 disabled={exercises.length === 0}
-                className="px-4 py-3 rounded-xl border border-white/10 text-white hover:border-secondary/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all inline-flex items-center gap-2"
+                variant="surface"
+                size="md"
               >
                 <MessageCircle className="w-4 h-4" />
                 {copiedWhatsapp ? 'הועתק ל-WhatsApp' : 'WhatsApp-ready'}
-              </button>
+              </Button>
             </div>
-            <button
-              type="submit"
-              className="px-8 py-4 bg-secondary text-background font-bold tracking-widest uppercase hover:bg-white transition-all flex items-center gap-2 shadow-2xl"
-            >
+            <Button type="submit" variant="primary" size="lg" className="shadow-2xl">
               <Save className="w-5 h-5" />
               שמרי מערך שיעור זה
-            </button>
+            </Button>
           </div>
 
         </div>

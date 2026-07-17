@@ -30,6 +30,7 @@ import { pullCloudLessons, pushCloudLessons, signInAnonymously, supabaseSqlGuide
 import { supabaseEnabled } from './lib/supabase';
 import { AuthProfile, getAuthProfile, listenToAuthChanges, signInWithGoogle, signOut } from './utils/auth';
 import { motion, AnimatePresence } from 'motion/react';
+import Button from './components/ui/Button';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session'>('home');
@@ -286,13 +287,16 @@ export default function App() {
                 </button>
               </div>
             ) : (
-              <button
+              <Button
                 onClick={handleGoogleLogin}
-                className="hidden sm:flex px-5 py-2 border border-secondary text-secondary hover:bg-secondary hover:text-background transition-all text-sm font-bold tracking-widest uppercase cursor-pointer items-center gap-2"
+                variant="outline"
+                size="sm"
+                latin
+                className="hidden sm:inline-flex"
               >
                 <LogIn className="w-4 h-4" />
                 Google Login
-              </button>
+              </Button>
             )}
 
             {/* Mobile burger toggle */}
@@ -326,7 +330,7 @@ export default function App() {
               onClick={() => { setEditingLesson(null); setIsMobileMenuOpen(false); goToProtected('builder'); }}
               className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'builder' ? 'text-secondary' : 'text-white'}`}
             >
-              בנייית שיעור
+              בניית שיעור
             </button>
             <button
               onClick={() => { setEditingLesson(null); setIsMobileMenuOpen(false); goToProtected('lessons'); }}
@@ -390,20 +394,26 @@ export default function App() {
                   מאגר תרגילים עם וידאו הדגמה, ובנייה של שיעור מלא - בלי טופס אקסל, בלי בלגן.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <button 
-                    onClick={() => setActiveScreen('builder')}
-                    className="min-w-[200px] h-14 bg-secondary text-background hover:bg-white transition-all font-bold tracking-widest uppercase flex items-center justify-center gap-2 group cursor-pointer shadow-lg"
-                  >
-                    התחילי עכשיו
-                    <ChevronLeft className="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" />
-                  </button>
-                  <button 
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  {/* Primary CTA leads to the OPEN library so guests experience value before any wall */}
+                  <Button
+                    size="lg"
+                    variant="primary"
                     onClick={() => setActiveScreen('library')}
-                    className="min-w-[200px] h-14 border border-white/30 text-white hover:bg-white/10 transition-all font-bold tracking-widest uppercase cursor-pointer"
+                    className="min-w-[220px] group"
                   >
-                    לצפייה במאגר
-                  </button>
+                    גלי את המאגר
+                    <ChevronLeft className="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" />
+                  </Button>
+                  {/* Secondary goes through the auth-aware path (friendly notice, not a dead end) */}
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => goToProtected('builder')}
+                    className="min-w-[220px] border-white/30 text-white hover:bg-white/10 hover:border-white/40"
+                  >
+                    בניית שיעור
+                  </Button>
                 </div>
               </div>
 
@@ -467,7 +477,7 @@ export default function App() {
                       <Sliders className="w-7 h-7" />
                     </div>
                     
-                    <h3 className="serif-text text-2xl font-bold text-white mb-4">בנייית שיעור</h3>
+                    <h3 className="serif-text text-2xl font-bold text-white mb-4">בניית שיעור</h3>
                     <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
                       תכנון שיעור זורם ומקצועי בדקות ספורות בעזרת ממשק Drag &amp; Drop חכם ואינטואיטיבי.
                     </p>
@@ -543,12 +553,13 @@ export default function App() {
                   
                   <div className="w-[1px] h-12 bg-white/10 hidden md:block" />
                   
-                  <button 
-                    onClick={() => setActiveScreen('builder')}
-                    className="px-12 h-16 bg-secondary text-background font-black tracking-widest uppercase hover:bg-white transition-all shadow-2xl cursor-pointer"
+                  <Button
+                    size="lg"
+                    variant="primary"
+                    onClick={() => setActiveScreen('library')}
                   >
-                    ניסיון חינם
-                  </button>
+                    התחילי בחינם
+                  </Button>
                 </div>
               </div>
             </section>
@@ -659,13 +670,10 @@ function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
         <p className="text-on-surface-variant leading-relaxed mb-8">
           מאגר התרגילים פתוח לצפייה. בניית תוכנית שיעור, שמירה, templates וסנכרון זמינים רק אחרי התחברות עם חשבון Google.
         </p>
-        <button
-          onClick={onGoogleLogin}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3 font-bold text-background hover:bg-white transition-colors"
-        >
+        <Button onClick={onGoogleLogin} size="md" variant="primary">
           <LogIn className="w-5 h-5" />
           התחברות עם Google
-        </button>
+        </Button>
         {!supabaseEnabled && (
           <p className="mt-4 text-xs text-on-surface-variant">
             מצב פיתוח: Supabase/Google OAuth עדיין לא מוגדר, לכן האתר נשאר מוגבל לאורחים.
