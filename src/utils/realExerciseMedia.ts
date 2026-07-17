@@ -1,0 +1,22 @@
+export const curatedYoutubeLinks: Record<string, { watchUrl: string; label: string }> = {
+  hundred: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+hundred+exercise', label: 'The Hundred' },
+  roll_up: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+roll+up+exercise', label: 'Roll Up' },
+  roll_over: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+roll+over+exercise', label: 'Roll Over' },
+  single_leg_stretch: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+single+leg+stretch', label: 'Single Leg Stretch' },
+  double_leg_stretch: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+double+leg+stretch', label: 'Double Leg Stretch' },
+  spine_stretch: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+spine+stretch+forward', label: 'Spine Stretch Forward' },
+  teaser: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+teaser+exercise', label: 'Teaser' },
+  swan: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+swan+exercise', label: 'Swan' },
+  plank: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+plank+exercise', label: 'Plank' },
+  bridge: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+bridge+exercise', label: 'Bridge' },
+  side_kick: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+side+kick+series', label: 'Side Kick Series' },
+  mermaid: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+mermaid+exercise', label: 'Mermaid' },
+  elephant: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+reformer+elephant', label: 'Elephant' },
+  footwork: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+reformer+footwork', label: 'Reformer Footwork' },
+  long_stretch: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+long+stretch+reformer', label: 'Long Stretch' },
+  short_box: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+short+box+series', label: 'Short Box Series' },
+  rowing: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+rowing+reformer', label: 'Rowing' },
+  pulling_straps: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+pulling+straps', label: 'Pulling Straps' },
+  leg_circles: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+leg+circles', label: 'Leg Circles' },
+  cat_stretch: { watchUrl: 'https://www.youtube.com/results?search_query=pilates+cat+stretch', label: 'Cat Stretch' }
+};

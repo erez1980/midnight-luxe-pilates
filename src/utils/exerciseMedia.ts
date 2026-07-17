@@ -1,4 +1,5 @@
 import { Exercise } from '../types';
+import { curatedYoutubeLinks } from './realExerciseMedia';
 
 const apparatusQueries: Record<string, string> = {
   mat: 'pilates mat exercise',
@@ -19,35 +20,35 @@ const categoryQueries: Record<string, string> = {
   'full-body': 'full body'
 };
 
-const manualExerciseMedia: Array<{ match: RegExp; id: string; label: string }> = [
-  { match: /(hundred|המאות)/i, id: 'tE6wQGJd7uI', label: 'The Hundred' },
-  { match: /(roll up|גלגול מעלה)/i, id: 'cM-6Yz1j2Yg', label: 'Roll Up' },
-  { match: /(roll over|rollover)/i, id: 'L7J6Y9A0mMM', label: 'Roll Over' },
-  { match: /(single leg stretch|רגל אחת)/i, id: '9xS8fD0gUJ4', label: 'Single Leg Stretch' },
-  { match: /(double leg stretch|שתי רגליים)/i, id: 'T2xM6C4p8K0', label: 'Double Leg Stretch' },
-  { match: /(spine stretch|מתיחת עמוד שדרה)/i, id: 'g_tea8ZNk5A', label: 'Spine Stretch' },
-  { match: /(swan|ברבור)/i, id: 'iJ0l7Xc9wKs', label: 'Swan' },
-  { match: /(teaser|טיזר)/i, id: 'R6DQaQv7sWU', label: 'Teaser' },
-  { match: /(plank|פלאנק)/i, id: 'ASdvN_XEl_c', label: 'Plank' },
-  { match: /(bridge|גשר)/i, id: 'N3YVZcW9m1E', label: 'Bridge' },
-  { match: /(side kick|בעיטות צד)/i, id: 'I9S3Qk8mP4Y', label: 'Side Kick' },
-  { match: /(mermaid|מרמייד)/i, id: '7w2mH8m9YgQ', label: 'Mermaid' },
-  { match: /(elephant|הפיל)/i, id: 'kL-2uW5XkY8', label: 'Elephant' },
-  { match: /(footwork|עבודת רגליים)/i, id: 'pA8m9QK4Q2I', label: 'Footwork' },
-  { match: /(long stretch|מתיחה ארוכה)/i, id: 'TZ0Z4x0sK7g', label: 'Long Stretch' },
-  { match: /(short box|קופסה קצרה)/i, id: 'P8W9Rk3fT1Y', label: 'Short Box' },
-  { match: /(rowing|חתירה)/i, id: '8m4f7gL2sQ0', label: 'Rowing' },
-  { match: /(pulling straps|רצועות)/i, id: 'S6o9F2kLm2I', label: 'Pulling Straps' },
-  { match: /(leg circles|מעגלי רגליים)/i, id: 'Y4s2K0mL9qA', label: 'Leg Circles' },
-  { match: /(cat stretch|חתול)/i, id: 'R2n6M8xQw5E', label: 'Cat Stretch' }
+const manualExerciseMedia: Array<{ match: RegExp; key: keyof typeof curatedYoutubeLinks }> = [
+  { match: /(hundred|המאות)/i, key: 'hundred' },
+  { match: /(roll up|גלגול מעלה)/i, key: 'roll_up' },
+  { match: /(roll over|rollover)/i, key: 'roll_over' },
+  { match: /(single leg stretch|רגל אחת)/i, key: 'single_leg_stretch' },
+  { match: /(double leg stretch|שתי רגליים)/i, key: 'double_leg_stretch' },
+  { match: /(spine stretch|מתיחת עמוד שדרה)/i, key: 'spine_stretch' },
+  { match: /(swan|ברבור)/i, key: 'swan' },
+  { match: /(teaser|טיזר)/i, key: 'teaser' },
+  { match: /(plank|פלאנק)/i, key: 'plank' },
+  { match: /(bridge|גשר)/i, key: 'bridge' },
+  { match: /(side kick|בעיטות צד)/i, key: 'side_kick' },
+  { match: /(mermaid|מרמייד)/i, key: 'mermaid' },
+  { match: /(elephant|הפיל)/i, key: 'elephant' },
+  { match: /(footwork|עבודת רגליים)/i, key: 'footwork' },
+  { match: /(long stretch|מתיחה ארוכה)/i, key: 'long_stretch' },
+  { match: /(short box|קופסה קצרה)/i, key: 'short_box' },
+  { match: /(rowing|חתירה)/i, key: 'rowing' },
+  { match: /(pulling straps|רצועות)/i, key: 'pulling_straps' },
+  { match: /(leg circles|מעגלי רגליים)/i, key: 'leg_circles' },
+  { match: /(cat stretch|חתול)/i, key: 'cat_stretch' }
 ];
 
 const fallbackByApparatus: Record<string, string> = {
-  mat: 'lCg_gh_fppI',
-  reformer: '9on9d4FK580',
-  cadillac: 'vHrmiyyxRkA',
-  chair: '6h1nNa1Vf8Y',
-  props: 'EzdT2xagKxA'
+  mat: 'https://www.youtube.com/results?search_query=pilates+mat+exercise',
+  reformer: 'https://www.youtube.com/results?search_query=pilates+reformer+exercise',
+  cadillac: 'https://www.youtube.com/results?search_query=pilates+cadillac+exercise',
+  chair: 'https://www.youtube.com/results?search_query=pilates+wunda+chair+exercise',
+  props: 'https://www.youtube.com/results?search_query=pilates+props+exercise'
 };
 
 const coverByCategory: Record<string, string> = {
@@ -71,7 +72,7 @@ const coverByApparatus: Record<string, string> = {
 
 export function getExerciseMedia(exercise: Exercise) {
   const matched = manualExerciseMedia.find((item) => item.match.test(exercise.name) || item.match.test(exercise.englishName));
-  const youtubeId = matched?.id || fallbackByApparatus[exercise.apparatus] || 'lCg_gh_fppI';
+  const curated = matched ? curatedYoutubeLinks[matched.key] : null;
 
   const searchQuery = encodeURIComponent([
     exercise.englishName,
@@ -80,11 +81,10 @@ export function getExerciseMedia(exercise: Exercise) {
   ].filter(Boolean).join(' '));
 
   return {
-    youtubeId,
-    watchUrl: `https://www.youtube.com/watch?v=${youtubeId}`,
-    thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+    watchUrl: curated?.watchUrl || fallbackByApparatus[exercise.apparatus],
+    thumbnailUrl: exercise.imageUrl || ((exercise.category && coverByCategory[exercise.category]) || coverByApparatus[exercise.apparatus]),
     searchUrl: `https://www.youtube.com/results?search_query=${searchQuery}`,
     coverUrl: (exercise.category && coverByCategory[exercise.category]) || coverByApparatus[exercise.apparatus],
-    mediaLabel: matched?.label || `${exercise.apparatusLabel} demo`
+    mediaLabel: curated?.label || `${exercise.apparatusLabel} demo`
   };
 }

@@ -37,6 +37,7 @@ export default function App() {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [templates, setTemplates] = useState<Lesson[]>([]);
   const [cloudStatus, setCloudStatus] = useState(supabaseEnabled ? 'Cloud available' : 'Cloud not configured');
+  const [uiNotice, setUiNotice] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Load lessons from localStorage on mount, fall back to initial ones
@@ -86,26 +87,26 @@ export default function App() {
         setTemplates(imported.templates);
         writeTemplates(imported.templates);
       }
-      alert('הגיבוי יובא בהצלחה.');
+      setUiNotice('הגיבוי יובא בהצלחה.');
     } catch {
-      alert('קובץ הגיבוי לא תקין.');
+      setUiNotice('קובץ הגיבוי לא תקין.');
     }
   };
 
   const handleCloudLogin = async () => {
     const result = await signInAnonymously();
     if (!result.ok) {
-      alert(result.reason === 'disabled' ? 'Supabase עדיין לא מוגדר. צריך להכניס URL + anon key ב-env.' : `Cloud login failed: ${result.reason}`);
+      setUiNotice(result.reason === 'disabled' ? 'Supabase עדיין לא מוגדר. צריך להכניס URL + anon key ב-env.' : `Cloud login failed: ${result.reason}`);
       return;
     }
     setCloudStatus('Cloud connected');
-    alert('Cloud login בוצע.');
+    setUiNotice('Cloud login בוצע.');
   };
 
   const handleCloudSync = async () => {
     const push = await pushCloudLessons(lessons, templates);
     if (!push.ok) {
-      alert(push.reason === 'disabled' ? `Cloud לא מוגדר עדיין.\n\nSupabase SQL:\n${supabaseSqlGuide}` : `Sync failed: ${push.reason}`);
+      setUiNotice(push.reason === 'disabled' ? `Cloud לא מוגדר עדיין. ראה קובץ SUPABASE_SETUP.md בפרויקט.` : `Sync failed: ${push.reason}`);
       return;
     }
     const pulled = await pullCloudLessons();
@@ -115,16 +116,16 @@ export default function App() {
       writeTemplates(pulled.templates);
     }
     setCloudStatus('Cloud synced');
-    alert('Cloud sync הושלם.');
+    setUiNotice('Cloud sync הושלם.');
   };
 
   const handleCopyShareLink = async (lesson: Lesson) => {
     const url = buildShareUrl(lesson);
     try {
       await navigator.clipboard.writeText(url);
-      alert('קישור השיתוף הועתק.');
+      setUiNotice('קישור השיתוף הועתק.');
     } catch {
-      window.prompt('העתק את הקישור:', url);
+      setUiNotice(`העתקת הקישור נכשלה. אפשר להעתיק ידנית משורת הכתובת אחרי פתיחת השיעור.`);
     }
   };
 
@@ -218,7 +219,7 @@ export default function App() {
           {/* User & Action area */}
           <div className="flex items-center gap-5">
             <button
-              onClick={() => alert('ממשק חיבור מחובר ומאובטח בהצלחה למדריכות פילאטיס.')}
+              onClick={() => setActiveScreen('lessons')}
               className="hidden sm:block px-6 py-2 border border-secondary text-secondary hover:bg-secondary hover:text-background transition-all text-sm font-bold tracking-widest uppercase cursor-pointer"
             >
               התחברות
@@ -228,7 +229,7 @@ export default function App() {
             <div 
               className="w-10 h-10 rounded-full border border-white/20 bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all"
               style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC9lUNx88cxMF1EAlQTAOtU6DQy5ks89h_QHNimKwk9fbKU0VYNY4z6vRsV12GAh_pMvbCGop-thsLnY7MLPToaG9_gXglIElkK9wW4aTLozxyO_N6-U5R7v54kRPcSqIAUjET7Pab1LMVbBVEGW5cwk7Z_YAPu_tlOLmE8yHGGa01h8uj4DgXmeo3FFlrhDMN2ZbBpcbjKVW33nFwAdP6-UMCu7vsuFOtTQiqUolP4ETzIWya9E3mhVM8YGJ68mEHoLw716rldKsM')" }}
-              onClick={() => alert('שלום מדריכת Midnight Luxe! את מחוברת למרחב הניהול שלך.')}
+              onClick={() => setActiveScreen('lessons')}
             />
 
             {/* Mobile burger toggle */}
@@ -271,7 +272,7 @@ export default function App() {
               השיעורים שלי
             </button>
             <button
-              onClick={() => { setIsMobileMenuOpen(false); alert('ממשק התחברות מדריכות מובנה.'); }}
+              onClick={() => { setIsMobileMenuOpen(false); setActiveScreen('lessons'); }}
               className="mt-2 w-full text-center py-3 border border-secondary text-secondary font-bold text-sm tracking-widest uppercase"
             >
               התחברות
@@ -282,6 +283,14 @@ export default function App() {
 
       {/* MAIN SCREEN ROUTING */}
       <main className="flex-grow pt-28 pb-16">
+        {uiNotice && (
+          <div className="max-w-[1280px] mx-auto px-6 md:px-20 mb-4">
+            <div className="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3 text-sm text-white flex items-center justify-between gap-3">
+              <span>{uiNotice}</span>
+              <button onClick={() => setUiNotice('')} className="text-secondary hover:text-white">סגירה</button>
+            </div>
+          </div>
+        )}
         
         {/* Screen: HOME / Landing page (Identical mock replica with interactive triggers) */}
         {activeScreen === 'home' && (
@@ -555,15 +564,15 @@ export default function App() {
           
           {/* Social icons */}
           <div className="flex gap-6">
-            <button onClick={() => alert('שיתוף לקהילת מדריכות פילאטיס.')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+            <button onClick={() => setActiveScreen('lessons')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               <Share2 className="w-5 h-5" />
             </button>
-            <button onClick={() => alert('שילוב משפחתי למיתוג יוקרתי.')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+            <button onClick={() => setActiveScreen('home')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               <Award className="w-5 h-5" />
             </button>
-            <button onClick={() => alert('צור קשר ישיר עם התמיכה: support@midnightluxe.com')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+            <a href="mailto:support@midnightluxe.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               <Mail className="w-5 h-5" />
-            </button>
+            </a>
           </div>
 
         </div>

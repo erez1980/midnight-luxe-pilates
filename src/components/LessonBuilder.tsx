@@ -175,7 +175,11 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
       setCopiedWhatsapp(true);
       setTimeout(() => setCopiedWhatsapp(false), 2500);
     } catch {
-      window.prompt('העתיקי את התוכן ל-WhatsApp:', text);
+      const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=700,height=900');
+      if (printWindow) {
+        printWindow.document.write(`<!doctype html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>WhatsApp Copy</title><style>body{font-family:Arial,sans-serif;padding:24px;background:#111;color:#fff;white-space:pre-wrap;line-height:1.6}textarea{width:100%;height:70vh;background:#1a1a1a;color:#fff;border:1px solid #444;padding:16px;font:14px/1.6 Arial}</style></head><body><h2>העתקה ל-WhatsApp</h2><p>אם ההעתקה האוטומטית נכשלה, העתיקי מכאן:</p><textarea>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea></body></html>`);
+        printWindow.document.close();
+      }
     }
   };
 
