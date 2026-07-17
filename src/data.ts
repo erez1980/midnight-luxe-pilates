@@ -10,6 +10,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['שרירי בטן עמוקים', 'סרעפת', 'יציבה'],
     durationMinutes: 5,
     instructions: [
@@ -30,6 +32,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['בטן ישרה', 'גמישות עמוד שדרה', 'מכופפי ירך'],
     durationMinutes: 6,
     instructions: [
@@ -50,6 +54,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['שיווי משקל', 'שרירי בטן אלכסוניים', 'גב עליון'],
     durationMinutes: 7,
     instructions: [
@@ -72,6 +78,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ארבע ראשי', 'ירכיים אחוריות', 'שרירי שוקיים', 'מנח אגן'],
     durationMinutes: 8,
     instructions: [
@@ -92,6 +100,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ליבה', 'כתפיים', 'זרועות', 'יציבות שכמות'],
     durationMinutes: 5,
     instructions: [
@@ -111,6 +121,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ירך אחורית', 'שרירי בטן עמוקים', 'הארכת עמוד שדרה'],
     durationMinutes: 6,
     instructions: [
@@ -133,6 +145,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['עמוד שדרה מותני', 'בטן', 'חגורת כתפיים'],
     durationMinutes: 6,
     instructions: [
@@ -153,6 +167,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['הארכת עמוד שדרה', 'הקלה על גב תחתון', 'ירך אחורית'],
     durationMinutes: 8,
     instructions: [
@@ -175,6 +191,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['זוקפי גב', 'ישבן', 'כתפיים וחזה'],
     durationMinutes: 6,
     instructions: [
@@ -195,6 +213,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['חזה', 'תלת-ראשי (Triceps)', 'ייצוב ליבה'],
     durationMinutes: 7,
     instructions: [
@@ -216,6 +236,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['מקרבי ירך', 'רצפת אגן', 'בטן תחתונה'],
     durationMinutes: 5,
     instructions: [
@@ -236,6 +258,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ישבן', 'ירך אחורית', 'זוקפי גב'],
     durationMinutes: 6,
     instructions: [
@@ -257,6 +281,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 4,
     instructions: [
@@ -277,6 +303,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 5,
     instructions: [
@@ -297,6 +325,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 6,
     instructions: [
@@ -317,6 +347,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 7,
     instructions: [
@@ -337,6 +369,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 8,
     instructions: [
@@ -357,6 +391,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 4,
     instructions: [
@@ -377,6 +413,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 5,
     instructions: [
@@ -397,6 +435,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 6,
     instructions: [
@@ -417,6 +457,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 7,
     instructions: [
@@ -437,6 +479,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 8,
     instructions: [
@@ -457,6 +501,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 4,
     instructions: [
@@ -477,6 +523,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 5,
     instructions: [
@@ -497,6 +545,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 6,
     instructions: [
@@ -517,6 +567,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 7,
     instructions: [
@@ -537,6 +589,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 8,
     instructions: [
@@ -557,6 +611,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 4,
     instructions: [
@@ -577,6 +633,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 5,
     instructions: [
@@ -597,6 +655,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 6,
     instructions: [
@@ -617,6 +677,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 7,
     instructions: [
@@ -637,6 +699,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 8,
     instructions: [
@@ -657,6 +721,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 4,
     instructions: [
@@ -677,6 +743,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 5,
     instructions: [
@@ -697,6 +765,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 6,
     instructions: [
@@ -717,6 +787,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 7,
     instructions: [
@@ -737,6 +809,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 8,
     instructions: [
@@ -757,6 +831,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 4,
     instructions: [
@@ -777,6 +853,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 5,
     instructions: [
@@ -797,6 +875,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 6,
     instructions: [
@@ -817,6 +897,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 7,
     instructions: [
@@ -837,6 +919,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 8,
     instructions: [
@@ -857,6 +941,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 4,
     instructions: [
@@ -877,6 +963,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 5,
     instructions: [
@@ -897,6 +985,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 6,
     instructions: [
@@ -917,6 +1007,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 7,
     instructions: [
@@ -937,6 +1029,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 8,
     instructions: [
@@ -957,6 +1051,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 4,
     instructions: [
@@ -977,6 +1073,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 5,
     instructions: [
@@ -997,6 +1095,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 6,
     instructions: [
@@ -1017,6 +1117,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 7,
     instructions: [
@@ -1037,6 +1139,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 8,
     instructions: [
@@ -1057,6 +1161,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 4,
     instructions: [
@@ -1077,6 +1183,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 5,
     instructions: [
@@ -1097,6 +1205,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 6,
     instructions: [
@@ -1117,6 +1227,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 7,
     instructions: [
@@ -1137,6 +1249,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 8,
     instructions: [
@@ -1157,6 +1271,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 4,
     instructions: [
@@ -1177,6 +1293,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 5,
     instructions: [
@@ -1197,6 +1315,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 6,
     instructions: [
@@ -1217,6 +1337,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 7,
     instructions: [
@@ -1237,6 +1359,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 8,
     instructions: [
@@ -1257,6 +1381,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 4,
     instructions: [
@@ -1277,6 +1403,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 5,
     instructions: [
@@ -1297,6 +1425,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 6,
     instructions: [
@@ -1317,6 +1447,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 7,
     instructions: [
@@ -1337,6 +1469,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 8,
     instructions: [
@@ -1357,6 +1491,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 4,
     instructions: [
@@ -1377,6 +1513,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 5,
     instructions: [
@@ -1397,6 +1535,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 6,
     instructions: [
@@ -1417,6 +1557,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 7,
     instructions: [
@@ -1437,6 +1579,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 8,
     instructions: [
@@ -1457,6 +1601,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 4,
     instructions: [
@@ -1477,6 +1623,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 5,
     instructions: [
@@ -1497,6 +1645,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 6,
     instructions: [
@@ -1517,6 +1667,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 7,
     instructions: [
@@ -1537,6 +1689,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 8,
     instructions: [
@@ -1557,6 +1711,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 4,
     instructions: [
@@ -1577,6 +1733,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 5,
     instructions: [
@@ -1597,6 +1755,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 6,
     instructions: [
@@ -1617,6 +1777,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 7,
     instructions: [
@@ -1637,6 +1799,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 8,
     instructions: [
@@ -1657,6 +1821,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 4,
     instructions: [
@@ -1677,6 +1843,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 5,
     instructions: [
@@ -1697,6 +1865,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 6,
     instructions: [
@@ -1717,6 +1887,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 7,
     instructions: [
@@ -1737,6 +1909,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 8,
     instructions: [
@@ -1757,6 +1931,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 4,
     instructions: [
@@ -1777,6 +1953,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 5,
     instructions: [
@@ -1797,6 +1975,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 6,
     instructions: [
@@ -1817,6 +1997,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 7,
     instructions: [
@@ -1837,6 +2019,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 8,
     instructions: [
@@ -1857,6 +2041,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 4,
     instructions: [
@@ -1877,6 +2063,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 5,
     instructions: [
@@ -1897,6 +2085,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 6,
     instructions: [
@@ -1917,6 +2107,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 7,
     instructions: [
@@ -1937,6 +2129,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 8,
     instructions: [
@@ -1957,6 +2151,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 4,
     instructions: [
@@ -1977,6 +2173,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 5,
     instructions: [
@@ -1997,6 +2195,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 6,
     instructions: [
@@ -2017,6 +2217,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 7,
     instructions: [
@@ -2037,6 +2239,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 8,
     instructions: [
@@ -2057,6 +2261,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 4,
     instructions: [
@@ -2077,6 +2283,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 5,
     instructions: [
@@ -2097,6 +2305,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 6,
     instructions: [
@@ -2117,6 +2327,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 7,
     instructions: [
@@ -2137,6 +2349,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 8,
     instructions: [
@@ -2157,6 +2371,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 4,
     instructions: [
@@ -2177,6 +2393,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 5,
     instructions: [
@@ -2197,6 +2415,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 6,
     instructions: [
@@ -2217,6 +2437,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 7,
     instructions: [
@@ -2237,6 +2459,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 8,
     instructions: [
@@ -2257,6 +2481,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 4,
     instructions: [
@@ -2277,6 +2503,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 5,
     instructions: [
@@ -2297,6 +2525,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 6,
     instructions: [
@@ -2317,6 +2547,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 7,
     instructions: [
@@ -2337,6 +2569,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 8,
     instructions: [
@@ -2357,6 +2591,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 4,
     instructions: [
@@ -2377,6 +2613,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 5,
     instructions: [
@@ -2397,6 +2635,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 6,
     instructions: [
@@ -2417,6 +2657,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 7,
     instructions: [
@@ -2437,6 +2679,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 8,
     instructions: [
@@ -2457,6 +2701,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 4,
     instructions: [
@@ -2477,6 +2723,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 5,
     instructions: [
@@ -2497,6 +2745,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 6,
     instructions: [
@@ -2517,6 +2767,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 7,
     instructions: [
@@ -2537,6 +2789,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 8,
     instructions: [
@@ -2557,6 +2811,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 4,
     instructions: [
@@ -2577,6 +2833,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 5,
     instructions: [
@@ -2597,6 +2855,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 6,
     instructions: [
@@ -2617,6 +2877,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 7,
     instructions: [
@@ -2637,6 +2899,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 8,
     instructions: [
@@ -2657,6 +2921,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 4,
     instructions: [
@@ -2677,6 +2943,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 5,
     instructions: [
@@ -2697,6 +2965,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 6,
     instructions: [
@@ -2717,6 +2987,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 7,
     instructions: [
@@ -2737,6 +3009,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 8,
     instructions: [
@@ -2757,6 +3031,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 4,
     instructions: [
@@ -2777,6 +3053,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 5,
     instructions: [
@@ -2797,6 +3075,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 6,
     instructions: [
@@ -2817,6 +3097,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 7,
     instructions: [
@@ -2837,6 +3119,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 8,
     instructions: [
@@ -2857,6 +3141,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 4,
     instructions: [
@@ -2877,6 +3163,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 5,
     instructions: [
@@ -2897,6 +3185,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 6,
     instructions: [
@@ -2917,6 +3207,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 7,
     instructions: [
@@ -2937,6 +3229,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 8,
     instructions: [
@@ -2957,6 +3251,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 4,
     instructions: [
@@ -2977,6 +3273,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 5,
     instructions: [
@@ -2997,6 +3295,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 6,
     instructions: [
@@ -3017,6 +3317,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 7,
     instructions: [
@@ -3037,6 +3339,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 8,
     instructions: [
@@ -3057,6 +3361,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 4,
     instructions: [
@@ -3077,6 +3383,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 5,
     instructions: [
@@ -3097,6 +3405,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 6,
     instructions: [
@@ -3117,6 +3427,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 7,
     instructions: [
@@ -3137,6 +3449,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 8,
     instructions: [
@@ -3157,6 +3471,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 4,
     instructions: [
@@ -3177,6 +3493,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 5,
     instructions: [
@@ -3197,6 +3515,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 6,
     instructions: [
@@ -3217,6 +3537,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 7,
     instructions: [
@@ -3237,6 +3559,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 8,
     instructions: [
@@ -3257,6 +3581,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 4,
     instructions: [
@@ -3277,6 +3603,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 5,
     instructions: [
@@ -3297,6 +3625,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 6,
     instructions: [
@@ -3317,6 +3647,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 7,
     instructions: [
@@ -3337,6 +3669,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 8,
     instructions: [
@@ -3357,6 +3691,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 4,
     instructions: [
@@ -3377,6 +3713,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 5,
     instructions: [
@@ -3397,6 +3735,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 6,
     instructions: [
@@ -3417,6 +3757,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 7,
     instructions: [
@@ -3437,6 +3779,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 8,
     instructions: [
@@ -3457,6 +3801,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 4,
     instructions: [
@@ -3477,6 +3823,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 5,
     instructions: [
@@ -3497,6 +3845,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 6,
     instructions: [
@@ -3517,6 +3867,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 7,
     instructions: [
@@ -3537,6 +3889,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 8,
     instructions: [
@@ -3557,6 +3911,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 4,
     instructions: [
@@ -3577,6 +3933,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 5,
     instructions: [
@@ -3597,6 +3955,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 6,
     instructions: [
@@ -3617,6 +3977,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 7,
     instructions: [
@@ -3637,6 +3999,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 8,
     instructions: [
@@ -3657,6 +4021,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 4,
     instructions: [
@@ -3677,6 +4043,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 5,
     instructions: [
@@ -3697,6 +4065,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 6,
     instructions: [
@@ -3717,6 +4087,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 7,
     instructions: [
@@ -3737,6 +4109,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 8,
     instructions: [
@@ -3757,6 +4131,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 4,
     instructions: [
@@ -3777,6 +4153,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 5,
     instructions: [
@@ -3797,6 +4175,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 6,
     instructions: [
@@ -3817,6 +4197,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 7,
     instructions: [
@@ -3837,6 +4219,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 8,
     instructions: [
@@ -3857,6 +4241,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 4,
     instructions: [
@@ -3877,6 +4263,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 5,
     instructions: [
@@ -3897,6 +4285,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 6,
     instructions: [
@@ -3917,6 +4307,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 7,
     instructions: [
@@ -3937,6 +4329,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 8,
     instructions: [
@@ -3957,6 +4351,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 4,
     instructions: [
@@ -3977,6 +4373,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 5,
     instructions: [
@@ -3997,6 +4395,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 6,
     instructions: [
@@ -4017,6 +4417,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 7,
     instructions: [
@@ -4037,6 +4439,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 8,
     instructions: [
@@ -4057,6 +4461,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 4,
     instructions: [
@@ -4077,6 +4483,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 5,
     instructions: [
@@ -4097,6 +4505,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 6,
     instructions: [
@@ -4117,6 +4527,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 7,
     instructions: [
@@ -4137,6 +4549,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 8,
     instructions: [
@@ -4157,6 +4571,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 4,
     instructions: [
@@ -4177,6 +4593,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 5,
     instructions: [
@@ -4197,6 +4615,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 6,
     instructions: [
@@ -4217,6 +4637,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 7,
     instructions: [
@@ -4237,6 +4659,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 8,
     instructions: [
@@ -4257,6 +4681,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 4,
     instructions: [
@@ -4277,6 +4703,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 5,
     instructions: [
@@ -4297,6 +4725,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 6,
     instructions: [
@@ -4317,6 +4747,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 7,
     instructions: [
@@ -4337,6 +4769,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 8,
     instructions: [
@@ -4357,6 +4791,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 4,
     instructions: [
@@ -4377,6 +4813,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 5,
     instructions: [
@@ -4397,6 +4835,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 6,
     instructions: [
@@ -4417,6 +4857,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 7,
     instructions: [
@@ -4437,6 +4879,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 8,
     instructions: [
@@ -4457,6 +4901,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 4,
     instructions: [
@@ -4477,6 +4923,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 5,
     instructions: [
@@ -4497,6 +4945,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 6,
     instructions: [
@@ -4517,6 +4967,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 7,
     instructions: [
@@ -4537,6 +4989,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 8,
     instructions: [
@@ -4557,6 +5011,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 4,
     instructions: [
@@ -4577,6 +5033,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 5,
     instructions: [
@@ -4597,6 +5055,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 6,
     instructions: [
@@ -4617,6 +5077,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 7,
     instructions: [
@@ -4637,6 +5099,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 8,
     instructions: [
@@ -4657,6 +5121,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 4,
     instructions: [
@@ -4677,6 +5143,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 5,
     instructions: [
@@ -4697,6 +5165,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 6,
     instructions: [
@@ -4717,6 +5187,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 7,
     instructions: [
@@ -4737,6 +5209,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 8,
     instructions: [
@@ -4757,6 +5231,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 4,
     instructions: [
@@ -4777,6 +5253,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 5,
     instructions: [
@@ -4797,6 +5275,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 6,
     instructions: [
@@ -4817,6 +5297,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 7,
     instructions: [
@@ -4837,6 +5319,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 8,
     instructions: [
@@ -4857,6 +5341,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 4,
     instructions: [
@@ -4877,6 +5363,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 5,
     instructions: [
@@ -4897,6 +5385,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'balance',
+    categoryLabel: 'שיווי משקל',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 6,
     instructions: [
@@ -4917,6 +5407,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'upper-body',
+    categoryLabel: 'פלג גוף עליון',
     targetMuscles: ['כתפיים', 'חזה', 'שכמות'],
     durationMinutes: 7,
     instructions: [
@@ -4937,6 +5429,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'cooldown',
+    categoryLabel: 'שחרור',
     targetMuscles: ['רצפת אגן', 'מקרבי ירך', 'שליטה'],
     durationMinutes: 8,
     instructions: [
@@ -4957,6 +5451,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'מזרן (Mat)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'full-body',
+    categoryLabel: 'גוף מלא',
     targetMuscles: ['גמישות', 'נשימה', 'איזון'],
     durationMinutes: 4,
     instructions: [
@@ -4977,6 +5473,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'רפורמר (Reformer)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'warmup',
+    categoryLabel: 'חימום',
     targetMuscles: ['אגן', 'שרשרת אחורית', 'מוביליות'],
     durationMinutes: 5,
     instructions: [
@@ -4997,6 +5495,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'קאדילק (Cadillac)',
     difficulty: 'beginner',
     difficultyLabel: 'מתחילים',
+    category: 'core',
+    categoryLabel: 'ליבה',
     targetMuscles: ['זוקפי גב', 'יציבות', 'שליטה עצבית'],
     durationMinutes: 6,
     instructions: [
@@ -5017,6 +5517,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'כיסא (Wunda Chair)',
     difficulty: 'intermediate',
     difficultyLabel: 'בינוני',
+    category: 'glutes',
+    categoryLabel: 'ישבן ורגליים',
     targetMuscles: ['ליבה', 'יציבה', 'שרירי בטן עמוקים'],
     durationMinutes: 7,
     instructions: [
@@ -5037,6 +5539,8 @@ export const INITIAL_EXERCISES: Exercise[] = [
     apparatusLabel: 'עזרים (Props)',
     difficulty: 'advanced',
     difficultyLabel: 'מתקדם',
+    category: 'mobility',
+    categoryLabel: 'מוביליות',
     targetMuscles: ['ירך אחורית', 'ישבן', 'הארכת עמוד שדרה'],
     durationMinutes: 8,
     instructions: [

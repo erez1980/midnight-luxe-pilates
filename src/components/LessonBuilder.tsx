@@ -22,6 +22,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [builderSearchQuery, setBuilderSearchQuery] = useState('');
   const [builderApparatus, setBuilderApparatus] = useState<string>('all');
   const [builderDifficulty, setBuilderDifficulty] = useState<string>('all');
+  const [builderCategory, setBuilderCategory] = useState<string>('all');
 
   const levelLabels = {
     beginner: 'מתחילים',
@@ -152,6 +153,18 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     { value: 'advanced', label: 'מתקדם' }
   ];
 
+  const categoryOptions = [
+    { value: 'all', label: 'כל הקטגוריות' },
+    { value: 'warmup', label: 'חימום' },
+    { value: 'core', label: 'ליבה' },
+    { value: 'glutes', label: 'ישבן ורגליים' },
+    { value: 'mobility', label: 'מוביליות' },
+    { value: 'balance', label: 'שיווי משקל' },
+    { value: 'upper-body', label: 'פלג גוף עליון' },
+    { value: 'cooldown', label: 'שחרור' },
+    { value: 'full-body', label: 'גוף מלא' }
+  ];
+
   const quickFilteredExercises = useMemo(() => {
     return INITIAL_EXERCISES.filter((exercise) => {
       const matchesSearch = !builderSearchQuery ||
@@ -161,9 +174,10 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
       const matchesApparatus = builderApparatus === 'all' || exercise.apparatus === builderApparatus;
       const matchesDifficulty = builderDifficulty === 'all' || exercise.difficulty === builderDifficulty;
-      return matchesSearch && matchesApparatus && matchesDifficulty;
+      const matchesCategory = builderCategory === 'all' || exercise.category === builderCategory;
+      return matchesSearch && matchesApparatus && matchesDifficulty && matchesCategory;
     }).slice(0, 24);
-  }, [builderSearchQuery, builderApparatus, builderDifficulty]);
+  }, [builderSearchQuery, builderApparatus, builderDifficulty, builderCategory]);
 
   return (
     <div className="w-full">
@@ -468,6 +482,23 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               ))}
             </div>
 
+            <div className="flex flex-wrap gap-2 mb-1">
+              {categoryOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setBuilderCategory(opt.value)}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
+                    builderCategory === opt.value
+                      ? 'bg-secondary/15 border-secondary/50 text-secondary font-bold'
+                      : 'border-white/10 text-on-surface hover:border-secondary/30'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
             <div className="flex flex-wrap gap-2 items-center justify-between">
               <div className="flex flex-wrap gap-2">
                 {difficultyOptions.map((opt) => (
@@ -486,13 +517,14 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 ))}
               </div>
 
-              {(builderSearchQuery || builderApparatus !== 'all' || builderDifficulty !== 'all') && (
+              {(builderSearchQuery || builderApparatus !== 'all' || builderDifficulty !== 'all' || builderCategory !== 'all') && (
                 <button
                   type="button"
                   onClick={() => {
                     setBuilderSearchQuery('');
                     setBuilderApparatus('all');
                     setBuilderDifficulty('all');
+                    setBuilderCategory('all');
                   }}
                   className="text-xs text-secondary hover:underline"
                 >
@@ -527,6 +559,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       <span className="rounded-full bg-secondary/10 px-2 py-1 text-[10px] text-secondary">{exercise.apparatusLabel}</span>
                       <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] text-on-surface-variant">{exercise.difficultyLabel}</span>
+                      {exercise.categoryLabel && <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] text-on-surface-variant">{exercise.categoryLabel}</span>}
                     </div>
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       {exercise.targetMuscles.slice(0, 3).map((muscle, idx) => (
@@ -541,8 +574,17 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               })}
             </div>
 
-            <div className="text-[11px] text-on-surface-variant">
-              מוצגות 24 תוצאות ראשונות לחיפוש מהיר. מתחתיהן עדיין זמינה הספרייה המלאה.
+            <div className="rounded-2xl border border-secondary/10 bg-secondary/5 p-4">
+              <div className="text-xs text-secondary font-bold mb-2">מבנה שיעור חכם</div>
+              <div className="flex flex-wrap gap-2 text-[11px] text-on-surface-variant">
+                <span className="rounded-full bg-white/5 px-3 py-1">חימום 5-8 דק׳</span>
+                <span className="rounded-full bg-white/5 px-3 py-1">ליבה/כוח 15-20 דק׳</span>
+                <span className="rounded-full bg-white/5 px-3 py-1">איזון/שליטה 8-12 דק׳</span>
+                <span className="rounded-full bg-white/5 px-3 py-1">שחרור 4-6 דק׳</span>
+              </div>
+              <div className="text-[11px] text-on-surface-variant mt-3">
+                מוצגות 24 תוצאות ראשונות לחיפוש מהיר. מתחתיהן עדיין זמינה הספרייה המלאה.
+              </div>
             </div>
           </div>
 

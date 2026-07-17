@@ -6,6 +6,8 @@ export interface Exercise {
   apparatusLabel: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   difficultyLabel: string;
+  category?: 'warmup' | 'core' | 'glutes' | 'mobility' | 'balance' | 'upper-body' | 'cooldown' | 'full-body';
+  categoryLabel?: string;
   targetMuscles: string[];
   durationMinutes: number;
   instructions: string[];
