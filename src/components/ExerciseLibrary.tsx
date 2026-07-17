@@ -240,9 +240,15 @@ export default function ExerciseLibrary({
                   className="relative block w-full aspect-video overflow-hidden"
                 >
                   <img
+                    src={getExerciseMedia(exercise).coverUrl}
+                    alt={`${exercise.name} cover`}
+                    className="absolute inset-0 w-full h-full object-cover opacity-70"
+                    loading="lazy"
+                  />
+                  <img
                     src={getExerciseMedia(exercise).thumbnailUrl}
                     alt={exercise.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="relative w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 mix-blend-screen"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -287,7 +293,7 @@ export default function ExerciseLibrary({
                     className="inline-flex items-center gap-1.5 text-xs text-secondary hover:text-white transition-colors mb-4"
                   >
                     <PlayCircle className="w-3.5 h-3.5" />
-                    סרטון הדגמה
+                    {getExerciseMedia(exercise).mediaLabel}
                   </a>
 
                   {/* Muscle Targets */}

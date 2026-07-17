@@ -3,6 +3,7 @@ import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, 
 import { Exercise, Lesson, LessonExercise } from '../types';
 import ExerciseLibrary from './ExerciseLibrary';
 import { INITIAL_EXERCISES } from '../data';
+import { getExerciseMedia } from '../utils/exerciseMedia';
 import { lessonToWhatsappText, openLessonPrint } from '../utils/lessonExport';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -449,6 +450,30 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                           </div>
 
                           <div className="min-w-0 flex-1">
+                            <div className="mb-4 overflow-hidden rounded-2xl border border-white/8 bg-black/30">
+                              <div className="relative aspect-[16/7]">
+                                <img
+                                  src={getExerciseMedia(el.exercise).coverUrl}
+                                  alt={`${el.exercise.name} cover`}
+                                  className="absolute inset-0 h-full w-full object-cover opacity-80"
+                                  loading="lazy"
+                                />
+                                <img
+                                  src={getExerciseMedia(el.exercise).thumbnailUrl}
+                                  alt={el.exercise.name}
+                                  className="relative h-full w-full object-cover mix-blend-screen"
+                                  loading="lazy"
+                                />
+                                <a
+                                  href={getExerciseMedia(el.exercise).watchUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-[11px] text-white hover:border-secondary/50"
+                                >
+                                  ▶ וידאו
+                                </a>
+                              </div>
+                            </div>
                             <div className="flex flex-wrap gap-2 items-center mb-2">
                               <span className="rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[10px] font-semibold text-secondary">
                                 {el.exercise.apparatusLabel}
