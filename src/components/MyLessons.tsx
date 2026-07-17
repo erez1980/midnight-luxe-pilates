@@ -1,23 +1,34 @@
-import React from 'react';
-import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, HeartCrack } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, Copy, Download, Upload, Bookmark } from 'lucide-react';
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
 
 interface MyLessonsProps {
   lessons: Lesson[];
+  templates: Lesson[];
   onStartLesson: (lesson: Lesson) => void;
   onEditLesson: (lesson: Lesson) => void;
   onDeleteLesson: (id: string) => void;
   onCreateNewLesson: () => void;
+  onSaveTemplate: (lesson: Lesson) => void;
+  onExportBundle: () => void;
+  onImportBundle: (file: File) => void;
+  onCopyShareLink: (lesson: Lesson) => void;
 }
 
 export default function MyLessons({
   lessons,
+  templates,
   onStartLesson,
   onEditLesson,
   onDeleteLesson,
-  onCreateNewLesson
+  onCreateNewLesson,
+  onSaveTemplate,
+  onExportBundle,
+  onImportBundle,
+  onCopyShareLink
 }: MyLessonsProps) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   return (
     <div className="w-full">
       {/* Intro Header */}
@@ -40,6 +51,49 @@ export default function MyLessons({
           בני שיעור חדש
         </button>
       </div>
+
+      <div className="mb-8 flex flex-wrap gap-3">
+        <button onClick={onExportBundle} className="px-4 py-2 rounded-xl border border-white/10 text-white hover:border-secondary/40 transition-all inline-flex items-center gap-2 text-sm">
+          <Download className="w-4 h-4" />
+          ייצוא גיבוי JSON
+        </button>
+        <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 rounded-xl border border-white/10 text-white hover:border-secondary/40 transition-all inline-flex items-center gap-2 text-sm">
+          <Upload className="w-4 h-4" />
+          ייבוא גיבוי
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) onImportBundle(file);
+            e.currentTarget.value = '';
+          }}
+        />
+      </div>
+
+      {templates.length > 0 && (
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-4 text-secondary">
+            <Bookmark className="w-4 h-4" />
+            <h3 className="text-lg font-bold">Saved Templates</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {templates.map((lesson) => (
+              <div key={lesson.id} className="rounded-2xl border border-secondary/15 bg-secondary/5 p-5">
+                <div className="text-white font-bold mb-1">{lesson.name}</div>
+                <div className="text-xs text-on-surface-variant mb-4">{lesson.levelLabel} · {lesson.totalDuration} דק׳</div>
+                <div className="flex gap-2 flex-wrap">
+                  <button onClick={() => onEditLesson(lesson)} className="px-3 py-2 rounded-lg bg-secondary text-background text-xs font-bold">השתמשי כתבנית</button>
+                  <button onClick={() => onCopyShareLink(lesson)} className="px-3 py-2 rounded-lg border border-white/10 text-white text-xs inline-flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" />שיתוף</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Grid of Lessons */}
       {lessons.length === 0 ? (
@@ -123,9 +177,23 @@ export default function MyLessons({
                 </button>
 
                 {/* Edit & Delete Actions */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap justify-end">
                   {lesson.isCustom && (
                     <>
+                      <button
+                        onClick={() => onSaveTemplate(lesson)}
+                        className="p-2 text-on-surface-variant hover:text-white border border-white/5 hover:border-white/20 transition-all rounded-sm bg-white/5"
+                        title="שמירה כתבנית"
+                      >
+                        <Bookmark className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onCopyShareLink(lesson)}
+                        className="p-2 text-on-surface-variant hover:text-white border border-white/5 hover:border-white/20 transition-all rounded-sm bg-white/5"
+                        title="העתקת קישור שיתוף"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
                       <button
                         onClick={() => onEditLesson(lesson)}
                         className="p-2 text-on-surface-variant hover:text-white border border-white/5 hover:border-white/20 transition-all rounded-sm bg-white/5"

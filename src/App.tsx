@@ -25,6 +25,7 @@ import ExerciseLibrary from './components/ExerciseLibrary';
 import LessonBuilder from './components/LessonBuilder';
 import MyLessons from './components/MyLessons';
 import CoachingSession from './components/CoachingSession';
+import { buildShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -32,17 +33,21 @@ export default function App() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [activeSessionLesson, setActiveSessionLesson] = useState<Lesson | null>(null);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [templates, setTemplates] = useState<Lesson[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Load lessons from localStorage on mount, fall back to initial ones
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('pilates_lessons');
-      if (stored) {
-        setLessons(JSON.parse(stored));
-      } else {
-        setLessons(INITIAL_LESSONS);
-        localStorage.setItem('pilates_lessons', JSON.stringify(INITIAL_LESSONS));
+      const storedLessons = readLessons();
+      setLessons(storedLessons.length ? storedLessons : INITIAL_LESSONS);
+      if (!storedLessons.length) writeLessons(INITIAL_LESSONS);
+      setTemplates(readTemplates());
+
+      const sharedLesson = readSharedLessonFromUrl();
+      if (sharedLesson) {
+        setEditingLesson({ ...sharedLesson, id: `shared_${Date.now()}` });
+        setActiveScreen('builder');
       }
     } catch (e) {
       console.warn('Failed to read from localStorage', e);
@@ -54,9 +59,43 @@ export default function App() {
   const saveLessonsToStorage = (updatedLessons: Lesson[]) => {
     setLessons(updatedLessons);
     try {
-      localStorage.setItem('pilates_lessons', JSON.stringify(updatedLessons));
+      writeLessons(updatedLessons);
     } catch (e) {
       console.warn('Failed to write to localStorage', e);
+    }
+  };
+
+  const handleSaveTemplate = (lesson: Lesson) => {
+    const updated = [lesson, ...templates.filter((item) => item.id !== lesson.id)];
+    setTemplates(updated);
+    writeTemplates(updated);
+  };
+
+  const handleExportBundle = () => {
+    exportLessonsBundle(lessons, templates);
+  };
+
+  const handleImportBundle = async (file: File) => {
+    try {
+      const imported = await importLessonsBundle(file);
+      if (imported.lessons?.length) saveLessonsToStorage(imported.lessons);
+      if (imported.templates?.length) {
+        setTemplates(imported.templates);
+        writeTemplates(imported.templates);
+      }
+      alert('הגיבוי יובא בהצלחה.');
+    } catch {
+      alert('קובץ הגיבוי לא תקין.');
+    }
+  };
+
+  const handleCopyShareLink = async (lesson: Lesson) => {
+    const url = buildShareUrl(lesson);
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('קישור השיתוף הועתק.');
+    } catch {
+      window.prompt('העתק את הקישור:', url);
     }
   };
 
@@ -438,10 +477,15 @@ export default function App() {
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
             <MyLessons 
               lessons={lessons}
+              templates={templates}
               onStartLesson={handleStartLesson}
               onEditLesson={handleEditLesson}
               onDeleteLesson={handleDeleteLesson}
               onCreateNewLesson={() => { setEditingLesson(null); setActiveScreen('builder'); }}
+              onSaveTemplate={handleSaveTemplate}
+              onExportBundle={handleExportBundle}
+              onImportBundle={handleImportBundle}
+              onCopyShareLink={handleCopyShareLink}
             />
           </div>
         )}
