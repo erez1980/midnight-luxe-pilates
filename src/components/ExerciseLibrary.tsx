@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search, Info, Dumbbell, Activity, Check, Plus, X, Sparkles, PlayCircle, ExternalLink } from 'lucide-react';
+import { Search, Info, Dumbbell, Activity, Check, Plus, X, Sparkles, PlayCircle } from 'lucide-react';
 import { Exercise } from '../types';
 import { INITIAL_EXERCISES } from '../data';
 import { getExerciseMedia } from '../utils/exerciseMedia';
@@ -286,15 +286,10 @@ export default function ExerciseLibrary({
                     {exercise.name}
                   </h3>
                   <p className="text-xs text-on-surface-variant font-mono mb-4">{exercise.englishName}</p>
-                  <a
-                    href={getExerciseMedia(exercise).watchUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-secondary hover:text-white transition-colors mb-4"
-                  >
-                    <PlayCircle className="w-3.5 h-3.5" />
+                  <div className="inline-flex items-center gap-1.5 text-xs text-secondary mb-4">
+                    {getExerciseMedia(exercise).hasInlineVideo ? <PlayCircle className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
                     {getExerciseMedia(exercise).mediaLabel}
-                  </a>
+                  </div>
 
                   {/* Muscle Targets */}
                   <div className="flex flex-wrap gap-1.5 mb-6">
@@ -383,28 +378,28 @@ export default function ExerciseLibrary({
               </button>
 
               <div className="relative aspect-video bg-black border-b border-white/5 overflow-hidden">
-                <img
-                  src={getExerciseMedia(selectedExercise).coverUrl}
-                  alt={`${selectedExercise.name} cover`}
-                  className="absolute inset-0 w-full h-full object-cover opacity-70"
-                />
-                <img
-                  src={getExerciseMedia(selectedExercise).thumbnailUrl}
-                  alt={selectedExercise.name}
-                  className="relative w-full h-full object-cover mix-blend-screen"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <a
-                    href={getExerciseMedia(selectedExercise).watchUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-3 rounded-full bg-black/60 px-5 py-3 text-white border border-white/15 hover:border-secondary/50"
-                  >
-                    <PlayCircle className="w-5 h-5" />
-                    פתחי את הסרטון ביוטיוב
-                  </a>
-                </div>
+                {getExerciseMedia(selectedExercise).hasInlineVideo && getExerciseMedia(selectedExercise).embedUrl ? (
+                  <iframe
+                    src={getExerciseMedia(selectedExercise).embedUrl}
+                    title={selectedExercise.name}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                  />
+                ) : (
+                  <>
+                    <img
+                      src={getExerciseMedia(selectedExercise).coverUrl}
+                      alt={`${selectedExercise.name} cover`}
+                      className="absolute inset-0 w-full h-full object-cover opacity-85"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                    <div className="absolute bottom-5 right-5 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 text-sm text-white backdrop-blur-sm">
+                      לתרגיל הזה עדיין אין וידאו מוטמע מאומת. מוצגות הנחיות ביצוע מקצועיות ותמונת cover.
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="p-6 md:p-8">
@@ -433,24 +428,9 @@ export default function ExerciseLibrary({
                 <p className="text-sm font-mono text-secondary mb-6">{selectedExercise.englishName}</p>
 
                 <div className="flex flex-wrap gap-3 mb-8">
-                  <a
-                    href={getExerciseMedia(selectedExercise).watchUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl bg-secondary px-4 py-2 text-sm font-bold text-background hover:bg-white transition-colors"
-                  >
-                    <PlayCircle className="w-4 h-4" />
-                    פתחי ביוטיוב
-                  </a>
-                  <a
-                    href={getExerciseMedia(selectedExercise).searchUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm text-white hover:border-secondary/40 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    חיפוש וריאציות ביוטיוב
-                  </a>
+                  <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-on-surface-variant">
+                    {getExerciseMedia(selectedExercise).hasInlineVideo ? 'וידאו מוטמע ומאומת באתר' : 'וידאו יתווסף רק אחרי אימות מקור שניתן להטמעה באתר'}
+                  </div>
                 </div>
 
                 {/* Main Info Columns */}

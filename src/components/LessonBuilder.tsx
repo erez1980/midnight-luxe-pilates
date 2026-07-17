@@ -468,14 +468,9 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                                   className="relative h-full w-full object-cover mix-blend-screen"
                                   loading="lazy"
                                 />
-                                <a
-                                  href={getExerciseMedia(el.exercise).watchUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-[11px] text-white hover:border-secondary/50"
-                                >
-                                  ▶ וידאו
-                                </a>
+                                <div className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-[11px] text-white">
+                                  {getExerciseMedia(el.exercise).hasInlineVideo ? '▶ וידאו באתר' : 'Cover'}
+                                </div>
                               </div>
                             </div>
                             <div className="flex flex-wrap gap-2 items-center mb-2">

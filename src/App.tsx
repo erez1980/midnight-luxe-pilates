@@ -28,6 +28,7 @@ import CoachingSession from './components/CoachingSession';
 import { buildShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
 import { pullCloudLessons, pushCloudLessons, signInAnonymously, supabaseSqlGuide } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
+import { AuthProfile, getAuthProfile, signInWithGoogle, signOut } from './utils/auth';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
   const [activeSessionLesson, setActiveSessionLesson] = useState<Lesson | null>(null);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [templates, setTemplates] = useState<Lesson[]>([]);
+  const [authProfile, setAuthProfile] = useState<AuthProfile | null>(null);
   const [cloudStatus, setCloudStatus] = useState(supabaseEnabled ? 'Cloud available' : 'Cloud not configured');
   const [uiNotice, setUiNotice] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -49,15 +51,41 @@ export default function App() {
       setTemplates(readTemplates());
 
       const sharedLesson = readSharedLessonFromUrl();
-      if (sharedLesson) {
-        setEditingLesson({ ...sharedLesson, id: `shared_${Date.now()}` });
-        setActiveScreen('builder');
-      }
+      if (sharedLesson) setEditingLesson({ ...sharedLesson, id: `shared_${Date.now()}` });
     } catch (e) {
       console.warn('Failed to read from localStorage', e);
       setLessons(INITIAL_LESSONS);
     }
   }, []);
+
+  useEffect(() => {
+    getAuthProfile().then(setAuthProfile);
+  }, []);
+
+  const isAuthenticated = Boolean(authProfile);
+
+  const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
+    if (!isAuthenticated) {
+      setActiveScreen(screen);
+      setUiNotice('האזור הזה מוגבל למדריכות מחוברות. התחברי עם Google כדי לבנות ולשמור שיעורים.');
+      return;
+    }
+    setActiveScreen(screen);
+  };
+
+  const handleGoogleLogin = async () => {
+    const result = await signInWithGoogle();
+    if (!result.ok) {
+      setUiNotice(result.reason === 'disabled' ? 'Google Login דורש חיבור Supabase ו-Google OAuth. כרגע האתר במצב אורח מוגבל.' : `Google login failed: ${result.reason}`);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    setAuthProfile(null);
+    setActiveScreen('home');
+    setUiNotice('התנתקת בהצלחה.');
+  };
 
   // Save lessons to localStorage on updates
   const saveLessonsToStorage = (updatedLessons: Lesson[]) => {
@@ -157,12 +185,22 @@ export default function App() {
 
   // Edit Lesson click handler
   const handleEditLesson = (lesson: Lesson) => {
+    if (!isAuthenticated) {
+      setUiNotice('עריכת שיעור זמינה רק אחרי התחברות עם Google.');
+      setActiveScreen('lessons');
+      return;
+    }
     setEditingLesson(lesson);
     setActiveScreen('builder');
   };
 
   // Launch Coaching Mode
   const handleStartLesson = (lesson: Lesson) => {
+    if (!isAuthenticated) {
+      setUiNotice('הפעלת שיעור זמינה רק אחרי התחברות עם Google.');
+      setActiveScreen('lessons');
+      return;
+    }
     setActiveSessionLesson(lesson);
     setActiveScreen('session');
   };
@@ -199,7 +237,7 @@ export default function App() {
               מאגר תרגילים
             </button>
             <button
-              onClick={() => { setActiveScreen('builder'); setEditingLesson(null); }}
+              onClick={() => { setEditingLesson(null); goToProtected('builder'); }}
               className={`hover:text-secondary transition-all text-sm font-medium tracking-wide relative py-1 cursor-pointer ${
                 activeScreen === 'builder' ? 'text-secondary font-bold border-b border-secondary' : 'text-on-surface'
               }`}
@@ -207,7 +245,7 @@ export default function App() {
               בניית שיעור
             </button>
             <button
-              onClick={() => { setActiveScreen('lessons'); setEditingLesson(null); }}
+              onClick={() => { setEditingLesson(null); goToProtected('lessons'); }}
               className={`hover:text-secondary transition-all text-sm font-medium tracking-wide relative py-1 cursor-pointer ${
                 activeScreen === 'lessons' ? 'text-secondary font-bold border-b border-secondary' : 'text-on-surface'
               }`}
@@ -218,19 +256,32 @@ export default function App() {
 
           {/* User & Action area */}
           <div className="flex items-center gap-5">
-            <button
-              onClick={() => setActiveScreen('lessons')}
-              className="hidden sm:block px-6 py-2 border border-secondary text-secondary hover:bg-secondary hover:text-background transition-all text-sm font-bold tracking-widest uppercase cursor-pointer"
-            >
-              התחברות
-            </button>
-
-            {/* User Instructor Portrait */}
-            <div 
-              className="w-10 h-10 rounded-full border border-white/20 bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all"
-              style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC9lUNx88cxMF1EAlQTAOtU6DQy5ks89h_QHNimKwk9fbKU0VYNY4z6vRsV12GAh_pMvbCGop-thsLnY7MLPToaG9_gXglIElkK9wW4aTLozxyO_N6-U5R7v54kRPcSqIAUjET7Pab1LMVbBVEGW5cwk7Z_YAPu_tlOLmE8yHGGa01h8uj4DgXmeo3FFlrhDMN2ZbBpcbjKVW33nFwAdP6-UMCu7vsuFOtTQiqUolP4ETzIWya9E3mhVM8YGJ68mEHoLw716rldKsM')" }}
-              onClick={() => setActiveScreen('lessons')}
-            />
+            {authProfile ? (
+              <div className="hidden sm:flex items-center gap-3">
+                <button
+                  onClick={() => goToProtected('lessons')}
+                  className="w-10 h-10 rounded-full border border-white/20 bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all overflow-hidden bg-surface-container"
+                  title={authProfile.email || authProfile.name}
+                >
+                  {authProfile.avatarUrl ? (
+                    <img src={authProfile.avatarUrl} alt={authProfile.name || 'Profile'} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-5 h-5 mx-auto text-secondary" />
+                  )}
+                </button>
+                <button onClick={handleLogout} className="text-xs text-on-surface-variant hover:text-secondary transition-colors">
+                  יציאה
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleGoogleLogin}
+                className="hidden sm:flex px-5 py-2 border border-secondary text-secondary hover:bg-secondary hover:text-background transition-all text-sm font-bold tracking-widest uppercase cursor-pointer items-center gap-2"
+              >
+                <LogIn className="w-4 h-4" />
+                Google Login
+              </button>
+            )}
 
             {/* Mobile burger toggle */}
             <button 
@@ -260,22 +311,22 @@ export default function App() {
               מאגר תרגילים
             </button>
             <button
-              onClick={() => { setActiveScreen('builder'); setEditingLesson(null); setIsMobileMenuOpen(false); }}
+              onClick={() => { setEditingLesson(null); setIsMobileMenuOpen(false); goToProtected('builder'); }}
               className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'builder' ? 'text-secondary' : 'text-white'}`}
             >
               בנייית שיעור
             </button>
             <button
-              onClick={() => { setActiveScreen('lessons'); setEditingLesson(null); setIsMobileMenuOpen(false); }}
+              onClick={() => { setEditingLesson(null); setIsMobileMenuOpen(false); goToProtected('lessons'); }}
               className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'lessons' ? 'text-secondary' : 'text-white'}`}
             >
               השיעורים שלי
             </button>
             <button
-              onClick={() => { setIsMobileMenuOpen(false); setActiveScreen('lessons'); }}
+              onClick={() => { setIsMobileMenuOpen(false); authProfile ? handleLogout() : handleGoogleLogin(); }}
               className="mt-2 w-full text-center py-3 border border-secondary text-secondary font-bold text-sm tracking-widest uppercase"
             >
-              התחברות
+              {authProfile ? 'יציאה' : 'התחברות Google'}
             </button>
           </motion.div>
         )}
@@ -395,7 +446,7 @@ export default function App() {
 
                   {/* Feature 2: Lesson Builder */}
                   <div 
-                    onClick={() => setActiveScreen('builder')}
+                    onClick={() => goToProtected('builder')}
                     className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer"
                   >
                     <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -417,7 +468,7 @@ export default function App() {
 
                   {/* Feature 3: My Lessons */}
                   <div 
-                    onClick={() => setActiveScreen('lessons')}
+                    onClick={() => goToProtected('lessons')}
                     className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer"
                   >
                     <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -503,32 +554,40 @@ export default function App() {
         {/* Screen: LESSON BUILDER WORKSPACE */}
         {activeScreen === 'builder' && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
-            <LessonBuilder 
-              onSaveLesson={handleSaveLesson}
-              existingLessonToEdit={editingLesson}
-            />
+            {isAuthenticated ? (
+              <LessonBuilder 
+                onSaveLesson={handleSaveLesson}
+                existingLessonToEdit={editingLesson}
+              />
+            ) : (
+              <LockedWorkspace onGoogleLogin={handleGoogleLogin} />
+            )}
           </div>
         )}
 
         {/* Screen: MY SAVED WORKOUTS */}
         {activeScreen === 'lessons' && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
-            <MyLessons 
-              lessons={lessons}
-              templates={templates}
-              onStartLesson={handleStartLesson}
-              onEditLesson={handleEditLesson}
-              onDeleteLesson={handleDeleteLesson}
-              onCreateNewLesson={() => { setEditingLesson(null); setActiveScreen('builder'); }}
-              onSaveTemplate={handleSaveTemplate}
-              onExportBundle={handleExportBundle}
-              onImportBundle={handleImportBundle}
-              onCopyShareLink={handleCopyShareLink}
-              cloudEnabled={supabaseEnabled}
-              cloudStatus={cloudStatus}
-              onCloudLogin={handleCloudLogin}
-              onCloudSync={handleCloudSync}
-            />
+            {isAuthenticated ? (
+              <MyLessons 
+                lessons={lessons}
+                templates={templates}
+                onStartLesson={handleStartLesson}
+                onEditLesson={handleEditLesson}
+                onDeleteLesson={handleDeleteLesson}
+                onCreateNewLesson={() => { setEditingLesson(null); goToProtected('builder'); }}
+                onSaveTemplate={handleSaveTemplate}
+                onExportBundle={handleExportBundle}
+                onImportBundle={handleImportBundle}
+                onCopyShareLink={handleCopyShareLink}
+                cloudEnabled={supabaseEnabled}
+                cloudStatus={cloudStatus}
+                onCloudLogin={handleCloudLogin}
+                onCloudSync={handleCloudSync}
+              />
+            ) : (
+              <LockedWorkspace onGoogleLogin={handleGoogleLogin} />
+            )}
           </div>
         )}
 
@@ -578,6 +637,34 @@ export default function App() {
         </div>
       </footer>
 
+    </div>
+  );
+}
+
+function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="max-w-2xl w-full rounded-3xl border border-secondary/20 bg-surface-container-high p-8 md:p-12 text-center shadow-2xl">
+        <div className="mx-auto mb-6 h-16 w-16 rounded-full border border-secondary/30 bg-secondary/10 flex items-center justify-center text-secondary">
+          <LogIn className="w-8 h-8" />
+        </div>
+        <h2 className="serif-text text-3xl md:text-4xl font-bold text-white mb-4">אזור מקצועי למדריכות מחוברות</h2>
+        <p className="text-on-surface-variant leading-relaxed mb-8">
+          מאגר התרגילים פתוח לצפייה. בניית תוכנית שיעור, שמירה, templates וסנכרון זמינים רק אחרי התחברות עם חשבון Google.
+        </p>
+        <button
+          onClick={onGoogleLogin}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3 font-bold text-background hover:bg-white transition-colors"
+        >
+          <LogIn className="w-5 h-5" />
+          התחברות עם Google
+        </button>
+        {!supabaseEnabled && (
+          <p className="mt-4 text-xs text-on-surface-variant">
+            מצב פיתוח: Supabase/Google OAuth עדיין לא מוגדר, לכן האתר נשאר מוגבל לאורחים.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
