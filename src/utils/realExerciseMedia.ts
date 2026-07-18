@@ -35,6 +35,10 @@ export const curatedVideoEmbeds: Record<string, { embedUrl: string; label: strin
   reformer_61_4: { embedUrl: 'https://www.youtube.com/embed/A3vkIu44sVs', label: 'Knee Stretches - Arched Back — הדגמה מלאה' },
   reformer_106_6: { embedUrl: 'https://www.youtube.com/embed/yCGEhRigHm4', label: 'Down Stretch — הדגמה מלאה' },
   chair_3_1: { embedUrl: 'https://www.youtube.com/embed/pxQFdPnjlrE', label: 'Going Up Front — הדגמה מלאה' },
+  reformer_56_3: { embedUrl: 'https://www.youtube.com/embed/U15uc-WpQok', label: 'Semi-Circle — הדגמה מלאה' },
+  reformer_86_5: { embedUrl: 'https://www.youtube.com/embed/I7SxZUn1EaI', label: 'Stomach Massage - Round Back — הדגמה מלאה' },
+  reformer_101_6: { embedUrl: 'https://www.youtube.com/embed/VzMG_pzUEmA', label: 'Backstroke — הדגמה מלאה' },
+  cadillac_37_2: { embedUrl: 'https://www.youtube.com/embed/mE-m7zsv6P0', label: 'Teaser on the Cadillac — הדגמה מלאה' },
   // Phase 1+2 real exercises — dedicated matches (verified via title/channel, Howcast "How to Do" mat series unless noted)
   mat_0_1: { embedUrl: 'https://www.youtube.com/embed/pg4WRNkbnjA', label: 'Single Leg Circle — הדגמה מלאה' },
   mat_5_1: { embedUrl: 'https://www.youtube.com/embed/Go6UA7SHdoE', label: 'Corkscrew — הדגמה מלאה' },
