@@ -17,6 +17,13 @@ export const curatedVideoEmbeds: Record<string, { embedUrl: string; label: strin
   mat_roll_up: { embedUrl: 'https://www.youtube.com/embed/BNyuCH_B6Vo', label: 'Roll Up — הדגמה מלאה' },
   mat_teaser: { embedUrl: 'https://www.youtube.com/embed/18p-DZkqtP4', label: 'Teaser — הדרכה לכל הרמות' },
   reformer_footwork: { embedUrl: 'https://www.youtube.com/embed/QDBzjlhKsco', label: 'Reformer Footwork — הדגמה מלאה' },
+  reformer_hundred_straps: { embedUrl: 'https://www.youtube.com/embed/vx4DdBWY6kQ', label: 'Reformer Hundred — הדגמה מלאה' },
+  reformer_elephant: { embedUrl: 'https://www.youtube.com/embed/OxdhCdThIcg', label: 'Elephant — הדגמה מלאה' },
+  cadillac_roll_back: { embedUrl: 'https://www.youtube.com/embed/Z9VgaB2Difo', label: 'Roll Back on Cadillac — הדגמה מלאה' },
+  cadillac_tower: { embedUrl: 'https://www.youtube.com/embed/yzpqC9pQ_bc', label: 'Push Through Bar (Tower) — הדגמה מלאה' },
+  chair_swan: { embedUrl: 'https://www.youtube.com/embed/hcfuKC4dHnQ', label: 'Swan on Wunda Chair — הדגמה מלאה' },
+  chair_pushups: { embedUrl: 'https://www.youtube.com/embed/CCUpfiL8XAs', label: 'Push Ups on Wunda Chair — הדגמה מלאה' },
+  props_magic_circle_thighs: { embedUrl: 'https://www.youtube.com/embed/2dWCf8bmPhI', label: 'Magic Circle — ירך פנימית — הדגמה מלאה' },
   props_bridge_ball: { embedUrl: 'https://www.youtube.com/embed/Iv3r2kulhI8', label: 'Bridge — הדרכה נכונה' },
   // Phase 1+2 real exercises — dedicated matches (verified via title/channel, Howcast "How to Do" mat series unless noted)
   mat_0_1: { embedUrl: 'https://www.youtube.com/embed/pg4WRNkbnjA', label: 'Single Leg Circle — הדגמה מלאה' },
