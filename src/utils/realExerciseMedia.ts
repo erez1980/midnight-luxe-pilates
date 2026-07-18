@@ -68,6 +68,11 @@ export const curatedVideoEmbeds: Record<string, { embedUrl: string; label: strin
   cadillac_57_3: { embedUrl: 'https://www.youtube.com/embed/ZAn5hFFn-0U', label: 'Standing Arm Springs — הדגמה מלאה' },
   cadillac_92_5: { embedUrl: 'https://www.youtube.com/embed/ZAn5hFFn-0U', label: 'Standing Arm Springs — הדגמה מלאה' },
   cadillac_97_5: { embedUrl: 'https://www.youtube.com/embed/ZAn5hFFn-0U', label: 'Standing Arm Springs — הדגמה מלאה' },
+  chair_38_2: { embedUrl: 'https://www.youtube.com/embed/fuM8rP7tLF4', label: 'Pumping One Leg — הדגמה מלאה' },
+  chair_73_4: { embedUrl: 'https://www.youtube.com/embed/3oiMtUtorTU', label: 'Single Leg Pull Up — הדגמה מלאה' },
+  chair_83_5: { embedUrl: 'https://www.youtube.com/embed/ixa3nCqq-LU', label: 'Going Up Side — הדגמה מלאה' },
+  chair_103_6: { embedUrl: 'https://www.youtube.com/embed/Y0XdJQkqBrU', label: 'Frog on Chair — הדגמה מלאה' },
+  chair_18_1: { embedUrl: 'https://www.youtube.com/embed/1-2mya5qSyk', label: 'Kneeling Cat Stretch — הדגמה מלאה' },
   // Phase 1+2 real exercises — dedicated matches (verified via title/channel, Howcast "How to Do" mat series unless noted)
   mat_0_1: { embedUrl: 'https://www.youtube.com/embed/pg4WRNkbnjA', label: 'Single Leg Circle — הדגמה מלאה' },
   mat_5_1: { embedUrl: 'https://www.youtube.com/embed/Go6UA7SHdoE', label: 'Corkscrew — הדגמה מלאה' },
