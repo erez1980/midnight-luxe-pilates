@@ -15,7 +15,7 @@
 export const curatedVideoEmbeds: Record<string, { embedUrl: string; label: string }> = {
   mat_hundred: { embedUrl: 'https://www.youtube.com/embed/On2BPeK4q2Y', label: 'The Hundred — הדגמה מלאה' },
   mat_roll_up: { embedUrl: 'https://www.youtube.com/embed/BNyuCH_B6Vo', label: 'Roll Up — הדגמה מלאה' },
-  mat_teaser: { embedUrl: 'https://www.youtube.com/embed/18p-DZkqtP4', label: 'Teaser — הדרכה לכל הרמות' },
+  mat_teaser: { embedUrl: 'https://www.youtube.com/embed/UJ5gZQSqlXo', label: 'Teaser — הדגמה מלאה' },
   reformer_footwork: { embedUrl: 'https://www.youtube.com/embed/QDBzjlhKsco', label: 'Reformer Footwork — הדגמה מלאה' },
   reformer_hundred_straps: { embedUrl: 'https://www.youtube.com/embed/vx4DdBWY6kQ', label: 'Reformer Hundred — הדגמה מלאה' },
   reformer_elephant: { embedUrl: 'https://www.youtube.com/embed/OxdhCdThIcg', label: 'Elephant — הדגמה מלאה' },
