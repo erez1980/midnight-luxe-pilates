@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, Info, Dumbbell, Activity, Check, Plus, X, Sparkles, PlayCircle } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Search, Info, Dumbbell, Activity, Check, Plus, X, PlayCircle } from 'lucide-react';
 import { Exercise } from '../types';
 import { INITIAL_EXERCISES } from '../data';
 import { getExerciseMedia } from '../utils/exerciseMedia';
@@ -111,24 +111,6 @@ export default function ExerciseLibrary({
     return matchesSearch && matchesApparatus && matchesDifficulty && matchesCategory;
   });
 
-  const smartCollections = useMemo(() => [
-    {
-      title: 'פתיחת שיעור חכמה',
-      subtitle: 'חימום + מוביליות לפתיחה חלקה',
-      categories: ['warmup', 'mobility']
-    },
-    {
-      title: 'בלוק ליבה מדויק',
-      subtitle: 'תרגילי core לאמצע השיעור',
-      categories: ['core', 'balance']
-    },
-    {
-      title: 'סיום אלגנטי',
-      subtitle: 'שחרור, אורך ונשימה',
-      categories: ['cooldown', 'mobility']
-    }
-  ], []);
-
   return (
     <div className="w-full">
       {/* Intro text if not in selector mode */}
@@ -238,33 +220,6 @@ export default function ExerciseLibrary({
           </button>
         ) : null}
       </div>
-
-      {/* Smart Collections */}
-      {!isSelectorMode && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-          {smartCollections.map((collection) => {
-            const collectionExercises = INITIAL_EXERCISES.filter((exercise) => collection.categories.includes(exercise.category || '')).slice(0, 4);
-            return (
-              <div key={collection.title} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                <div className="flex items-center gap-2 mb-2 text-secondary">
-                  <Sparkles className="w-4 h-4" />
-                  <span className="text-xs uppercase tracking-[0.2em]">SMART FLOW</span>
-                </div>
-                <h3 className="text-white text-lg font-bold mb-1">{collection.title}</h3>
-                <p className="text-sm text-on-surface-variant mb-4">{collection.subtitle}</p>
-                <div className="space-y-2">
-                  {collectionExercises.map((exercise) => (
-                    <div key={exercise.id} className="rounded-xl border border-white/6 bg-background/40 px-3 py-2">
-                      <div className="text-sm text-white font-medium">{exercise.name}</div>
-                      <div className="text-[11px] text-on-surface-variant">{exercise.categoryLabel} · {exercise.apparatusLabel}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
       {/* Exercises Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
