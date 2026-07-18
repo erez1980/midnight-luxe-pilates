@@ -287,7 +287,7 @@ export default function ExerciseLibrary({
                   </h3>
                   <p className="text-xs text-on-surface-variant font-mono mb-4">{exercise.englishName}</p>
                   <div className="inline-flex items-center gap-1.5 text-xs text-secondary mb-4">
-                    {getExerciseMedia(exercise).hasInlineVideo ? <PlayCircle className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
+                    {getExerciseMedia(exercise).isDedicatedVideo ? <PlayCircle className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
                     {getExerciseMedia(exercise).mediaLabel}
                   </div>
 
@@ -429,7 +429,9 @@ export default function ExerciseLibrary({
 
                 <div className="flex flex-wrap gap-3 mb-8">
                   <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-on-surface-variant">
-                    {getExerciseMedia(selectedExercise).hasInlineVideo ? 'וידאו מוטמע ומאומת באתר' : 'וידאו יתווסף רק אחרי אימות מקור שניתן להטמעה באתר'}
+                    {getExerciseMedia(selectedExercise).isDedicatedVideo
+                      ? 'וידאו מוטמע ומאומת לתרגיל הזה בדיוק'
+                      : 'וידאו קטגוריה כללי (לתרגיל הספציפי הזה עדיין אין וידאו ייעודי)'}
                   </div>
                 </div>
 
