@@ -59,27 +59,68 @@ const GOLD_SOFT = 'rgba(233, 195, 73, 0.55)';
 const GOLD_FILL = 'rgba(233, 195, 73, 0.16)';
 const GOLD_FAINT = 'rgba(233, 195, 73, 0.3)';
 
-function Limb({ d, w = 13, dim = false }: { d: string; w?: number; dim?: boolean }) {
+// A limb is a gently curved capsule (not a straight stick) with a small
+// rounded cap at the free end standing in for a hand or foot. `bend` offsets
+// the curve's control point perpendicular to the start-end line — small
+// values read as a relaxed joint, larger ones as a bent elbow/knee.
+function Limb({
+  x1, y1, x2, y2, bend = 0, w = 13, dim = false, cap = true,
+}: { x1: number; y1: number; x2: number; y2: number; bend?: number; w?: number; dim?: boolean; cap?: boolean }) {
+  const mx = (x1 + x2) / 2;
+  const my = (y1 + y2) / 2;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len;
+  const ny = dx / len;
+  const cx = mx + nx * bend;
+  const cy = my + ny * bend;
+  const stroke = dim ? GOLD_SOFT : GOLD;
   return (
-    <path
-      d={d}
-      fill="none"
-      stroke={dim ? GOLD_SOFT : GOLD}
-      strokeWidth={w}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <>
+      <path d={`M${x1},${y1} Q${cx},${cy} ${x2},${y2}`} fill="none" stroke={stroke} strokeWidth={w} strokeLinecap="round" />
+      {cap && <ellipse cx={x2} cy={y2} rx={w * 0.55} ry={w * 0.4} fill={stroke} />}
+    </>
   );
 }
 
-function Torso({ d }: { d: string }) {
-  return <path d={d} fill={GOLD_FILL} stroke={GOLD} strokeWidth={3.5} strokeLinejoin="round" />;
+// `waist` is a short cross-line (x1,y1,x2,y2) marking where a fitted top
+// meets leggings — purely a clothing cue, breaks up the flat silhouette.
+function GroundShadow({ cx, cy, rx = 34 }: { cx: number; cy: number; rx?: number }) {
+  return <ellipse cx={cx} cy={cy} rx={rx} ry={6} fill={GOLD} opacity={0.12} />;
 }
 
-function Head({ x, y, bunX, bunY }: { x: number; y: number; bunX: number; bunY: number }) {
+function Torso({ d, waist }: { d: string; waist?: [number, number, number, number] }) {
+  return (
+    <>
+      <path d={d} fill={GOLD_FILL} stroke={GOLD} strokeWidth={3.5} strokeLinejoin="round" />
+      {waist && (
+        <line
+          x1={waist[0]} y1={waist[1]} x2={waist[2]} y2={waist[3]}
+          stroke={GOLD} strokeWidth={2} strokeLinecap="round" opacity={0.6}
+        />
+      )}
+    </>
+  );
+}
+
+// faceDir: which way the profile nose points, relative to the bun (so the
+// head always "looks" away from the hair, toward the direction of motion).
+function Head({
+  x, y, bunX, bunY, faceDir = 1,
+}: { x: number; y: number; bunX: number; bunY: number; faceDir?: 1 | -1 }) {
+  const noseX = x + faceDir * 13;
+  const noseY = y + 3;
   return (
     <>
       <circle cx={x} cy={y} r={15} fill={GOLD_FILL} stroke={GOLD} strokeWidth={3.5} />
+      <path
+        d={`M${x + faceDir * 10},${y - 2} Q${noseX},${noseY} ${x + faceDir * 9},${y + 7}`}
+        fill="none"
+        stroke={GOLD}
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
       <circle cx={bunX} cy={bunY} r={7.5} fill={GOLD} />
     </>
   );
@@ -143,142 +184,129 @@ function Figure({ pose }: { pose: PoseKey }) {
     case 'supine':
       return (
         <g>
-          <Torso d="M124,158 C166,162 206,168 240,174 L238,192 C204,186 164,180 122,176 Z" />
-          <Limb d="M240,182 L286,178" w={15} />
-          <Limb d="M286,178 L332,182" w={12} />
-          <Limb d="M332,182 L344,172" w={8} />
-          <Limb d="M130,168 L196,176" w={10} dim />
-          <Limb d="M114,160 L124,163" w={9} />
-          <Head x={99} y={156} bunX={82} bunY={148} />
+          <Torso d="M124,158 C166,162 206,168 240,174 L238,192 C204,186 164,180 122,176 Z" waist={[178, 165, 184, 183]} />
+          <Limb x1={240} y1={182} x2={290} y2={178} bend={-8} w={15} />
+          <Limb x1={290} y1={178} x2={338} y2={186} bend={6} w={12} />
+          <Limb x1={130} y1={168} x2={196} y2={176} bend={-10} w={10} dim />
+          <Head x={99} y={156} bunX={82} bunY={148} faceDir={1} />
         </g>
       );
     case 'supine_curl':
       return (
         <g>
-          <Torso d="M120,140 C162,150 202,163 234,174 L230,192 C194,181 154,169 118,162 Z" />
-          <Limb d="M234,180 L258,122" w={15} />
-          <Limb d="M258,122 L318,128" w={12} />
-          <Limb d="M318,128 L332,118" w={8} />
-          <Limb d="M126,152 L200,168" w={10} dim />
-          <Limb d="M110,146 L120,150" w={9} />
-          <Head x={95} y={140} bunX={78} bunY={131} />
+          <Torso d="M120,140 C162,150 202,163 234,174 L230,192 C194,181 154,169 118,162 Z" waist={[172, 149, 178, 167]} />
+          <Limb x1={234} y1={180} x2={258} y2={122} bend={12} w={15} />
+          <Limb x1={258} y1={122} x2={322} y2={130} bend={-10} w={12} />
+          <Limb x1={126} y1={152} x2={200} y2={168} bend={-8} w={10} dim />
+          <Head x={95} y={140} bunX={78} bunY={131} faceDir={1} />
         </g>
       );
     case 'legs_up':
       return (
         <g>
-          <Torso d="M126,162 C168,164 208,168 242,172 L240,190 C206,186 166,182 124,180 Z" />
-          <Limb d="M242,180 L268,110" w={15} />
-          <Limb d="M268,110 L288,46" w={12} />
-          <Limb d="M288,46 L296,34" w={8} />
-          <Limb d="M132,172 L198,180" w={10} dim />
-          <Limb d="M116,164 L126,167" w={9} />
-          <Head x={101} y={160} bunX={84} bunY={152} />
+          <Torso d="M126,162 C168,164 208,168 242,172 L240,190 C206,186 166,182 124,180 Z" waist={[180, 169, 186, 187]} />
+          <Limb x1={242} y1={180} x2={276} y2={94} bend={-14} w={15} />
+          <Limb x1={276} y1={94} x2={296} y2={30} bend={8} w={12} />
+          <Limb x1={132} y1={172} x2={198} y2={180} bend={-8} w={10} dim />
+          <Head x={101} y={160} bunX={84} bunY={152} faceDir={1} />
         </g>
       );
     case 'inverted':
       return (
         <g>
           <Torso d="M138,182 C160,150 178,118 192,90 L172,80 C156,110 138,144 120,176 Z" />
-          <Limb d="M192,92 L206,52" w={14} />
-          <Limb d="M206,52 L214,26" w={11} />
-          <Limb d="M182,86 L200,50" w={12} dim />
-          <Limb d="M130,184 L188,192" w={10} dim />
-          <Head x={121} y={186} bunX={104} bunY={182} />
+          <Limb x1={192} y1={92} x2={210} y2={40} bend={10} w={14} />
+          <Limb x1={182} y1={86} x2={198} y2={40} bend={-8} w={12} dim />
+          <Limb x1={130} y1={184} x2={190} y2={192} bend={6} w={10} dim />
+          <Head x={121} y={186} bunX={104} bunY={182} faceDir={1} />
         </g>
       );
     case 'prone':
       return (
         <g>
-          <Torso d="M122,164 C164,166 204,172 238,178 L236,194 C202,190 162,184 120,180 Z" />
-          <Limb d="M238,186 L288,190" w={14} />
-          <Limb d="M288,190 L326,168" w={11} />
-          <Limb d="M128,170 L74,158" w={9} dim />
-          <Limb d="M112,166 L122,168" w={9} />
-          <Head x={97} y={160} bunX={82} bunY={150} />
+          <Torso d="M122,164 C164,166 204,172 238,178 L236,194 C202,190 162,184 120,180 Z" waist={[178, 171, 182, 189]} />
+          <Limb x1={238} y1={186} x2={294} y2={186} bend={-10} w={14} />
+          <Limb x1={294} y1={186} x2={328} y2={166} bend={8} w={11} />
+          <Limb x1={128} y1={170} x2={78} y2={160} bend={8} w={9} dim />
+          <Head x={97} y={160} bunX={82} bunY={150} faceDir={1} />
         </g>
       );
     case 'side_lying':
       return (
         <g>
-          <Torso d="M110,146 C150,150 190,155 222,161 L220,182 C186,176 146,171 108,168 Z" />
-          <Limb d="M222,176 L280,184" w={14} dim />
-          <Limb d="M280,184 L336,190" w={11} dim />
-          <Limb d="M220,162 L274,130" w={15} />
-          <Limb d="M274,130 L332,110" w={12} />
-          <Limb d="M332,110 L346,104" w={8} />
-          <Limb d="M114,154 L94,178" w={9} />
-          <Limb d="M94,178 L120,192" w={8} />
-          <Head x={90} y={143} bunX={73} bunY={135} />
+          <Torso d="M110,146 C150,150 190,155 222,161 L220,182 C186,176 146,171 108,168 Z" waist={[164, 156, 168, 174]} />
+          <Limb x1={222} y1={176} x2={282} y2={184} bend={8} w={14} dim />
+          <Limb x1={282} y1={184} x2={338} y2={192} bend={-6} w={11} dim />
+          <Limb x1={220} y1={162} x2={278} y2={126} bend={-14} w={15} />
+          <Limb x1={278} y1={126} x2={340} y2={104} bend={10} w={12} />
+          <Limb x1={114} y1={154} x2={92} y2={182} bend={8} w={10} />
+          <Head x={90} y={143} bunX={73} bunY={135} faceDir={1} />
         </g>
       );
     case 'seated':
       return (
         <g>
-          <Torso d="M180,74 C186,104 190,134 192,162 L166,164 C164,134 162,104 158,76 Z" />
-          <Limb d="M190,164 L250,176" w={15} />
-          <Limb d="M250,176 L310,182" w={12} />
-          <Limb d="M310,182 L322,172" w={8} />
-          <Limb d="M176,92 L236,106" w={10} dim />
-          <Head x={169} y={56} bunX={152} bunY={46} />
+          <Torso d="M180,74 C186,104 190,134 192,162 L166,164 C164,134 162,104 158,76 Z" waist={[164, 130, 190, 132]} />
+          <Limb x1={190} y1={164} x2={254} y2={178} bend={-10} w={15} />
+          <Limb x1={254} y1={178} x2={316} y2={186} bend={8} w={12} />
+          <Limb x1={176} y1={92} x2={236} y2={106} bend={-8} w={10} dim />
+          <Head x={169} y={56} bunX={152} bunY={46} faceDir={1} />
         </g>
       );
     case 'seated_fold':
       return (
         <g>
           <Torso d="M172,88 C186,112 198,134 208,152 L186,166 C174,144 160,120 148,96 Z" />
-          <Limb d="M206,158 L262,174" w={15} />
-          <Limb d="M262,174 L318,182" w={12} />
-          <Limb d="M186,94 L252,124" w={10} dim />
-          <Head x={158} y={78} bunX={142} bunY={64} />
+          <Limb x1={206} y1={158} x2={264} y2={176} bend={-8} w={15} />
+          <Limb x1={264} y1={176} x2={320} y2={186} bend={6} w={12} />
+          <Limb x1={186} y1={94} x2={252} y2={124} bend={-10} w={10} dim />
+          <Head x={158} y={78} bunX={142} bunY={64} faceDir={1} />
         </g>
       );
     case 'standing':
       return (
         <g>
-          <Torso d="M186,66 C190,96 192,122 194,148 L166,150 C164,124 162,96 158,68 Z" />
-          <Limb d="M192,150 L200,190" w={15} />
-          <Limb d="M200,190 L204,196" w={12} />
-          <Limb d="M168,150 L160,190" w={15} dim />
-          <Limb d="M160,190 L156,196" w={12} dim />
-          <Limb d="M184,84 L206,132" w={10} dim />
-          <Limb d="M164,84 L146,132" w={10} dim />
-          <Head x={173} y={48} bunX={156} bunY={38} />
+          <GroundShadow cx={180} cy={196} rx={30} />
+          <Torso d="M186,66 C190,96 192,122 194,148 L166,150 C164,124 162,96 158,68 Z" waist={[165, 116, 191, 118]} />
+          <Limb x1={192} y1={150} x2={200} y2={190} bend={4} w={15} />
+          <Limb x1={168} y1={150} x2={158} y2={190} bend={-4} w={15} dim />
+          <Limb x1={184} y1={84} x2={208} y2={128} bend={8} w={10} dim />
+          <Limb x1={164} y1={84} x2={144} y2={128} bend={-8} w={10} dim />
+          <Head x={173} y={48} bunX={156} bunY={38} faceDir={1} />
         </g>
       );
     case 'standing_reach':
       return (
         <g>
-          <Torso d="M186,74 C190,102 192,126 194,150 L166,152 C164,126 162,102 158,76 Z" />
-          <Limb d="M192,152 L200,190" w={15} />
-          <Limb d="M168,152 L160,190" w={15} dim />
-          <Limb d="M184,84 L202,36" w={10} />
-          <Limb d="M164,84 L148,36" w={10} dim />
-          <Head x={173} y={56} bunX={156} bunY={46} />
+          <GroundShadow cx={180} cy={196} rx={30} />
+          <Torso d="M186,74 C190,102 192,126 194,150 L166,152 C164,126 162,102 158,76 Z" waist={[165, 122, 191, 124]} />
+          <Limb x1={192} y1={152} x2={202} y2={190} bend={4} w={15} />
+          <Limb x1={168} y1={152} x2={158} y2={190} bend={-4} w={15} dim />
+          <Limb x1={184} y1={84} x2={204} y2={36} bend={-10} w={10} />
+          <Limb x1={164} y1={84} x2={146} y2={36} bend={10} w={10} dim />
+          <Head x={173} y={56} bunX={156} bunY={46} faceDir={1} />
         </g>
       );
     case 'kneeling':
       return (
         <g>
-          <Torso d="M186,80 C190,106 192,128 194,148 L166,150 C164,130 162,106 158,82 Z" />
-          <Limb d="M192,150 L212,182" w={15} />
-          <Limb d="M212,182 L172,192" w={12} />
-          <Limb d="M168,150 L152,184" w={14} dim />
-          <Limb d="M182,96 L232,110" w={10} dim />
-          <Head x={173} y={62} bunX={156} bunY={52} />
+          <Torso d="M186,80 C190,106 192,128 194,148 L166,150 C164,130 162,106 158,82 Z" waist={[165, 128, 191, 130]} />
+          <Limb x1={192} y1={150} x2={214} y2={178} bend={10} w={15} />
+          <Limb x1={214} y1={178} x2={176} y2={192} bend={-8} w={12} />
+          <Limb x1={168} y1={150} x2={152} y2={186} bend={-10} w={14} dim />
+          <Limb x1={182} y1={96} x2={230} y2={112} bend={-8} w={10} dim />
+          <Head x={173} y={62} bunX={156} bunY={52} faceDir={1} />
         </g>
       );
     case 'all_fours':
       return (
         <g>
           <Torso d="M140,110 C180,108 220,110 254,114 L252,134 C218,130 178,128 138,130 Z" />
-          <Limb d="M144,128 L138,178" w={13} />
-          <Limb d="M138,178 L128,190" w={10} />
-          <Limb d="M250,130 L262,178" w={14} dim />
-          <Limb d="M262,178 L276,190" w={11} dim />
-          <Limb d="M172,126 L166,176" w={12} dim />
-          <Limb d="M228,128 L238,178" w={13} dim />
-          <Head x={124} y={116} bunX={108} bunY={108} />
+          <Limb x1={144} y1={128} x2={132} y2={186} bend={8} w={13} />
+          <Limb x1={250} y1={130} x2={272} y2={186} bend={-8} w={14} dim />
+          <Limb x1={172} y1={126} x2={166} y2={176} bend={4} w={12} dim />
+          <Limb x1={228} y1={128} x2={238} y2={178} bend={-4} w={13} dim />
+          <Head x={124} y={116} bunX={108} bunY={108} faceDir={-1} />
         </g>
       );
     case 'bridge':
@@ -291,31 +319,29 @@ function Figure({ pose }: { pose: PoseKey }) {
             strokeWidth="22"
             strokeLinecap="round"
           />
-          <Limb d="M250,166 L268,190" w={14} />
-          <Limb d="M268,190 L292,192" w={10} />
-          <Limb d="M140,182 L96,190" w={10} dim />
-          <Head x={124} y={182} bunX={108} bunY={178} />
+          <Limb x1={250} y1={166} x2={280} y2={190} bend={-6} w={14} />
+          <Limb x1={140} y1={182} x2={90} y2={190} bend={6} w={10} dim />
+          <Head x={124} y={182} bunX={108} bunY={178} faceDir={1} />
         </g>
       );
     case 'plank':
       return (
         <g>
-          <Torso d="M132,140 C176,146 218,154 252,162 L250,180 C216,172 174,164 130,158 Z" />
-          <Limb d="M136,152 L128,188" w={12} />
-          <Limb d="M252,170 L292,186" w={14} dim />
-          <Limb d="M292,186 L326,192" w={11} dim />
-          <Limb d="M190,156 L184,188" w={10} dim />
-          <Head x={114} y={134} bunX={98} bunY={126} />
+          <Torso d="M132,140 C176,146 218,154 252,162 L250,180 C216,172 174,164 130,158 Z" waist={[192, 158, 196, 176]} />
+          <Limb x1={136} y1={152} x2={122} y2={188} bend={6} w={12} />
+          <Limb x1={252} y1={170} x2={300} y2={186} bend={-8} w={14} dim />
+          <Limb x1={300} y1={186} x2={332} y2={192} bend={6} w={11} dim />
+          <Head x={114} y={134} bunX={98} bunY={126} faceDir={1} />
         </g>
       );
     case 'side_plank':
       return (
         <g>
-          <Torso d="M138,124 C180,140 220,158 254,174 L246,190 C210,174 170,156 130,140 Z" />
-          <Limb d="M136,136 L124,186" w={12} />
-          <Limb d="M252,182 L306,190" w={13} dim />
-          <Limb d="M144,124 L152,52" w={10} />
-          <Head x={120} y={118} bunX={104} bunY={108} />
+          <Torso d="M138,124 C180,140 220,158 254,174 L246,190 C210,174 170,156 130,140 Z" waist={[194, 148, 198, 166]} />
+          <Limb x1={136} y1={136} x2={120} y2={188} bend={6} w={12} />
+          <Limb x1={252} y1={182} x2={310} y2={190} bend={-8} w={13} dim />
+          <Limb x1={144} y1={124} x2={156} y2={48} bend={10} w={10} />
+          <Head x={120} y={118} bunX={104} bunY={108} faceDir={1} />
         </g>
       );
     default:
