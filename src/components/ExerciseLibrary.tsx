@@ -3,6 +3,7 @@ import { Search, Info, Dumbbell, Activity, Check, Plus, X, PlayCircle } from 'lu
 import { Exercise } from '../types';
 import { INITIAL_EXERCISES } from '../data';
 import { getExerciseMedia } from '../utils/exerciseMedia';
+import StepSequence from './StepSequence';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ExerciseLibraryProps {
@@ -398,11 +399,17 @@ export default function ExerciseLibrary({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                     <div className="absolute bottom-5 right-5 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 text-sm text-white backdrop-blur-sm">
-                      לתרגיל הזה עדיין אין וידאו מוטמע מאומת. מוצגות הנחיות ביצוע מקצועיות ותמונת cover.
+                      לתרגיל הזה עדיין אין וידאו מוטמע מאומת. רצף השלבים המלא מוצג למטה.
                     </div>
                   </>
                 )}
               </div>
+
+              {!getExerciseMedia(selectedExercise).isDedicatedVideo && (
+                <div className="px-6 md:px-8 pt-6">
+                  <StepSequence instructions={selectedExercise.instructions} />
+                </div>
+              )}
 
               <div className="p-6 md:p-8">
                 {/* Tag & Level */}
