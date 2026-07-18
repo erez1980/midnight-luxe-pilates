@@ -29,6 +29,7 @@ import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, importLessonsBu
 import { pullCloudLessons, pushCloudLessons, createSharedLesson, fetchSharedLesson } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
 import { AuthProfile, getAuthProfile, listenToAuthChanges, signInWithGoogle, signOut } from './utils/auth';
+import { upsertProfile } from './utils/profile';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './components/ui/Button';
 
@@ -89,7 +90,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    getAuthProfile().then(setAuthProfile);
+    getAuthProfile().then((profile) => {
+      setAuthProfile(profile);
+      if (profile) upsertProfile(profile);
+    });
   }, []);
 
   useEffect(() => {
@@ -97,6 +101,7 @@ export default function App() {
       setAuthProfile(profile);
       if (event === 'SIGNED_IN' && profile) {
         setUiNotice('התחברת בהצלחה עם Google. מסנכרנת שיעורים...');
+        upsertProfile(profile);
         mergeCloudOnLogin();
       }
     });
@@ -340,13 +345,12 @@ export default function App() {
             {authProfile ? (
               <div className="hidden sm:flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-sm text-white font-semibold leading-tight">{authProfile.name || authProfile.email || 'Pilates Instructor'}</div>
-                  {authProfile.email && <div className="text-[11px] text-on-surface-variant leading-tight">{authProfile.email}</div>}
+                  <div className="text-sm text-white font-semibold leading-tight">{authProfile.name}</div>
                 </div>
                 <button
                   onClick={() => goToProtected('lessons')}
                   className="w-10 h-10 rounded-full border border-white/20 bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all overflow-hidden bg-surface-container"
-                  title={authProfile.email || authProfile.name}
+                  title={authProfile.name}
                 >
                   {authProfile.avatarUrl ? (
                     <img src={authProfile.avatarUrl} alt={authProfile.name || 'Profile'} className="w-full h-full object-cover" />

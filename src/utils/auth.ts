@@ -8,12 +8,36 @@ export type AuthProfile = {
   avatarUrl?: string;
 };
 
+// Derives a human display name. Falls back to the email's local part, tidied
+// up ("dana.levi" -> "Dana Levi"), rather than showing a raw email address as
+// if it were a name.
+function displayNameFrom(user: User): string {
+  const meta = user.user_metadata || {};
+  const fromMeta =
+    meta.full_name ||
+    meta.name ||
+    [meta.given_name, meta.family_name].filter(Boolean).join(' ');
+  if (fromMeta && String(fromMeta).trim()) return String(fromMeta).trim();
+
+  const local = (user.email || '').split('@')[0];
+  if (local) {
+    return local
+      .replace(/[._-]+/g, ' ')
+      .replace(/\d+/g, '')
+      .trim()
+      .split(/\s+/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+  return 'Pilates Instructor';
+}
+
 export function toAuthProfile(user: User | null): AuthProfile | null {
   if (!user) return null;
   return {
     id: user.id,
     email: user.email || undefined,
-    name: user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'Pilates Instructor',
+    name: displayNameFrom(user),
     avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || user.identities?.[0]?.identity_data?.avatar_url || undefined,
   };
 }

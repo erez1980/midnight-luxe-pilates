@@ -86,3 +86,33 @@ alter table public.lesson_templates add constraint lesson_templates_user_lesson_
 
 ## 4. Deploy
 לאחר עדכון env, לבצע build+deploy מחדש.
+
+## User profiles table
+
+Stores a real user record on sign-in (name, email, avatar, last seen) instead of
+relying only on the transient session. Run once in the Supabase SQL Editor:
+
+```sql
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  full_name text,
+  avatar_url text,
+  created_at timestamptz not null default now(),
+  last_seen_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+-- A person can only read and write their own profile row.
+create policy profiles_select_own on public.profiles
+  for select using (auth.uid() = id);
+create policy profiles_insert_own on public.profiles
+  for insert with check (auth.uid() = id);
+create policy profiles_update_own on public.profiles
+  for update using (auth.uid() = id) with check (auth.uid() = id);
+```
+
+The upsert runs on every sign-in (`src/utils/profile.ts`), so `last_seen_at`
+doubles as a lightweight active-user signal and the name/avatar stay current.
+It is best-effort — a failure logs a warning and never blocks sign-in.

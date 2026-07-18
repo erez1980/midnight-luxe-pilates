@@ -22,11 +22,12 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
   const currentLessonExercise = lesson.exercises[currentIndex];
   const nextLessonExercise = currentIndex < lesson.exercises.length - 1 ? lesson.exercises[currentIndex + 1] : null;
 
-  // Initialize timer for current exercise
+  // Reset the clock for the current exercise. Deliberately does NOT touch
+  // isPlaying: a running session flows straight into the next exercise, and a
+  // paused one stays paused.
   useEffect(() => {
     if (currentLessonExercise) {
       setTimeLeft(currentLessonExercise.customDuration * 60);
-      setIsPlaying(false);
     }
   }, [currentIndex, currentLessonExercise]);
 
@@ -40,16 +41,21 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
       return;
     }
 
-    deadlineRef.current = Date.now() + timeLeft * 1000;
+    const secondsRemaining = timeLeft > 0 ? timeLeft : (currentLessonExercise?.customDuration ?? 0) * 60;
+    deadlineRef.current = Date.now() + secondsRemaining * 1000;
 
     const tick = () => {
       if (deadlineRef.current === null) return;
       const remaining = Math.max(0, Math.round((deadlineRef.current - Date.now()) / 1000));
       setTimeLeft(remaining);
       if (remaining === 0) {
-        setIsPlaying(false);
         playBeep();
-        handleNext();
+        if (currentIndex < lesson.exercises.length - 1) {
+          setCurrentIndex((prev) => prev + 1);
+        } else {
+          setIsPlaying(false);
+          setShowSummary(true);
+        }
       }
     };
 
