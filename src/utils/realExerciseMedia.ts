@@ -25,6 +25,9 @@ export const curatedVideoEmbeds: Record<string, { embedUrl: string; label: strin
   chair_pushups: { embedUrl: 'https://www.youtube.com/embed/CCUpfiL8XAs', label: 'Push Ups on Wunda Chair — הדגמה מלאה' },
   props_magic_circle_thighs: { embedUrl: 'https://www.youtube.com/embed/2dWCf8bmPhI', label: 'Magic Circle — ירך פנימית — הדגמה מלאה' },
   props_bridge_ball: { embedUrl: 'https://www.youtube.com/embed/Iv3r2kulhI8', label: 'Bridge — הדרכה נכונה' },
+  reformer_1_1: { embedUrl: 'https://www.youtube.com/embed/8HfgZLz9QS0', label: 'Rowing Series — הדגמה מלאה' },
+  reformer_11_1: { embedUrl: 'https://www.youtube.com/embed/N-8seOdKqiU', label: 'Coordination — הדגמה מלאה' },
+  reformer_41_3: { embedUrl: 'https://www.youtube.com/embed/BfRY99Ka-zQ', label: 'Long Stretch — הדגמה מלאה' },
   // Phase 1+2 real exercises — dedicated matches (verified via title/channel, Howcast "How to Do" mat series unless noted)
   mat_0_1: { embedUrl: 'https://www.youtube.com/embed/pg4WRNkbnjA', label: 'Single Leg Circle — הדגמה מלאה' },
   mat_5_1: { embedUrl: 'https://www.youtube.com/embed/Go6UA7SHdoE', label: 'Corkscrew — הדגמה מלאה' },
