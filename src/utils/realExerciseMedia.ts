@@ -73,6 +73,8 @@ export const curatedVideoEmbeds: Record<string, { embedUrl: string; label: strin
   chair_83_5: { embedUrl: 'https://www.youtube.com/embed/ixa3nCqq-LU', label: 'Going Up Side — הדגמה מלאה' },
   chair_103_6: { embedUrl: 'https://www.youtube.com/embed/Y0XdJQkqBrU', label: 'Frog on Chair — הדגמה מלאה' },
   chair_18_1: { embedUrl: 'https://www.youtube.com/embed/1-2mya5qSyk', label: 'Kneeling Cat Stretch — הדגמה מלאה' },
+  mat_100_6: { embedUrl: 'https://www.youtube.com/embed/KAotX1bDGps', label: 'Swan Prep — הדגמה מלאה' },
+  mat_115_6: { embedUrl: 'https://www.youtube.com/embed/zKzRqV3cjgQ', label: 'Bicycle — הדגמה מלאה' },
   // Phase 1+2 real exercises — dedicated matches (verified via title/channel, Howcast "How to Do" mat series unless noted)
   mat_0_1: { embedUrl: 'https://www.youtube.com/embed/pg4WRNkbnjA', label: 'Single Leg Circle — הדגמה מלאה' },
   mat_5_1: { embedUrl: 'https://www.youtube.com/embed/Go6UA7SHdoE', label: 'Corkscrew — הדגמה מלאה' },
