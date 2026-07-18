@@ -28,6 +28,13 @@ export const curatedVideoEmbeds: Record<string, { embedUrl: string; label: strin
   reformer_1_1: { embedUrl: 'https://www.youtube.com/embed/8HfgZLz9QS0', label: 'Rowing Series — הדגמה מלאה' },
   reformer_11_1: { embedUrl: 'https://www.youtube.com/embed/N-8seOdKqiU', label: 'Coordination — הדגמה מלאה' },
   reformer_41_3: { embedUrl: 'https://www.youtube.com/embed/BfRY99Ka-zQ', label: 'Long Stretch — הדגמה מלאה' },
+  reformer_51_3: { embedUrl: 'https://www.youtube.com/embed/q4aSiZC1yjo', label: 'Up Stretch — הדגמה מלאה' },
+  cadillac_27_2: { embedUrl: 'https://www.youtube.com/embed/KQePaN-Qfvk', label: 'Monkey — הדגמה מלאה' },
+  reformer_16_1: { embedUrl: 'https://www.youtube.com/embed/7TDdzbuLiUI', label: 'Tendon Stretch — הדגמה מלאה' },
+  reformer_21_2: { embedUrl: 'https://www.youtube.com/embed/I2j_Y0JsuN0', label: 'Knee Stretches - Round Back — הדגמה מלאה' },
+  reformer_61_4: { embedUrl: 'https://www.youtube.com/embed/A3vkIu44sVs', label: 'Knee Stretches - Arched Back — הדגמה מלאה' },
+  reformer_106_6: { embedUrl: 'https://www.youtube.com/embed/yCGEhRigHm4', label: 'Down Stretch — הדגמה מלאה' },
+  chair_3_1: { embedUrl: 'https://www.youtube.com/embed/pxQFdPnjlrE', label: 'Going Up Front — הדגמה מלאה' },
   // Phase 1+2 real exercises — dedicated matches (verified via title/channel, Howcast "How to Do" mat series unless noted)
   mat_0_1: { embedUrl: 'https://www.youtube.com/embed/pg4WRNkbnjA', label: 'Single Leg Circle — הדגמה מלאה' },
   mat_5_1: { embedUrl: 'https://www.youtube.com/embed/Go6UA7SHdoE', label: 'Corkscrew — הדגמה מלאה' },
