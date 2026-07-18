@@ -38,7 +38,13 @@ create policy lesson_templates_own on public.lesson_templates for all using (aut
 ```
 
 ## 3. Auth
-ב-Supabase Auth להפעיל Anonymous Sign-Ins.
+האתר משתמש ב-**Google OAuth** (לא Anonymous Sign-Ins). ב-Supabase Dashboard:
+
+1. Authentication → Providers → הפעל **Google**.
+2. ב-[Google Cloud Console](https://console.cloud.google.com/) — צור OAuth Client ID מסוג Web application.
+3. הוסף ל-Authorized redirect URIs את כתובת ה-callback שמופיעה בעמוד ה-Google provider ב-Supabase (בפורמט `https://YOUR_PROJECT.supabase.co/auth/v1/callback`).
+4. העתק את ה-Client ID וה-Client Secret חזרה לעמוד ה-provider ב-Supabase ושמור.
+5. ב-Authentication → URL Configuration, ודא שכתובת האתר שלך (production + `http://localhost:5173` לפיתוח) מופיעה תחת Redirect URLs — אחרת ה-login יחזיר שגיאה אחרי אישור Google.
 
 ## 4. Deploy
 לאחר עדכון env, לבצע build+deploy מחדש.
