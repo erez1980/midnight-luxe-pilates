@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, Info, Dumbbell, Activity, Check, Plus, X, Sparkles, PlayCircle } from 'lucide-react';
 import { Exercise } from '../types';
 import { INITIAL_EXERCISES } from '../data';
@@ -21,6 +21,53 @@ export default function ExerciseLibrary({
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+
+  // Modal accessibility: Escape closes, background scroll is locked while open,
+  // focus moves into the dialog and returns to the trigger on close, and Tab is
+  // trapped inside the dialog.
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const lastFocusedRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!selectedExercise) return;
+
+    lastFocusedRef.current = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        setSelectedExercise(null);
+        return;
+      }
+      if (event.key !== 'Tab' || !modalRef.current) return;
+
+      const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input, select, textarea, iframe, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      lastFocusedRef.current?.focus();
+    };
+  }, [selectedExercise]);
 
   // Filters
   const apparatusOptions = [
@@ -361,11 +408,17 @@ export default function ExerciseLibrary({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', duration: 0.4 }}
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`פרטי תרגיל: ${selectedExercise.name}`}
               className="relative w-full max-w-4xl bg-surface border border-secondary/30 shadow-2xl overflow-y-auto max-h-[90vh]"
             >
               {/* Close button */}
               <button
+                ref={closeButtonRef}
                 onClick={() => setSelectedExercise(null)}
+                aria-label="סגירת חלון פרטי התרגיל"
                 className="absolute top-6 left-6 text-on-surface-variant hover:text-white border border-white/10 hover:border-white/30 p-2 transition-colors rounded-sm"
               >
                 <X className="w-5 h-5" />

@@ -16,7 +16,8 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [showSummary, setShowSummary] = useState(false);
   
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const deadlineRef = useRef<number | null>(null);
   
   const currentLessonExercise = lesson.exercises[currentIndex];
   const nextLessonExercise = currentIndex < lesson.exercises.length - 1 ? lesson.exercises[currentIndex + 1] : null;
@@ -29,21 +30,36 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
     }
   }, [currentIndex, currentLessonExercise]);
 
-  // Main countdown logic
+  // Main countdown logic.
+  // Anchored to an absolute deadline rather than chaining setTimeout(1000):
+  // chained timeouts accumulate drift and are throttled hard when the tab is
+  // backgrounded, so a 5-minute exercise could run noticeably long.
   useEffect(() => {
-    if (isPlaying && timeLeft > 0) {
-      timerRef.current = setTimeout(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && isPlaying) {
-      playBeep();
-      handleNext();
+    if (!isPlaying) {
+      deadlineRef.current = null;
+      return;
     }
 
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+    deadlineRef.current = Date.now() + timeLeft * 1000;
+
+    const tick = () => {
+      if (deadlineRef.current === null) return;
+      const remaining = Math.max(0, Math.round((deadlineRef.current - Date.now()) / 1000));
+      setTimeLeft(remaining);
+      if (remaining === 0) {
+        setIsPlaying(false);
+        playBeep();
+        handleNext();
+      }
     };
-  }, [isPlaying, timeLeft]);
+
+    timerRef.current = setInterval(tick, 250);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+    // timeLeft is read to seed the deadline, but must not re-trigger the effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, currentIndex]);
 
   // Play browser beep using Web Audio API
   const playBeep = () => {
@@ -88,6 +104,17 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
       setIsPlaying(false);
       setShowSummary(true);
     }
+  };
+
+  // Manual "next" press on the final exercise ends the whole session, so ask
+  // first — an accidental tap otherwise drops the instructor into the summary
+  // mid-class with no way back.
+  const handleNextPressed = () => {
+    const isLast = currentIndex === lesson.exercises.length - 1;
+    if (isLast && !window.confirm('זהו התרגיל האחרון. לסיים את השיעור ולעבור למסך הסיכום?')) {
+      return;
+    }
+    handleNext();
   };
 
   const handlePrev = () => {
@@ -245,6 +272,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
               variant="surface"
               size="icon"
               title="לתרגיל הקודם"
+              aria-label="לתרגיל הקודם"
             >
               <ChevronRight className="w-5 h-5" />
             </Button>
@@ -267,15 +295,17 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
               variant="surface"
               size="icon"
               title="איפוס זמן תרגיל"
+              aria-label="איפוס זמן תרגיל"
             >
               <RotateCcw className="w-5 h-5" />
             </Button>
 
             <Button
-              onClick={handleNext}
+              onClick={handleNextPressed}
               variant="surface"
               size="icon"
               title="לתרגיל הבא"
+              aria-label="לתרגיל הבא"
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>

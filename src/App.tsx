@@ -284,7 +284,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-on-background flex flex-col relative overflow-x-hidden selection:bg-secondary selection:text-background">
+    // overflow-clip (not overflow-x-hidden): hiding only one axis forces the
+    // other to compute to `auto`, turning this div into a scroll container and
+    // breaking any `position: sticky` inside it.
+    <div className="min-h-screen bg-background text-on-background flex flex-col relative overflow-clip selection:bg-secondary selection:text-background">
       
       {/* Header Section */}
       <header className="fixed top-0 left-0 w-full z-50 bg-background/85 backdrop-blur-md border-b border-white/5 px-6 md:px-20 py-4 transition-all duration-300">

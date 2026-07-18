@@ -134,7 +134,7 @@ export default function MyLessons({
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="group border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative flex flex-col justify-between"
+              className="group border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden flex flex-col justify-between"
             >
               {/* Decorative top gold hover line */}
               <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>

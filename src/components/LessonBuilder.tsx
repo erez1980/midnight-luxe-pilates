@@ -267,7 +267,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white font-bold px-6 py-3 shadow-2xl flex items-center gap-2"
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-2rem)] bg-emerald-600 text-white font-bold px-6 py-3 shadow-2xl flex items-center gap-2"
           >
             <Sparkles className="w-5 h-5" />
             השיעור נשמר בהצלחה בספרייה שלך!
