@@ -19,7 +19,8 @@ create table if not exists public.lessons (
   user_id uuid not null,
   lesson_id text not null,
   payload jsonb not null,
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  unique (user_id, lesson_id)
 );
 
 create table if not exists public.lesson_templates (
@@ -27,7 +28,8 @@ create table if not exists public.lesson_templates (
   user_id uuid not null,
   lesson_id text not null,
   payload jsonb not null,
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  unique (user_id, lesson_id)
 );
 
 alter table public.lessons enable row level security;
@@ -36,6 +38,15 @@ alter table public.lesson_templates enable row level security;
 create policy lessons_own on public.lessons for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy lesson_templates_own on public.lesson_templates for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 ```
+
+**אם כבר הרצת את ה-SQL הזה בעבר** (לפני שהיה `unique (user_id, lesson_id)`), הטבלאות שלך חסרות את ה-constraint הזה, וה-sync החדש (שמשתמש ב-`upsert`) לא יעבוד בלעדיו. הרץ בנוסף:
+
+```sql
+alter table public.lessons add constraint lessons_user_lesson_unique unique (user_id, lesson_id);
+alter table public.lesson_templates add constraint lesson_templates_user_lesson_unique unique (user_id, lesson_id);
+```
+
+אם יש כבר שורות כפולות מהתקופה של ה-delete+insert הישן, ה-`alter table` הזה ייכשל עם שגיאת duplicate key — במקרה כזה יש למחוק ידנית שורות כפולות (Table Editor → למיין לפי `lesson_id` → למחוק כפילויות) לפני הרצת ה-constraint.
 
 ## 3. Auth
 האתר משתמש ב-**Google OAuth** (לא Anonymous Sign-Ins). ב-Supabase Dashboard:

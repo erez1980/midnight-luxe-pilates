@@ -1,12 +1,6 @@
 import { Lesson } from '../types';
 import { supabase, supabaseEnabled } from '../lib/supabase';
 
-export async function signInAnonymously() {
-  if (!supabaseEnabled || !supabase) return { ok: false, reason: 'disabled' };
-  const { error } = await supabase.auth.signInAnonymously();
-  return error ? { ok: false, reason: error.message } : { ok: true };
-}
-
 export async function getCurrentUserId() {
   if (!supabaseEnabled || !supabase) return null;
   const { data } = await supabase.auth.getUser();
@@ -29,27 +23,45 @@ export async function pullCloudLessons() {
   };
 }
 
+// Upserts every row the client currently has (by user_id+lesson_id), then removes
+// only the cloud rows that are no longer present locally. This is deliberately NOT
+// delete-then-insert: if the upsert fails partway through, nothing that was already
+// in the cloud is lost — the stale-row cleanup only runs after a successful upsert.
+async function syncTable(table: 'lessons' | 'lesson_templates', userId: string, items: Lesson[]) {
+  if (items.length) {
+    const { error } = await supabase!.from(table).upsert(
+      items.map((lesson) => ({
+        user_id: userId,
+        lesson_id: lesson.id,
+        payload: lesson,
+        updated_at: new Date().toISOString()
+      })),
+      { onConflict: 'user_id,lesson_id' }
+    );
+    if (error) return { ok: false, reason: error.message };
+  }
+
+  // Clean up rows for lessons that were deleted locally. Scoped to this user +
+  // the exact ids no longer present, never a blanket delete of the whole table.
+  const keepIds = items.map((l) => l.id);
+  let deleteQuery = supabase!.from(table).delete().eq('user_id', userId);
+  deleteQuery = keepIds.length ? deleteQuery.not('lesson_id', 'in', `(${keepIds.map((id) => `"${id}"`).join(',')})`) : deleteQuery;
+  const { error: deleteError } = await deleteQuery;
+  if (deleteError) return { ok: false, reason: deleteError.message };
+
+  return { ok: true };
+}
+
 export async function pushCloudLessons(lessons: Lesson[], templates: Lesson[]) {
   if (!supabaseEnabled || !supabase) return { ok: false, reason: 'disabled' };
   const userId = await getCurrentUserId();
   if (!userId) return { ok: false, reason: 'no-user' };
 
-  await supabase.from('lessons').delete().eq('user_id', userId);
-  await supabase.from('lesson_templates').delete().eq('user_id', userId);
+  const lessonsResult = await syncTable('lessons', userId, lessons);
+  if (!lessonsResult.ok) return lessonsResult;
 
-  if (lessons.length) {
-    const { error } = await supabase.from('lessons').insert(
-      lessons.map((lesson) => ({ user_id: userId, lesson_id: lesson.id, payload: lesson }))
-    );
-    if (error) return { ok: false, reason: error.message };
-  }
-
-  if (templates.length) {
-    const { error } = await supabase.from('lesson_templates').insert(
-      templates.map((lesson) => ({ user_id: userId, lesson_id: lesson.id, payload: lesson }))
-    );
-    if (error) return { ok: false, reason: error.message };
-  }
+  const templatesResult = await syncTable('lesson_templates', userId, templates);
+  if (!templatesResult.ok) return templatesResult;
 
   return { ok: true };
 }
@@ -60,7 +72,8 @@ create table if not exists public.lessons (
   user_id uuid not null,
   lesson_id text not null,
   payload jsonb not null,
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  unique (user_id, lesson_id)
 );
 
 create table if not exists public.lesson_templates (
@@ -68,7 +81,8 @@ create table if not exists public.lesson_templates (
   user_id uuid not null,
   lesson_id text not null,
   payload jsonb not null,
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  unique (user_id, lesson_id)
 );
 
 alter table public.lessons enable row level security;

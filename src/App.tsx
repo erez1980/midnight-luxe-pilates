@@ -26,7 +26,7 @@ import LessonBuilder from './components/LessonBuilder';
 import MyLessons from './components/MyLessons';
 import CoachingSession from './components/CoachingSession';
 import { buildShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
-import { pullCloudLessons, pushCloudLessons, signInAnonymously, supabaseSqlGuide } from './utils/cloudSync';
+import { pullCloudLessons, pushCloudLessons } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
 import { AuthProfile, getAuthProfile, listenToAuthChanges, signInWithGoogle, signOut } from './utils/auth';
 import { motion, AnimatePresence } from 'motion/react';
@@ -39,7 +39,8 @@ export default function App() {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [templates, setTemplates] = useState<Lesson[]>([]);
   const [authProfile, setAuthProfile] = useState<AuthProfile | null>(null);
-  const [cloudStatus, setCloudStatus] = useState(supabaseEnabled ? 'Cloud available' : 'Cloud not configured');
+  const [cloudStatus, setCloudStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
+  const [hydrated, setHydrated] = useState(false);
   const [uiNotice, setUiNotice] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -56,6 +57,11 @@ export default function App() {
     } catch (e) {
       console.warn('Failed to read from localStorage', e);
       setLessons(INITIAL_LESSONS);
+    } finally {
+      // Only after local state has a real value do we allow cloud sync to run -
+      // otherwise an auto-push could fire with an empty array before localStorage
+      // has loaded and wipe out a real cloud backup.
+      setHydrated(true);
     }
   }, []);
 
@@ -64,9 +70,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const subscription = listenToAuthChanges((profile) => {
+    const subscription = listenToAuthChanges((profile, event) => {
       setAuthProfile(profile);
-      if (profile) setUiNotice('התחברת בהצלחה עם Google.');
+      if (event === 'SIGNED_IN' && profile) {
+        setUiNotice('התחברת בהצלחה עם Google. מסנכרנת שיעורים...');
+        mergeCloudOnLogin();
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -82,6 +91,39 @@ export default function App() {
     setActiveScreen(screen);
   };
 
+  // Called right after a Google sign-in. Pulls whatever is already saved in the
+  // cloud for this account and merges it with whatever is currently in the
+  // browser (e.g. lessons a guest built before logging in), so nothing is lost
+  // in either direction. Cloud copies win on id collisions; local-only items are
+  // kept. The merged result is written back to both localStorage and the cloud.
+  const mergeCloudOnLogin = async () => {
+    setCloudStatus('syncing');
+    try {
+      const pulled = await pullCloudLessons();
+      const mergeById = (localItems: Lesson[], cloudItems: Lesson[]) => {
+        const cloudIds = new Set(cloudItems.map((l) => l.id));
+        const localOnly = localItems.filter((l) => !cloudIds.has(l.id));
+        return [...cloudItems, ...localOnly];
+      };
+
+      setLessons((currentLessons) => {
+        const merged = mergeById(currentLessons, pulled.lessons);
+        writeLessons(merged);
+        return merged;
+      });
+      setTemplates((currentTemplates) => {
+        const merged = mergeById(currentTemplates, pulled.templates);
+        writeTemplates(merged);
+        return merged;
+      });
+      setCloudStatus('synced');
+    } catch (e) {
+      console.warn('Cloud merge on login failed', e);
+      setCloudStatus('error');
+      setUiNotice('הסנכרון עם הענן נכשל. השיעורים המקומיים עדיין שמורים אצלך.');
+    }
+  };
+
   const handleGoogleLogin = async () => {
     const result = await signInWithGoogle();
     if (!result.ok) {
@@ -92,6 +134,7 @@ export default function App() {
   const handleLogout = async () => {
     await signOut();
     setAuthProfile(null);
+    setCloudStatus('idle');
     setActiveScreen('home');
     setUiNotice('התנתקת בהצלחה.');
   };
@@ -103,8 +146,31 @@ export default function App() {
       writeLessons(updatedLessons);
     } catch (e) {
       console.warn('Failed to write to localStorage', e);
+      setUiNotice('שמירת השיעור נכשלה במכשיר הזה (יתכן שאין מספיק מקום אחסון). נסי לגבות לקובץ.');
     }
   };
+
+  // Push to Supabase whenever the authenticated user's lessons/templates change.
+  // Guarded by `hydrated` so this never fires with an empty array before the
+  // initial localStorage read completes (that would wipe a real cloud backup).
+  useEffect(() => {
+    if (!hydrated || !isAuthenticated || !supabaseEnabled) return;
+    let cancelled = false;
+    setCloudStatus('syncing');
+    pushCloudLessons(lessons, templates).then((result) => {
+      if (cancelled) return;
+      if (result.ok) {
+        setCloudStatus('synced');
+      } else {
+        setCloudStatus('error');
+        if (result.reason !== 'disabled') {
+          setUiNotice(`הגיבוי לענן נכשל: ${result.reason}. השיעור עדיין שמור במכשיר הזה.`);
+        }
+      }
+    });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessons, templates, hydrated, isAuthenticated]);
 
   const handleSaveTemplate = (lesson: Lesson) => {
     const updated = [lesson, ...templates.filter((item) => item.id !== lesson.id)];
@@ -114,6 +180,7 @@ export default function App() {
 
   const handleExportBundle = () => {
     exportLessonsBundle(lessons, templates);
+    setUiNotice('קובץ הגיבוי הורד בהצלחה.');
   };
 
   const handleImportBundle = async (file: File) => {
@@ -128,32 +195,6 @@ export default function App() {
     } catch {
       setUiNotice('קובץ הגיבוי לא תקין.');
     }
-  };
-
-  const handleCloudLogin = async () => {
-    const result = await signInAnonymously();
-    if (!result.ok) {
-      setUiNotice(result.reason === 'disabled' ? 'Supabase עדיין לא מוגדר. צריך להכניס URL + anon key ב-env.' : `Cloud login failed: ${result.reason}`);
-      return;
-    }
-    setCloudStatus('Cloud connected');
-    setUiNotice('Cloud login בוצע.');
-  };
-
-  const handleCloudSync = async () => {
-    const push = await pushCloudLessons(lessons, templates);
-    if (!push.ok) {
-      setUiNotice(push.reason === 'disabled' ? `Cloud לא מוגדר עדיין. ראה קובץ SUPABASE_SETUP.md בפרויקט.` : `Sync failed: ${push.reason}`);
-      return;
-    }
-    const pulled = await pullCloudLessons();
-    if (pulled.lessons.length) saveLessonsToStorage(pulled.lessons);
-    if (pulled.templates.length) {
-      setTemplates(pulled.templates);
-      writeTemplates(pulled.templates);
-    }
-    setCloudStatus('Cloud synced');
-    setUiNotice('Cloud sync הושלם.');
   };
 
   const handleCopyShareLink = async (lesson: Lesson) => {
@@ -602,6 +643,9 @@ export default function App() {
                 onSaveTemplate={handleSaveTemplate}
                 onCopyShareLink={handleCopyShareLink}
                 onBackHome={() => setActiveScreen('home')}
+                onExportBundle={handleExportBundle}
+                onImportBundle={handleImportBundle}
+                cloudStatus={supabaseEnabled ? cloudStatus : null}
               />
             ) : (
               <LockedWorkspace onGoogleLogin={handleGoogleLogin} />

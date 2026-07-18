@@ -1,5 +1,5 @@
-import React from 'react';
-import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, Copy, Bookmark } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Play, Pencil, Trash2, Calendar, Dumbbell, Award, Plus, FolderHeart, Copy, Bookmark, Download, Upload, CloudCheck, CloudAlert, RefreshCw } from 'lucide-react';
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
 import Button from './ui/Button';
@@ -14,6 +14,9 @@ interface MyLessonsProps {
   onSaveTemplate: (lesson: Lesson) => void;
   onCopyShareLink: (lesson: Lesson) => void;
   onBackHome: () => void;
+  onExportBundle: () => void;
+  onImportBundle: (file: File) => void;
+  cloudStatus: 'idle' | 'syncing' | 'synced' | 'error' | null;
 }
 
 export default function MyLessons({
@@ -25,8 +28,19 @@ export default function MyLessons({
   onCreateNewLesson,
   onSaveTemplate,
   onCopyShareLink,
-  onBackHome
+  onBackHome,
+  onExportBundle,
+  onImportBundle,
+  cloudStatus
 }: MyLessonsProps) {
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const cloudStatusDisplay = {
+    idle: null,
+    syncing: { icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />, text: 'מסנכרן לענן...', className: 'text-on-surface-variant' },
+    synced: { icon: <CloudCheck className="w-3.5 h-3.5" />, text: 'מגובה בענן', className: 'text-emerald-400' },
+    error: { icon: <CloudAlert className="w-3.5 h-3.5" />, text: 'סנכרון נכשל - מגובה מקומית בלבד', className: 'text-rose-400' }
+  }[cloudStatus || 'idle'];
   return (
     <div className="w-full">
       {/* Intro Header */}
@@ -44,10 +58,39 @@ export default function MyLessons({
           </p>
         </div>
 
-        <Button onClick={onCreateNewLesson} variant="primary" size="md" className="group whitespace-nowrap">
-          <Plus className="w-4 h-4" />
-          בני שיעור חדש
-        </Button>
+        <div className="flex flex-col items-start md:items-end gap-3">
+          <div className="flex items-center gap-3 flex-wrap justify-end">
+            <Button onClick={onCreateNewLesson} variant="primary" size="md" className="group whitespace-nowrap">
+              <Plus className="w-4 h-4" />
+              בני שיעור חדש
+            </Button>
+            <Button onClick={onExportBundle} variant="surface" size="sm" title="הורדת קובץ גיבוי מקומי לכל השיעורים והתבניות">
+              <Download className="w-3.5 h-3.5" />
+              ייצוא גיבוי
+            </Button>
+            <Button onClick={() => importInputRef.current?.click()} variant="surface" size="sm" title="שחזור מקובץ גיבוי">
+              <Upload className="w-3.5 h-3.5" />
+              ייבוא גיבוי
+            </Button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onImportBundle(file);
+                e.target.value = '';
+              }}
+            />
+          </div>
+          {cloudStatusDisplay && (
+            <div className={`flex items-center gap-1.5 text-xs ${cloudStatusDisplay.className}`}>
+              {cloudStatusDisplay.icon}
+              <span>{cloudStatusDisplay.text}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {templates.length > 0 && (
