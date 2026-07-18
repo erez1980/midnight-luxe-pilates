@@ -25,8 +25,8 @@ import ExerciseLibrary from './components/ExerciseLibrary';
 import LessonBuilder from './components/LessonBuilder';
 import MyLessons from './components/MyLessons';
 import CoachingSession from './components/CoachingSession';
-import { buildShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
-import { pullCloudLessons, pushCloudLessons } from './utils/cloudSync';
+import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
+import { pullCloudLessons, pushCloudLessons, createSharedLesson, fetchSharedLesson } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
 import { AuthProfile, getAuthProfile, listenToAuthChanges, signInWithGoogle, signOut } from './utils/auth';
 import { motion, AnimatePresence } from 'motion/react';
@@ -51,9 +51,6 @@ export default function App() {
       setLessons(storedLessons.length ? storedLessons : INITIAL_LESSONS);
       if (!storedLessons.length) writeLessons(INITIAL_LESSONS);
       setTemplates(readTemplates());
-
-      const sharedLesson = readSharedLessonFromUrl();
-      if (sharedLesson) setEditingLesson({ ...sharedLesson, id: `shared_${Date.now()}` });
     } catch (e) {
       console.warn('Failed to read from localStorage', e);
       setLessons(INITIAL_LESSONS);
@@ -63,6 +60,32 @@ export default function App() {
       // has loaded and wipe out a real cloud backup.
       setHydrated(true);
     }
+  }, []);
+
+  // Resolve a shared lesson from the URL, if there is one. Tries the short
+  // server-stored link first (?s=<id>), then falls back to the legacy
+  // base64-in-URL link (?sharedLesson=<data>) for links created before this
+  // was added. Either way, the recipient is taken straight to the lesson -
+  // including guests who aren't logged in, since a shared lesson is meant to
+  // be viewable without an account.
+  useEffect(() => {
+    (async () => {
+      const url = new URL(window.location.href);
+      const shortId = url.searchParams.get('s');
+      let sharedLesson: Lesson | null = null;
+
+      if (shortId) {
+        sharedLesson = await fetchSharedLesson(shortId);
+        if (!sharedLesson) setUiNotice('קישור השיתוף לא נמצא או פג תוקף.');
+      } else {
+        sharedLesson = readSharedLessonFromUrl();
+      }
+
+      if (sharedLesson) {
+        setEditingLesson({ ...sharedLesson, id: `shared_${Date.now()}` });
+        setActiveScreen('builder');
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -198,12 +221,17 @@ export default function App() {
   };
 
   const handleCopyShareLink = async (lesson: Lesson) => {
-    const url = buildShareUrl(lesson);
+    // Prefer a short server-stored link (works in WhatsApp, SMS, short-link
+    // services). Only falls back to the old base64-in-URL link if Supabase
+    // isn't configured or the save fails - that old link can be very long for
+    // lessons with many exercises, but it's better than no link at all.
+    const sharedId = await createSharedLesson(lesson);
+    const url = sharedId ? buildShortShareUrl(sharedId) : buildShareUrl(lesson);
     try {
       await navigator.clipboard.writeText(url);
-      setUiNotice('קישור השיתוף הועתק.');
+      setUiNotice(sharedId ? 'קישור השיתוף הועתק.' : 'קישור השיתוף הועתק (גרסה ארוכה - Cloud לא היה זמין).');
     } catch {
-      setUiNotice(`העתקת הקישור נכשלה. אפשר להעתיק ידנית משורת הכתובת אחרי פתיחת השיעור.`);
+      setUiNotice(`העתקת הקישור נכשלה. אפשר להעתיק ידנית: ${url}`);
     }
   };
 
@@ -618,7 +646,7 @@ export default function App() {
         {/* Screen: LESSON BUILDER WORKSPACE */}
         {activeScreen === 'builder' && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
-            {isAuthenticated ? (
+            {isAuthenticated || editingLesson?.id.startsWith('shared_') ? (
               <LessonBuilder 
                 onSaveLesson={handleSaveLesson}
                 existingLessonToEdit={editingLesson}

@@ -32,11 +32,38 @@ create table if not exists public.lesson_templates (
   unique (user_id, lesson_id)
 );
 
+create table if not exists public.shared_lessons (
+  id text primary key,
+  payload jsonb not null,
+  created_at timestamptz not null default now()
+);
+
 alter table public.lessons enable row level security;
 alter table public.lesson_templates enable row level security;
+alter table public.shared_lessons enable row level security;
 
 create policy lessons_own on public.lessons for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy lesson_templates_own on public.lesson_templates for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Shared lessons are readable by anyone with the link (including guests who
+-- aren't logged in), but only a signed-in user can create one.
+create policy shared_lessons_public_read on public.shared_lessons for select using (true);
+create policy shared_lessons_authenticated_insert on public.shared_lessons for insert with check (auth.uid() is not null);
+```
+
+**אם כבר הרצת SQL בעבר ואין לך את טבלת `shared_lessons`** (תכונת שיתוף שיעור עם קישור קצר) — הרץ רק את זה:
+
+```sql
+create table if not exists public.shared_lessons (
+  id text primary key,
+  payload jsonb not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.shared_lessons enable row level security;
+
+create policy shared_lessons_public_read on public.shared_lessons for select using (true);
+create policy shared_lessons_authenticated_insert on public.shared_lessons for insert with check (auth.uid() is not null);
 ```
 
 **אם כבר הרצת את ה-SQL הזה בעבר** (לפני שהיה `unique (user_id, lesson_id)`), הטבלאות שלך חסרות את ה-constraint הזה, וה-sync החדש (שמשתמש ב-`upsert`) לא יעבוד בלעדיו. הרץ בנוסף:

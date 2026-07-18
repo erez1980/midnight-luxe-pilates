@@ -56,6 +56,16 @@ export function buildShareUrl(lesson: Lesson) {
   return url.toString();
 }
 
+// Short link that just carries an id - the actual lesson data lives server-side
+// (see createSharedLesson/fetchSharedLesson in cloudSync.ts). This is the link
+// that actually works in WhatsApp and other places with URL length limits.
+export function buildShortShareUrl(id: string) {
+  const url = new URL(window.location.href);
+  url.search = '';
+  url.searchParams.set('s', id);
+  return url.toString();
+}
+
 export function readSharedLessonFromUrl(): Lesson | null {
   const url = new URL(window.location.href);
   const payload = url.searchParams.get('sharedLesson');

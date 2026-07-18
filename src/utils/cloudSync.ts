@@ -66,6 +66,38 @@ export async function pushCloudLessons(lessons: Lesson[], templates: Lesson[]) {
   return { ok: true };
 }
 
+// Short, URL-safe random id - avoids embedding the whole lesson in the URL
+// (which made links too long for WhatsApp/short-link services to handle).
+function generateShortId(length = 8) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  let id = '';
+  for (let i = 0; i < length; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
+}
+
+// Stores a shared lesson server-side and returns a short id for the URL.
+// Falls back to null when Supabase isn't configured so callers can fall back
+// to the old (long) base64-in-URL method instead.
+export async function createSharedLesson(lesson: Lesson): Promise<string | null> {
+  if (!supabaseEnabled || !supabase) return null;
+  const id = generateShortId();
+  const { error } = await supabase.from('shared_lessons').insert({ id, payload: lesson });
+  if (error) {
+    console.warn('createSharedLesson failed', error.message);
+    return null;
+  }
+  return id;
+}
+
+// Reads a shared lesson by its short id. Publicly readable by design (RLS
+// allows anonymous select) so a recipient who isn't logged in can still see it.
+export async function fetchSharedLesson(id: string): Promise<Lesson | null> {
+  if (!supabaseEnabled || !supabase) return null;
+  const { data, error } = await supabase.from('shared_lessons').select('payload').eq('id', id).maybeSingle();
+  if (error || !data) return null;
+  return data.payload as Lesson;
+}
+
 export const supabaseSqlGuide = `
 create table if not exists public.lessons (
   id bigint generated always as identity primary key,
@@ -85,9 +117,21 @@ create table if not exists public.lesson_templates (
   unique (user_id, lesson_id)
 );
 
+create table if not exists public.shared_lessons (
+  id text primary key,
+  payload jsonb not null,
+  created_at timestamptz not null default now()
+);
+
 alter table public.lessons enable row level security;
 alter table public.lesson_templates enable row level security;
+alter table public.shared_lessons enable row level security;
 
-create policy if not exists lessons_own on public.lessons for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy if not exists lesson_templates_own on public.lesson_templates for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy lessons_own on public.lessons for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy lesson_templates_own on public.lesson_templates for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Shared lessons are readable by anyone with the link (including guests who
+-- aren't logged in), but only a signed-in user can create one.
+create policy shared_lessons_public_read on public.shared_lessons for select using (true);
+create policy shared_lessons_authenticated_insert on public.shared_lessons for insert with check (auth.uid() is not null);
 `;
