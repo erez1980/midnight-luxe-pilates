@@ -98,7 +98,18 @@ export default function App() {
 
   useEffect(() => {
     const subscription = listenToAuthChanges((profile, event) => {
-      setAuthProfile(profile);
+      // Only update on events that actually change who's signed in. Supabase
+      // also fires transient events (token refresh, etc.) - if one arrives
+      // with a momentarily-empty session, blindly overwriting authProfile
+      // with null silently "logs out" the UI for a render cycle, which broke
+      // buttons that re-check auth at click time.
+      if (event === 'SIGNED_OUT') {
+        setAuthProfile(null);
+        return;
+      }
+      if (profile) {
+        setAuthProfile(profile);
+      }
       if (event === 'SIGNED_IN' && profile) {
         setUiNotice('התחברת בהצלחה עם Google. מסנכרנת שיעורים...');
         upsertProfile(profile);
@@ -204,6 +215,7 @@ export default function App() {
     const updated = [lesson, ...templates.filter((item) => item.id !== lesson.id)];
     setTemplates(updated);
     writeTemplates(updated);
+    setUiNotice('השיעור נשמר כתבנית.');
   };
 
   const handleExportBundle = () => {
@@ -268,22 +280,16 @@ export default function App() {
 
   // Edit Lesson click handler
   const handleEditLesson = (lesson: Lesson) => {
-    if (!isAuthenticated) {
-      setUiNotice('עריכת שיעור זמינה רק אחרי התחברות עם Google.');
-      setActiveScreen('lessons');
-      return;
-    }
+    // No auth re-check: only reachable from screens already gated at render
+    // time, and a click-time re-check risks a transient auth flicker silently
+    // swallowing the action.
     setEditingLesson(lesson);
     setActiveScreen('builder');
   };
 
   // Launch Coaching Mode
   const handleStartLesson = (lesson: Lesson) => {
-    if (!isAuthenticated) {
-      setUiNotice('הפעלת שיעור זמינה רק אחרי התחברות עם Google.');
-      setActiveScreen('lessons');
-      return;
-    }
+    // Same rationale as handleEditLesson - gated by the parent screen already.
     setActiveSessionLesson(lesson);
     setActiveScreen('session');
   };
