@@ -241,14 +241,8 @@ export default function ExerciseLibrary({
                 >
                   <img
                     src={getExerciseMedia(exercise).coverUrl}
-                    alt={`${exercise.name} cover`}
-                    className="absolute inset-0 w-full h-full object-cover opacity-70"
-                    loading="lazy"
-                  />
-                  <img
-                    src={getExerciseMedia(exercise).thumbnailUrl}
                     alt={exercise.name}
-                    className="relative w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 mix-blend-screen"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />

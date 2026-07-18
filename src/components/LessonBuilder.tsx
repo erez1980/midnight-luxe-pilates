@@ -455,14 +455,8 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                               <div className="relative aspect-[16/7]">
                                 <img
                                   src={getExerciseMedia(el.exercise).coverUrl}
-                                  alt={`${el.exercise.name} cover`}
-                                  className="absolute inset-0 h-full w-full object-cover opacity-80"
-                                  loading="lazy"
-                                />
-                                <img
-                                  src={getExerciseMedia(el.exercise).thumbnailUrl}
                                   alt={el.exercise.name}
-                                  className="relative h-full w-full object-cover mix-blend-screen"
+                                  className="absolute inset-0 h-full w-full object-cover"
                                   loading="lazy"
                                 />
                                 <div className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-[11px] text-white">

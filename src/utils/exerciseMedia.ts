@@ -33,7 +33,6 @@ export function getExerciseMedia(exercise: Exercise) {
     hasInlineVideo: Boolean(inlineVideo?.embedUrl),
     isDedicatedVideo: Boolean(curated?.embedUrl),
     embedUrl: inlineVideo?.embedUrl,
-    thumbnailUrl: coverUrl,
     coverUrl,
     mediaLabel: inlineVideo?.label || 'תמונת תרגיל והנחיות ביצוע'
   };
