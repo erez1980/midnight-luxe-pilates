@@ -407,7 +407,7 @@ export default function ExerciseLibrary({
 
               {!getExerciseMedia(selectedExercise).isDedicatedVideo && (
                 <div className="px-6 md:px-8 pt-6">
-                  <StepSequence instructions={selectedExercise.instructions} />
+                  <StepSequence exercise={selectedExercise} />
                 </div>
               )}
 
