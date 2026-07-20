@@ -242,11 +242,11 @@ export default function App() {
 
   const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
     if (!isAuthenticated) {
-      setActiveScreen(screen === 'session' ? 'builder' : screen);
+      navigateTo(screen === 'session' ? 'builder' : screen, { lesson: null });
       setUiNotice('התחברי עם Google כדי לפתוח את סביבת העבודה המלאה: builder, ספריית שיעורים, תבניות וסנכרון.');
       return;
     }
-    setActiveScreen(screen);
+    navigateTo(screen);
   };
 
   // Called right after a Google sign-in. Pulls whatever is already saved in the
