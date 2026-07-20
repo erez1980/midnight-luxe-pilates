@@ -344,7 +344,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
       <div className="mb-12 space-y-8">
         <div>
           <div className="inline-block mb-3 px-4 py-1 border-l border-r border-secondary/40">
-            <span className="uppercase tracking-[0.2em] text-secondary text-xs font-semibold">Premium lesson builder</span>
+            <span className="tracking-[0.2em] text-secondary text-xs font-semibold">בניית שיעור</span>
           </div>
           <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-4">
             {existingLessonToEdit ? 'עריכת מערך שיעור' : 'בניית שיעור בצורה מקצועית וברורה'}

@@ -74,14 +74,14 @@ export default function MyLessons({
       {/* Intro Header - compact */}
       <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <button onClick={onBackHome} className="mb-4 text-sm text-secondary hover:text-white transition-colors">
+          <button onClick={onBackHome} className="mb-4 text-sm text-secondary hover:text-on-surface transition-colors">
             ← חזרה לדף הבית
           </button>
           <div className="inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-secondary mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             פילאטיס ותנועה
           </div>
-          <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-2">השיעורים שלי</h2>
+          <h2 className="serif-text text-3xl md:text-5xl font-bold text-on-surface mb-2">השיעורים שלי</h2>
           <p className="text-on-surface-variant max-w-2xl leading-relaxed">
             כל השיעורים שבנית, במקום אחד — מוכנים להדרכה, עריכה, שכפול ושיתוף.
           </p>
@@ -148,18 +148,18 @@ export default function MyLessons({
 
       <div className="grid gap-4 md:grid-cols-3 mb-10">
         <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5">
-          <div className="flex items-center gap-2 text-secondary mb-3"><Layers3 className="w-4 h-4" /><span className="text-xs uppercase tracking-[0.2em] font-bold">Library snapshot</span></div>
-          <div className="text-3xl font-black text-white mb-1">{lessons.length}</div>
+          <div className="flex items-center gap-2 text-secondary mb-3"><Layers3 className="w-4 h-4" /><span className="text-xs tracking-[0.2em] font-bold">תמונת מצב</span></div>
+          <div className="text-3xl font-black text-on-surface mb-1">{lessons.length}</div>
           <div className="text-sm text-on-surface-variant">שיעורים שמורים ומוכנים לעבודה</div>
         </div>
         <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5">
-          <div className="flex items-center gap-2 text-secondary mb-3"><Bookmark className="w-4 h-4" /><span className="text-xs uppercase tracking-[0.2em] font-bold">Templates</span></div>
-          <div className="text-3xl font-black text-white mb-1">{templates.length}</div>
+          <div className="flex items-center gap-2 text-secondary mb-3"><Bookmark className="w-4 h-4" /><span className="text-xs tracking-[0.2em] font-bold">תבניות</span></div>
+          <div className="text-3xl font-black text-on-surface mb-1">{templates.length}</div>
           <div className="text-sm text-on-surface-variant">תבניות מוכנות לשימוש חוזר</div>
         </div>
         <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5">
-          <div className="flex items-center gap-2 text-secondary mb-3"><Clock3 className="w-4 h-4" /><span className="text-xs uppercase tracking-[0.2em] font-bold">Average duration</span></div>
-          <div className="text-3xl font-black text-white mb-1">{lessons.length ? Math.round(lessons.reduce((sum, lesson) => sum + (lesson.totalDuration || 0), 0) / lessons.length) : 0} דק׳</div>
+          <div className="flex items-center gap-2 text-secondary mb-3"><Clock3 className="w-4 h-4" /><span className="text-xs tracking-[0.2em] font-bold">משך ממוצע</span></div>
+          <div className="text-3xl font-black text-on-surface mb-1">{lessons.length ? Math.round(lessons.reduce((sum, lesson) => sum + (lesson.totalDuration || 0), 0) / lessons.length) : 0} דק׳</div>
           <div className="text-sm text-on-surface-variant">אורך ממוצע למערך בספרייה</div>
         </div>
       </div>
@@ -254,11 +254,11 @@ export default function MyLessons({
                 <div className="flex items-center justify-between gap-3 mb-4">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
                     <ArrowUpRight className="w-3 h-3" />
-                    Ready to teach
+                    מוכן להדרכה
                   </span>
                 </div>
                 <div className="flex justify-between items-start gap-3 mb-3">
-                  <h3 className="serif-text text-xl font-bold text-white group-hover:text-secondary transition-colors">
+                  <h3 className="serif-text text-xl font-bold text-on-surface group-hover:text-secondary transition-colors">
                     {lesson.name}
                   </h3>
                   <span className="shrink-0 text-[10px] font-mono text-on-surface-variant bg-white/5 px-2 py-1 rounded-sm">
@@ -283,8 +283,8 @@ export default function MyLessons({
                   </span>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-black/20 p-4 mb-5">
-                  <div className="text-xs uppercase tracking-[0.18em] text-secondary font-bold mb-2">Quick summary</div>
+                <div className="rounded-2xl border border-outline/30 bg-surface-container-high p-4 mb-5">
+                  <div className="text-xs tracking-[0.18em] text-secondary font-bold mb-2">סיכום מהיר</div>
                   <div className="text-sm text-on-surface-variant leading-relaxed">
                     {lesson.description || 'מערך מוכן להוראה, עריכה או שיתוף. אפשר להמשיך ממנו לשיעור הבא בלי להתחיל מאפס.'}
                   </div>
@@ -361,7 +361,7 @@ export default function MyLessons({
       {pendingDeleteLesson && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
           <div className="w-full max-w-md rounded-3xl border border-rose-500/20 bg-surface-container-high p-6 shadow-2xl">
-            <div className="text-xs uppercase tracking-[0.2em] text-rose-300 font-bold mb-3">Delete lesson</div>
+            <div className="text-xs tracking-[0.2em] text-rose-300 font-bold mb-3">מחיקת שיעור</div>
             <h3 className="serif-text text-2xl text-white font-bold mb-3">למחוק את "{pendingDeleteLesson.name}"?</h3>
             <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
               המחיקה תסיר את המערך מספריית השיעורים שלך. אם זה שיעור שתרצי למחזר בעתיד, עדיף קודם לשמור אותו כתבנית.

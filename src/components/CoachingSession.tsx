@@ -404,7 +404,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
       {showFinishConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
           <div className="w-full max-w-md rounded-3xl border border-secondary/20 bg-surface-container-high p-6 shadow-2xl">
-            <div className="text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-3">Finish session</div>
+            <div className="text-xs tracking-[0.2em] text-secondary font-bold mb-3">סיום שיעור</div>
             <h3 className="serif-text text-2xl text-white font-bold mb-3">לסיים את השיעור ולעבור לסיכום?</h3>
             <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
               זהו התרגיל האחרון. אם תמשיכי עכשיו, תעברי למסך הסיכום של השיעור.

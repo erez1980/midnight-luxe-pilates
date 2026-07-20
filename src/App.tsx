@@ -17,7 +17,9 @@ import {
   Share2,
   Mail,
   Sliders,
-  ChevronLeft
+  ChevronLeft,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Lesson } from './types';
 import { INITIAL_LESSONS } from './data';
@@ -35,6 +37,14 @@ import Button from './components/ui/Button';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session'>('home');
+  const [themeMode, setThemeMode] = useState<'system' | 'light' | 'dark'>(() => {
+    try {
+      const saved = localStorage.getItem('pilates-theme-mode');
+      return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'system';
+    } catch {
+      return 'system';
+    }
+  });
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
   );
@@ -126,11 +136,21 @@ export default function App() {
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: light)');
-    const handler = (event: MediaQueryListEvent) => setTheme(event.matches ? 'light' : 'dark');
-    setTheme(media.matches ? 'light' : 'dark');
+    const handler = (event: MediaQueryListEvent) => {
+      if (themeMode === 'system') setTheme(event.matches ? 'light' : 'dark');
+    };
+    setTheme(themeMode === 'system' ? (media.matches ? 'light' : 'dark') : themeMode);
     media.addEventListener?.('change', handler);
     return () => media.removeEventListener?.('change', handler);
-  }, []);
+  }, [themeMode]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pilates-theme-mode', themeMode);
+    } catch {
+      // ignore storage issues for theme preference
+    }
+  }, [themeMode]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -400,10 +420,20 @@ export default function App() {
               </Button>
             )}
 
+            <Button
+              onClick={() => setThemeMode((current) => current === 'light' ? 'dark' : 'light')}
+              variant="surface"
+              size="icon"
+              aria-label={theme === 'light' ? 'מעבר למצב כהה' : 'מעבר למצב בהיר'}
+              title={theme === 'light' ? 'מעבר למצב כהה' : 'מעבר למצב בהיר'}
+            >
+              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            </Button>
+
             {/* Mobile burger toggle */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-on-surface-variant hover:text-white transition-colors"
+              className="lg:hidden p-2 text-on-surface-variant hover:text-on-surface transition-colors"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -544,8 +574,8 @@ export default function App() {
                       <div className="text-sm text-white">לתרגילים, מערכים ושיתוף</div>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
-                      <div className="text-3xl font-black text-secondary mb-2">Premium</div>
-                      <div className="text-sm text-white">UX שמרגיש כמו מוצר בתשלום</div>
+                      <div className="text-3xl font-black text-secondary mb-2">פרימיום</div>
+                      <div className="text-sm text-on-surface">חוויית שימוש שמרגישה כמו מוצר בתשלום</div>
                     </div>
                   </div>
                 </div>
@@ -674,9 +704,9 @@ export default function App() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
                   <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8">
-                    <div className="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3">Starter</div>
-                    <div className="text-white text-3xl font-black mb-2">₪79<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
-                    <p className="text-sm text-on-surface-variant mb-6">למאמנת עצמאית שרוצה builder, ספריית שיעורים ו־templates.</p>
+                    <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">מסלול התחלה</div>
+                    <div className="text-on-surface text-3xl font-black mb-2">₪79<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
+                    <p className="text-sm text-on-surface-variant mb-6">למאמנת עצמאית שרוצה builder, ספריית שיעורים ותבניות.</p>
                     <div className="space-y-3 text-sm text-on-surface-variant mb-8">
                       <div>• בניית שיעורים ללא הגבלה</div>
                       <div>• שמירת מערכים ותבניות</div>
@@ -687,28 +717,28 @@ export default function App() {
 
                   <div className="rounded-3xl border border-secondary/30 bg-secondary/10 p-8 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-4 left-4 rounded-full bg-secondary text-background text-[11px] font-bold px-3 py-1">מומלץ</div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-secondary mb-3">Professional</div>
-                    <div className="text-white text-4xl font-black mb-2">₪149<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
-                    <p className="text-sm text-white/80 mb-6">למאמנות פעילות שרוצות שהמערכת תהיה סביבת העבודה המרכזית שלהן.</p>
-                    <div className="space-y-3 text-sm text-white/85 mb-8">
-                      <div>• כל מה שב־Starter</div>
-                      <div>• cloud sync מלא</div>
-                      <div>• branded exports ושיתופים מתקדמים</div>
-                      <div>• template packs ו־premium flows</div>
+                    <div className="text-xs tracking-[0.2em] text-secondary mb-3">מסלול מקצועי</div>
+                    <div className="text-on-surface text-4xl font-black mb-2">₪149<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
+                    <p className="text-sm text-on-surface-variant mb-6">למאמנות פעילות שרוצות שהמערכת תהיה סביבת העבודה המרכזית שלהן.</p>
+                    <div className="space-y-3 text-sm text-on-surface-variant mb-8">
+                      <div>• כל מה שבמסלול ההתחלה</div>
+                      <div>• סנכרון מלא לענן</div>
+                      <div>• ייצוא ממותג ושיתופים מתקדמים</div>
+                      <div>• חבילות תבניות וזרימות פרימיום</div>
                     </div>
                     <Button size="md" variant="primary" onClick={() => goToProtected('builder')} className="w-full">זה המסלול המומלץ</Button>
                   </div>
 
                   <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8">
-                    <div className="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3">Studio</div>
-                    <div className="text-white text-3xl font-black mb-2">מותאם אישית</div>
+                    <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">לסטודיו</div>
+                    <div className="text-on-surface text-3xl font-black mb-2">מותאם אישית</div>
                     <p className="text-sm text-on-surface-variant mb-6">לסטודיו עם כמה מדריכות, ספריית תוכן משותפת ו־workflow צוותי.</p>
                     <div className="space-y-3 text-sm text-on-surface-variant mb-8">
                       <div>• מספר משתמשות</div>
                       <div>• ספריית סטודיו משותפת</div>
                       <div>• onboarding והטמעה</div>
                     </div>
-                    <Button size="md" variant="outline" onClick={() => setUiNotice('מסלול Studio עדיין לא מחובר לטופס מכירה. אפשר להתחיל כרגע עם Professional.')} className="w-full">לבדיקת התאמה</Button>
+                    <Button size="md" variant="outline" onClick={() => setUiNotice('מסלול סטודיו עדיין לא מחובר לטופס מכירה. אפשר להתחיל כרגע עם המסלול המקצועי.')} className="w-full">לבדיקת התאמה</Button>
                   </div>
                 </div>
               </div>
@@ -865,12 +895,12 @@ function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
             <div className="mb-6 h-16 w-16 rounded-full border border-secondary/30 bg-secondary/10 flex items-center justify-center text-secondary">
               <LogIn className="w-8 h-8" />
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-secondary mb-4">
-              Private coach workspace
+            <div className="inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[11px] tracking-[0.2em] text-secondary mb-4">
+              סביבת עבודה למאמנות
             </div>
-            <h2 className="serif-text text-3xl md:text-4xl font-bold text-white mb-4">האזור הזה נפתח אחרי התחברות</h2>
+            <h2 className="serif-text text-3xl md:text-4xl font-bold text-on-surface mb-4">האזור הזה נפתח אחרי התחברות</h2>
             <p className="text-on-surface-variant leading-relaxed mb-6">
-              מאגר התרגילים פתוח לצפייה חופשית. Builder, ספריית השיעורים, templates והסנכרון לענן מיועדים למאמנות שמנהלות פה את כל סביבת העבודה שלהן.
+              מאגר התרגילים פתוח לצפייה חופשית. Builder, ספריית השיעורים, תבניות והסנכרון לענן מיועדים למאמנות שמנהלות פה את כל סביבת העבודה שלהן.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button onClick={onGoogleLogin} size="md" variant="primary" className="w-full sm:w-auto">
@@ -887,15 +917,15 @@ function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
 
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-              <div className="text-white font-bold mb-2">Builder חכם</div>
+              <div className="text-on-surface font-bold mb-2">בניית שיעור חכמה</div>
               <div className="text-sm text-on-surface-variant">בניית שיעורים לפי מטרה, רמה, משך וציוד.</div>
             </div>
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-              <div className="text-white font-bold mb-2">Templates</div>
+              <div className="text-on-surface font-bold mb-2">תבניות</div>
               <div className="text-sm text-on-surface-variant">שכפול והתאמה של מערכים בלי להתחיל כל פעם מאפס.</div>
             </div>
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-              <div className="text-white font-bold mb-2">Cloud sync</div>
+              <div className="text-on-surface font-bold mb-2">סנכרון לענן</div>
               <div className="text-sm text-on-surface-variant">ספריית שיעורים מסונכרנת ונגישה מכל מכשיר.</div>
             </div>
           </div>
