@@ -46,7 +46,7 @@ const sizes: Record<Size, string> = {
 
 const variants: Record<Variant, string> = {
   // Gold fill → lighter gold on hover (keeps the midnight mood, no white flash).
-  primary: 'bg-secondary text-background shadow-lg hover:bg-secondary-fixed active:brightness-95',
+  primary: 'bg-secondary text-on-secondary shadow-lg hover:bg-secondary-fixed active:brightness-95',
   // Gold outline → soft gold wash on hover.
   outline:
     'border border-secondary/60 text-secondary hover:bg-secondary/10 hover:border-secondary active:bg-secondary/15',

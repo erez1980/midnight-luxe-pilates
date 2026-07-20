@@ -269,7 +269,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
                 cx="96"
                 cy="96"
                 r="92"
-                stroke="rgba(233, 195, 73, 0.2)"
+                stroke="rgba(127, 146, 113, 0.2)"
                 strokeWidth="4"
                 fill="transparent"
               />
@@ -277,7 +277,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
                 cx="96"
                 cy="96"
                 r="92"
-                stroke="#e9c349"
+                stroke="#7f9271"
                 strokeWidth="4"
                 fill="transparent"
                 strokeDasharray="578"

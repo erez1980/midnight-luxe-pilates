@@ -44,7 +44,7 @@ export default function StepSequence({ exercise }: StepSequenceProps) {
                   className="absolute inset-0 w-full h-full"
                 />
               )}
-              <span className="absolute top-3 right-3 w-7 h-7 rounded-full bg-secondary text-background text-xs font-bold flex items-center justify-center shadow-lg">
+              <span className="absolute top-3 right-3 w-7 h-7 rounded-full bg-secondary text-on-secondary text-xs font-bold flex items-center justify-center shadow-lg">
                 {idx + 1}
               </span>
             </div>
