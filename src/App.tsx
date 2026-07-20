@@ -123,8 +123,8 @@ export default function App() {
 
   const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
     if (!isAuthenticated) {
-      setActiveScreen('home');
-      setUiNotice('האזור הזה מיועד למאמנות מחוברות. התחברי עם Google כדי לבנות שיעורים, לשמור תבניות ולסנכרן את הספרייה שלך.');
+      setActiveScreen(screen === 'session' ? 'builder' : screen);
+      setUiNotice('התחברי עם Google כדי לפתוח את סביבת העבודה המלאה: builder, ספריית שיעורים, תבניות וסנכרון.');
       return;
     }
     setActiveScreen(screen);
@@ -580,7 +580,7 @@ export default function App() {
                   {/* Feature 2: Lesson Builder */}
                   <div 
                     onClick={() => goToProtected('builder')}
-                    className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer"
+                    className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer rounded-3xl"
                   >
                     <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     
@@ -602,7 +602,7 @@ export default function App() {
                   {/* Feature 3: My Lessons */}
                   <div 
                     onClick={() => goToProtected('lessons')}
-                    className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer"
+                    className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer rounded-3xl"
                   >
                     <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     
@@ -656,11 +656,12 @@ export default function App() {
                     <div className="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3">Starter</div>
                     <div className="text-white text-3xl font-black mb-2">₪79<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
                     <p className="text-sm text-on-surface-variant mb-6">למאמנת עצמאית שרוצה builder, ספריית שיעורים ו־templates.</p>
-                    <div className="space-y-3 text-sm text-on-surface-variant">
+                    <div className="space-y-3 text-sm text-on-surface-variant mb-8">
                       <div>• בניית שיעורים ללא הגבלה</div>
                       <div>• שמירת מערכים ותבניות</div>
                       <div>• שיתוף, PDF ו־teach mode</div>
                     </div>
+                    <Button size="md" variant="outline" onClick={() => goToProtected('builder')} className="w-full">מתאים להתחלה</Button>
                   </div>
 
                   <div className="rounded-3xl border border-secondary/30 bg-secondary/10 p-8 shadow-2xl relative overflow-hidden">
@@ -668,23 +669,25 @@ export default function App() {
                     <div className="text-xs uppercase tracking-[0.2em] text-secondary mb-3">Professional</div>
                     <div className="text-white text-4xl font-black mb-2">₪149<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
                     <p className="text-sm text-white/80 mb-6">למאמנות פעילות שרוצות שהמערכת תהיה סביבת העבודה המרכזית שלהן.</p>
-                    <div className="space-y-3 text-sm text-white/85">
+                    <div className="space-y-3 text-sm text-white/85 mb-8">
                       <div>• כל מה שב־Starter</div>
                       <div>• cloud sync מלא</div>
                       <div>• branded exports ושיתופים מתקדמים</div>
                       <div>• template packs ו־premium flows</div>
                     </div>
+                    <Button size="md" variant="primary" onClick={() => goToProtected('builder')} className="w-full">זה המסלול המומלץ</Button>
                   </div>
 
                   <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8">
                     <div className="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3">Studio</div>
                     <div className="text-white text-3xl font-black mb-2">מותאם אישית</div>
                     <p className="text-sm text-on-surface-variant mb-6">לסטודיו עם כמה מדריכות, ספריית תוכן משותפת ו־workflow צוותי.</p>
-                    <div className="space-y-3 text-sm text-on-surface-variant">
+                    <div className="space-y-3 text-sm text-on-surface-variant mb-8">
                       <div>• מספר משתמשות</div>
                       <div>• ספריית סטודיו משותפת</div>
                       <div>• onboarding והטמעה</div>
                     </div>
+                    <Button size="md" variant="outline" onClick={() => setUiNotice('מסלול Studio עדיין לא מחובר לטופס מכירה. אפשר להתחיל כרגע עם Professional.')} className="w-full">לבדיקת התאמה</Button>
                   </div>
                 </div>
               </div>
