@@ -167,7 +167,10 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
   const handlePrintLesson = () => {
     if (exercises.length === 0) return;
-    openLessonPrint(buildCurrentLessonPayload());
+    const ok = openLessonPrint(buildCurrentLessonPayload());
+    if (!ok) {
+      window.alert('חלון ההדפסה נחסם בדפדפן. נסי לאפשר popups ולנסות שוב.');
+    }
   };
 
   const handleCopyWhatsapp = async () => {

@@ -43,15 +43,24 @@ export function exportLessonsBundle(lessons: Lesson[], templates: Lesson[]) {
 export async function importLessonsBundle(file: File): Promise<{ lessons: Lesson[]; templates: Lesson[] }> {
   const text = await file.text();
   const parsed = JSON.parse(text);
+
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('קובץ הגיבוי לא בפורמט תקין');
+  }
+
+  const lessons = Array.isArray(parsed.lessons) ? parsed.lessons : [];
+  const templates = Array.isArray(parsed.templates) ? parsed.templates : [];
+
   return {
-    lessons: parsed.lessons || [],
-    templates: parsed.templates || []
+    lessons,
+    templates
   };
 }
 
 export function buildShareUrl(lesson: Lesson) {
   const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(lesson))));
   const url = new URL(window.location.href);
+  url.search = '';
   url.searchParams.set('sharedLesson', encoded);
   return url.toString();
 }
