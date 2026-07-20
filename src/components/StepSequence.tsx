@@ -27,9 +27,9 @@ export default function StepSequence({ exercise }: StepSequenceProps) {
         return (
           <div
             key={idx}
-            className="rounded-2xl border border-white/8 bg-white/[0.03] overflow-hidden flex flex-col"
+            className="rounded-2xl border border-outline/20 bg-surface-container overflow-hidden flex flex-col"
           >
-            <div className="relative aspect-[400/220] bg-black/30 border-b border-white/5">
+            <div className="relative aspect-[400/220] bg-surface-container-high border-b border-outline/20">
               {realImage ? (
                 <img
                   src={realImage}

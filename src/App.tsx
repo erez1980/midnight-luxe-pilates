@@ -340,7 +340,7 @@ export default function App() {
     <div className="min-h-screen bg-background text-on-background flex flex-col relative overflow-clip selection:bg-secondary selection:text-background transition-colors duration-300">
       
       {/* Header Section */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-background/85 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 md:px-20 py-3 md:py-4 transition-all duration-300">
+      <header className="fixed top-0 left-0 w-full z-50 bg-background/85 backdrop-blur-md border-b border-outline/20 px-4 sm:px-6 md:px-20 py-3 md:py-4 transition-all duration-300">
         <div className="max-w-[1280px] mx-auto flex items-center justify-between gap-3">
           
           {/* Logo & Brand */}
@@ -394,7 +394,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => goToProtected('lessons')}
-                  className="w-10 h-10 rounded-full border border-white/20 bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all overflow-hidden bg-surface-container"
+                  className="w-10 h-10 rounded-full border border-outline/30 bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all overflow-hidden bg-surface-container"
                   title={authProfile.name}
                 >
                   {authProfile.avatarUrl ? (
@@ -449,7 +449,7 @@ export default function App() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-x-0 top-[68px] sm:top-[72px] z-40 bg-background border-b border-white/10 p-5 sm:p-6 flex flex-col gap-4 lg:hidden shadow-2xl"
+            className="fixed inset-x-0 top-[68px] sm:top-[72px] z-40 bg-background border-b border-outline/20 p-5 sm:p-6 flex flex-col gap-4 lg:hidden shadow-2xl"
           >
             <button
               onClick={() => { setActiveScreen('library'); setEditingLesson(null); setIsMobileMenuOpen(false); }}
@@ -507,7 +507,7 @@ export default function App() {
 
               <div className="relative z-10 max-w-[1280px] mx-auto w-full px-6 md:px-20 pt-32 md:pt-36 pb-16 md:pb-20 grid lg:grid-cols-[1.2fr_0.8fr] gap-8 md:gap-10 items-center">
                 <div className="max-w-[760px]">
-                  <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 border border-secondary/30 bg-black/20 backdrop-blur-sm">
+                  <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 border border-secondary/30 bg-surface-container backdrop-blur-sm">
                     <span className="uppercase tracking-[0.3em] text-secondary text-xs md:text-sm font-semibold">
                       פילאטיס ותנועה
                     </span>
@@ -554,7 +554,7 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="rounded-3xl border border-white/10 bg-black/35 backdrop-blur-md p-6 md:p-7 shadow-2xl">
+                  <div className="rounded-3xl border border-outline/20 bg-surface-container backdrop-blur-md p-6 md:p-7 shadow-2xl">
                     <div className="text-xs uppercase tracking-[0.25em] text-secondary mb-3">למה משלמים על זה</div>
                     <h3 className="serif-text text-2xl text-on-surface font-bold mb-4">פחות זמן תכנון. יותר מקצועיות מול הלקוחות.</h3>
                     <div className="space-y-4 text-sm text-on-surface-variant">
@@ -565,15 +565,15 @@ export default function App() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
+                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5">
                       <div className="text-3xl font-black text-secondary mb-2">3 דק'</div>
                       <div className="text-sm text-on-surface">לבניית שלד שיעור מקצועי</div>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
+                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5">
                       <div className="text-3xl font-black text-secondary mb-2">1 מקום</div>
                       <div className="text-sm text-on-surface">לתרגילים, מערכים ושיתוף</div>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
+                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5">
                       <div className="text-3xl font-black text-secondary mb-2">פרימיום</div>
                       <div className="text-sm text-on-surface">חוויית שימוש שמרגישה כמו מוצר בתשלום</div>
                     </div>
@@ -595,7 +595,7 @@ export default function App() {
               <div className="max-w-[1280px] mx-auto">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
                   <div className="max-w-[760px]">
-                    <h2 className="serif-text text-4xl md:text-5xl font-bold text-white mb-6">מה מאמנת באמת מקבלת פה</h2>
+                    <h2 className="serif-text text-4xl md:text-5xl font-bold text-on-surface mb-6">מה מאמנת באמת מקבלת פה</h2>
                     <p className="text-on-surface-variant text-lg leading-relaxed">
                       לא עוד קטלוג תרגילים. סביבת עבודה מלאה לבנייה, שמירה, התאמה והעברה של שיעורי פילאטיס ברמה מקצועית.
                     </p>
@@ -609,15 +609,15 @@ export default function App() {
                   {/* Feature 1: Exercise Database */}
                   <div 
                     onClick={() => setActiveScreen('library')}
-                    className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer"
+                    className="group p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer"
                   >
                     <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     
-                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-white/10 group-hover:border-secondary transition-colors text-secondary">
+                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
                       <BookOpen className="w-7 h-7" />
                     </div>
                     
-                    <h3 className="serif-text text-2xl font-bold text-white mb-4">מאגר תרגילים</h3>
+                    <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">מאגר תרגילים</h3>
                     <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
                       חיפוש מהיר בתרגילים לפי רמה, ציוד ומטרה - כדי להתחיל מכל שיעור עם בסיס חכם ולא מאלתור.
                     </p>
@@ -631,15 +631,15 @@ export default function App() {
                   {/* Feature 2: Lesson Builder */}
                   <div 
                     onClick={() => goToProtected('builder')}
-                    className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer rounded-3xl"
+                    className="group p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer rounded-3xl"
                   >
                     <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     
-                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-white/10 group-hover:border-secondary transition-colors text-secondary">
+                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
                       <Sliders className="w-7 h-7" />
                     </div>
                     
-                    <h3 className="serif-text text-2xl font-bold text-white mb-4">בניית שיעור</h3>
+                    <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">בניית שיעור</h3>
                     <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
                       תכנון שיעור זורם ומקצועי בדקות ספורות בעזרת ממשק Drag &amp; Drop חכם ואינטואיטיבי.
                     </p>
@@ -653,15 +653,15 @@ export default function App() {
                   {/* Feature 3: My Lessons */}
                   <div 
                     onClick={() => goToProtected('lessons')}
-                    className="group p-8 border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer rounded-3xl"
+                    className="group p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer rounded-3xl"
                   >
                     <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     
-                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-white/10 group-hover:border-secondary transition-colors text-secondary">
+                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
                       <FolderHeart className="w-7 h-7" />
                     </div>
                     
-                    <h3 className="serif-text text-2xl font-bold text-white mb-4">השיעורים שלי</h3>
+                    <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">השיעורים שלי</h3>
                     <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
                       ספריית מערכים פרטית לשכפול, התאמה ושימוש חוזר - כדי שכל שיעור חדש יתחיל חצי מוכן.
                     </p>
@@ -686,7 +686,7 @@ export default function App() {
               />
               <div className="absolute inset-0 bg-background/60" />
               <div className="absolute inset-0 flex items-center justify-center px-6">
-                <h3 className="serif-text text-2xl md:text-5xl text-white font-black text-center tracking-wide italic leading-normal max-w-4xl">
+                <h3 className="serif-text text-2xl md:text-5xl text-on-surface font-black text-center tracking-wide italic leading-normal max-w-4xl">
                   "כשמערך השיעור ברור, גם ההוראה נראית אחרת."
                 </h3>
               </div>
@@ -696,14 +696,14 @@ export default function App() {
             <section className="py-24 bg-surface px-6 md:px-20">
               <div className="max-w-[1280px] mx-auto">
                 <div className="max-w-[760px] mb-14">
-                  <h2 className="serif-text text-4xl md:text-5xl font-bold text-white mb-6">מודל מנוי שמתאים למאמנות פילאטיס</h2>
+                  <h2 className="serif-text text-4xl md:text-5xl font-bold text-on-surface mb-6">מודל מנוי שמתאים למאמנות פילאטיס</h2>
                   <p className="text-on-surface-variant text-lg leading-relaxed">
                     המוצר הזה בנוי להיות כלי עבודה קבוע, לא שימוש חד-פעמי. לכן המסגור הנכון הוא מנוי חודשי שמחזיר את עצמו בזמן תכנון, סדר מקצועי ושימוש חוזר חכם במערכים.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                  <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8">
+                  <div className="rounded-3xl border border-outline/30 bg-surface-container p-8">
                     <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">מסלול התחלה</div>
                     <div className="text-on-surface text-3xl font-black mb-2">₪79<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
                     <p className="text-sm text-on-surface-variant mb-6">למאמנת עצמאית שרוצה builder, ספריית שיעורים ותבניות.</p>
@@ -729,7 +729,7 @@ export default function App() {
                     <Button size="md" variant="primary" onClick={() => goToProtected('builder')} className="w-full">זה המסלול המומלץ</Button>
                   </div>
 
-                  <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8">
+                  <div className="rounded-3xl border border-outline/30 bg-surface-container p-8">
                     <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">לסטודיו</div>
                     <div className="text-on-surface text-3xl font-black mb-2">מותאם אישית</div>
                     <p className="text-sm text-on-surface-variant mb-6">לסטודיו עם כמה מדריכות, ספריית תוכן משותפת ו־workflow צוותי.</p>
@@ -747,7 +747,7 @@ export default function App() {
             {/* Final Call to Action with Live Counter Stats */}
             <section className="py-24 relative overflow-hidden bg-background">
               <div className="max-w-[800px] mx-auto px-6 text-center">
-                <h2 className="serif-text text-4xl md:text-6xl font-bold text-white mb-6">מוכנה להפוך את זה למוצר שמרגיש פרימיום?</h2>
+                <h2 className="serif-text text-4xl md:text-6xl font-bold text-on-surface mb-6">מוכנה להפוך את זה למוצר שמרגיש פרימיום?</h2>
                 <p className="text-on-surface-variant text-lg md:text-xl mb-12 font-light">
                   התחילי עם מאגר פתוח, המשיכי ל-builder, ובני מוצר שאפשר גם להציג, גם לבדוק עם לקוחות, וגם למכור כמנוי חודשי.
                 </p>
@@ -758,14 +758,14 @@ export default function App() {
                     <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">בזמן תכנון</span>
                   </div>
                   
-                  <div className="w-[1px] h-12 bg-white/10 hidden md:block" />
+                  <div className="w-[1px] h-12 bg-outline/30 hidden md:block" />
                   
                   <div className="flex flex-col items-center">
                     <span className="text-secondary text-5xl font-black mb-2">סדר</span>
                     <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">במערכים ובתבניות</span>
                   </div>
                   
-                  <div className="w-[1px] h-12 bg-white/10 hidden md:block" />
+                  <div className="w-[1px] h-12 bg-outline/30 hidden md:block" />
                   
                   <Button
                     size="lg"
@@ -784,7 +784,7 @@ export default function App() {
         <Suspense
         fallback={
           <div className="max-w-[1280px] mx-auto px-6 md:px-20 py-24">
-            <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8 text-center text-on-surface-variant">
+            <div className="rounded-3xl border border-outline/30 bg-surface-container p-8 text-center text-on-surface-variant">
               טוען את סביבת העבודה...
             </div>
           </div>
@@ -849,7 +849,7 @@ export default function App() {
       </main>
 
       {/* Footer Section */}
-      <footer className="py-12 bg-surface-container-lowest border-t border-white/5 px-6 md:px-20 mt-auto">
+      <footer className="py-12 bg-surface-container-lowest border-t border-outline/20 px-6 md:px-20 mt-auto">
         <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           
           <div 
@@ -859,7 +859,7 @@ export default function App() {
             <div className="w-8 h-8 rounded-full border border-secondary/40 flex items-center justify-center">
               <div className="w-4 h-4 bg-secondary rounded-full" />
             </div>
-            <span className="serif-text font-bold tracking-widest text-secondary uppercase text-sm">Midnight Luxe</span>
+            <span className="serif-text font-bold tracking-widest text-secondary text-sm">פילאטיס ותנועה</span>
           </div>
           
           <p className="text-on-surface-variant text-sm text-center">
@@ -874,7 +874,7 @@ export default function App() {
             <button onClick={() => setActiveScreen('home')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               <Award className="w-5 h-5" />
             </button>
-            <a href="mailto:support@midnightluxe.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+            <a href="mailto:support@pilatesvetnua.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               <Mail className="w-5 h-5" />
             </a>
           </div>
@@ -916,15 +916,15 @@ function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
           </div>
 
           <div className="grid sm:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+            <div className="rounded-2xl border border-outline/30 bg-surface-container p-4">
               <div className="text-on-surface font-bold mb-2">בניית שיעור חכמה</div>
               <div className="text-sm text-on-surface-variant">בניית שיעורים לפי מטרה, רמה, משך וציוד.</div>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+            <div className="rounded-2xl border border-outline/30 bg-surface-container p-4">
               <div className="text-on-surface font-bold mb-2">תבניות</div>
               <div className="text-sm text-on-surface-variant">שכפול והתאמה של מערכים בלי להתחיל כל פעם מאפס.</div>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+            <div className="rounded-2xl border border-outline/30 bg-surface-container p-4">
               <div className="text-on-surface font-bold mb-2">סנכרון לענן</div>
               <div className="text-sm text-on-surface-variant">ספריית שיעורים מסונכרנת ונגישה מכל מכשיר.</div>
             </div>

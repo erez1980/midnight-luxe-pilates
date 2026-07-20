@@ -159,8 +159,8 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
           </div>
           
           <div className="space-y-2">
-            <div className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs uppercase tracking-wider font-semibold">
-              COMPLETE SESSION
+            <div className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs tracking-wider font-semibold">
+              שיעור הושלם
             </div>
             <h2 className="serif-text text-3xl font-bold text-on-surface">השיעור הושלם!</h2>
             <p className="text-on-surface-variant text-sm">
@@ -168,7 +168,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 border-t border-b border-white/5 py-6">
+          <div className="grid grid-cols-2 gap-4 border-t border-b border-outline/20 py-6">
             <div className="text-center">
               <p className="text-xs text-on-surface-variant mb-1">סך הכל זמן</p>
               <p className="text-2xl font-mono text-on-surface font-bold">{lesson.totalDuration} דק׳</p>
@@ -191,7 +191,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
     <div className="max-w-5xl mx-auto py-8 px-6">
       {/* Top Session Header */}
       <div className="mb-8 rounded-3xl border border-outline/30 bg-surface-container p-5 md:p-6">
-        <div className="flex items-center justify-between gap-4 pb-4 border-b border-white/5">
+        <div className="flex items-center justify-between gap-4 pb-4 border-b border-outline/20">
         <div className="flex items-center gap-3">
           <Button
             onClick={onFinishSession}
@@ -237,7 +237,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
         </div>
 
         {/* Global Lesson Progress Bar */}
-        <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+        <div className="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
           <div 
             className="bg-secondary h-full transition-all duration-500 ease-out" 
             style={{ width: `${currentProgressPercent}%` }}
@@ -249,7 +249,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* Left Interactive Panel */}
-        <div className="lg:col-span-5 bg-surface-container-high border border-white/5 p-8 text-center flex flex-col items-center relative overflow-hidden">
+        <div className="lg:col-span-5 bg-surface-container-high border border-outline/20 p-8 text-center flex flex-col items-center relative overflow-hidden">
           {/* Subtle spinning background layout */}
           <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/20 to-secondary/0"></div>
           
@@ -257,13 +257,13 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
             {currentLessonExercise.exercise.apparatusLabel}
           </span>
 
-          <h2 className="serif-text text-2xl md:text-3xl font-black text-white mb-2">
+          <h2 className="serif-text text-2xl md:text-3xl font-black text-on-surface mb-2">
             {currentLessonExercise.exercise.name}
           </h2>
           <p className="text-xs font-mono text-on-surface-variant mb-8">{currentLessonExercise.exercise.englishName}</p>
 
           {/* Interactive Circle Timer */}
-          <div className="w-48 h-48 rounded-full border-2 border-white/5 flex flex-col items-center justify-center relative mb-8">
+          <div className="w-48 h-48 rounded-full border-2 border-outline/20 flex flex-col items-center justify-center relative mb-8">
             {/* SVG Progress Circle */}
             <svg className="absolute inset-0 w-full h-full transform -rotate-90">
               <circle
@@ -287,7 +287,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
               />
             </svg>
 
-            <span className="text-4xl font-mono font-bold text-white mb-1">
+            <span className="text-4xl font-mono font-bold text-on-surface mb-1">
               {formatTime(timeLeft)}
             </span>
             <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">דגש: {currentLessonExercise.exercise.durationMinutes} דק׳ סה"כ</span>
@@ -342,7 +342,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
 
           {/* Progress numeric marker */}
           <div className="text-xs text-on-surface-variant">
-            תרגיל <span className="text-white font-bold">{currentIndex + 1}</span> מתוך <span className="text-white">{lesson.exercises.length}</span>
+            תרגיל <span className="text-on-surface font-bold">{currentIndex + 1}</span> מתוך <span className="text-on-surface">{lesson.exercises.length}</span>
           </div>
         </div>
 
@@ -352,13 +352,13 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
           {currentLessonExercise.notes && (
             <div className="bg-secondary/10 border-r-2 border-secondary p-4">
               <span className="text-[10px] font-bold text-secondary uppercase block mb-1">דגש מיוחד שבחרת לשיעור זה:</span>
-              <p className="text-sm text-white italic">"{currentLessonExercise.notes}"</p>
+              <p className="text-sm text-on-surface italic">"{currentLessonExercise.notes}"</p>
             </div>
           )}
 
           {/* Execution steps */}
-          <div className="bg-surface-container-high border border-white/5 p-6 rounded-lg">
-            <h3 className="serif-text text-xl font-bold text-white mb-4 border-b border-white/5 pb-3">
+          <div className="bg-surface-container-high border border-outline/20 p-6 rounded-lg">
+            <h3 className="serif-text text-xl font-bold text-on-surface mb-4 border-b border-outline/20 pb-3">
               הנחיות קוליות ושלבי ביצוע
             </h3>
             
@@ -373,7 +373,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
               ))}
             </ol>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-outline/20">
               <div>
                 <span className="text-xs text-secondary font-bold uppercase block mb-1">נשימה וקצב:</span>
                 <p className="text-xs text-on-surface-variant leading-relaxed">{currentLessonExercise.exercise.breathing}</p>
@@ -387,12 +387,12 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
 
           {/* Up next preview */}
           {nextLessonExercise && (
-            <div className="bg-background border border-white/5 p-4 rounded-lg flex justify-between items-center">
+            <div className="bg-background border border-outline/20 p-4 rounded-lg flex justify-between items-center">
               <div>
                 <span className="text-[9px] font-mono uppercase text-secondary/70 tracking-widest block">התרגיל הבא</span>
-                <span className="text-sm text-white font-bold">{nextLessonExercise.exercise.name}</span>
+                <span className="text-sm text-on-surface font-bold">{nextLessonExercise.exercise.name}</span>
               </div>
-              <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1">
+              <span className="text-xs text-on-surface-variant bg-surface-container px-2.5 py-1">
                 {nextLessonExercise.customDuration} דקות
               </span>
             </div>
@@ -405,7 +405,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
           <div className="w-full max-w-md rounded-3xl border border-secondary/20 bg-surface-container-high p-6 shadow-2xl">
             <div className="text-xs tracking-[0.2em] text-secondary font-bold mb-3">סיום שיעור</div>
-            <h3 className="serif-text text-2xl text-white font-bold mb-3">לסיים את השיעור ולעבור לסיכום?</h3>
+            <h3 className="serif-text text-2xl text-on-surface font-bold mb-3">לסיים את השיעור ולעבור לסיכום?</h3>
             <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
               זהו התרגיל האחרון. אם תמשיכי עכשיו, תעברי למסך הסיכום של השיעור.
             </p>

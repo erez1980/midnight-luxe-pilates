@@ -128,11 +128,11 @@ export default function ExerciseLibrary({
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 min-w-[260px]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+              <div className="rounded-2xl border border-outline/30 bg-surface-container p-4">
                 <div className="text-2xl font-black text-on-surface mb-1">{INITIAL_EXERCISES.length}</div>
                 <div className="text-xs text-on-surface-variant">תרגילים בספרייה</div>
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+              <div className="rounded-2xl border border-outline/30 bg-surface-container p-4">
                 <div className="text-2xl font-black text-on-surface mb-1">{apparatusOptions.length - 1}</div>
                 <div className="text-xs text-on-surface-variant">סוגי ציוד</div>
               </div>
@@ -142,7 +142,7 @@ export default function ExerciseLibrary({
       )}
 
       {/* Controls Container */}
-      <div className="bg-surface-container-high border border-white/5 p-6 mb-8 rounded-3xl">
+      <div className="bg-surface-container-high border border-outline/20 p-6 mb-8 rounded-3xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           {/* Search bar */}
@@ -159,7 +159,7 @@ export default function ExerciseLibrary({
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-white"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -175,7 +175,7 @@ export default function ExerciseLibrary({
                 className={`px-3 py-2 text-xs font-medium border transition-all ${
                   selectedApparatus === opt.value
                     ? 'bg-secondary border-secondary text-background font-bold'
-                    : 'border-white/10 text-on-surface hover:border-secondary/50'
+                    : 'border-outline/30 text-on-surface hover:border-secondary/50'
                 }`}
               >
                 {opt.label}
@@ -191,8 +191,8 @@ export default function ExerciseLibrary({
                 onClick={() => setSelectedDifficulty(opt.value)}
                 className={`px-3 py-2 text-xs font-medium border transition-all ${
                   selectedDifficulty === opt.value
-                    ? 'bg-white/10 border-secondary/50 text-secondary font-bold'
-                    : 'border-white/10 text-on-surface hover:border-white/20'
+                    ? 'bg-secondary/12 border-secondary/50 text-secondary font-bold'
+                    : 'border-outline/30 text-on-surface hover:border-outline'
                 }`}
               >
                 {opt.label}
@@ -209,7 +209,7 @@ export default function ExerciseLibrary({
               className={`px-3 py-2 text-xs font-medium border rounded-full transition-all ${
                 selectedCategory === opt.value
                   ? 'bg-secondary/15 border-secondary/50 text-secondary font-bold'
-                  : 'border-white/10 text-on-surface hover:border-secondary/30'
+                  : 'border-outline/30 text-on-surface hover:border-secondary/30'
               }`}
             >
               {opt.label}
@@ -249,7 +249,7 @@ export default function ExerciseLibrary({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
-                className="group border border-white/5 bg-surface-container hover:border-secondary/30 transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
+                className="group border border-outline/20 bg-surface-container hover:border-secondary/30 transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
               >
                 <button
                   type="button"
@@ -264,7 +264,7 @@ export default function ExerciseLibrary({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="rounded-full bg-white/15 backdrop-blur-sm p-3 text-white border border-white/20">
+                    <div className="rounded-full bg-surface-container p-3 text-on-surface border border-outline/20">
                       <PlayCircle className="w-8 h-8" />
                     </div>
                   </div>
@@ -278,7 +278,7 @@ export default function ExerciseLibrary({
                         {exercise.apparatusLabel}
                       </span>
                       {exercise.categoryLabel && (
-                        <span className="text-[10px] uppercase tracking-wider text-white font-semibold bg-white/5 px-2 py-1">
+                        <span className="text-[10px] tracking-wider text-on-surface font-semibold bg-surface-container-high px-2 py-1">
                           {exercise.categoryLabel}
                         </span>
                       )}
@@ -293,7 +293,7 @@ export default function ExerciseLibrary({
                   </div>
 
                   {/* Names */}
-                  <h3 className="serif-text text-xl font-bold text-white group-hover:text-secondary transition-colors mb-1">
+                  <h3 className="serif-text text-xl font-bold text-on-surface group-hover:text-secondary transition-colors mb-1">
                     {exercise.name}
                   </h3>
                   <p className="text-xs text-on-surface-variant font-mono mb-4">{exercise.englishName}</p>
@@ -305,7 +305,7 @@ export default function ExerciseLibrary({
                   {/* Muscle Targets */}
                   <div className="flex flex-wrap gap-1.5 mb-6">
                     {exercise.targetMuscles.map((muscle, idx) => (
-                      <span key={idx} className="text-[11px] bg-white/5 text-on-surface-variant px-2 py-0.5 rounded-sm">
+                      <span key={idx} className="text-[11px] bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded-sm">
                         {muscle}
                       </span>
                     ))}
@@ -313,10 +313,10 @@ export default function ExerciseLibrary({
                 </div>
 
                 {/* Bottom Row Controls */}
-                <div className="pt-4 border-t border-white/5 flex justify-between items-center mt-auto">
+                <div className="pt-4 border-t border-outline/20 flex justify-between items-center mt-auto">
                   <button
                     onClick={() => setSelectedExercise(exercise)}
-                    className="text-on-surface-variant hover:text-white text-xs flex items-center gap-1.5 transition-colors"
+                    className="text-on-surface-variant hover:text-on-surface text-xs flex items-center gap-1.5 transition-colors"
                   >
                     <Info className="w-4 h-4 text-secondary/70" />
                     הנחיות ביצוע
@@ -351,9 +351,9 @@ export default function ExerciseLibrary({
         </AnimatePresence>
 
         {filteredExercises.length === 0 && (
-          <div className="col-span-full py-16 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+          <div className="col-span-full py-16 text-center border border-dashed border-outline/30 rounded-3xl bg-surface-container">
             <Activity className="w-10 h-10 text-secondary/30 mx-auto mb-4" />
-            <p className="text-white text-lg font-medium mb-1">לא נמצאו תרגילים תואמים</p>
+            <p className="text-on-surface text-lg font-medium mb-1">לא נמצאו תרגילים תואמים</p>
             <p className="text-on-surface-variant text-sm mb-5">נסי לפתוח את החיפוש, להסיר פילטר אחד, או לעבור לקטגוריה אחרת כדי למצוא flow מתאים.</p>
             <button
               type="button"
@@ -363,7 +363,7 @@ export default function ExerciseLibrary({
                 setSelectedDifficulty('all');
                 setSelectedCategory('all');
               }}
-              className="text-secondary hover:text-white transition-colors text-sm"
+              className="text-secondary hover:text-on-surface transition-colors text-sm"
             >
               איפוס כל הסינונים
             </button>
@@ -401,12 +401,12 @@ export default function ExerciseLibrary({
                 ref={closeButtonRef}
                 onClick={() => setSelectedExercise(null)}
                 aria-label="סגירת חלון פרטי התרגיל"
-                className="absolute top-6 left-6 text-on-surface-variant hover:text-white border border-white/10 hover:border-white/30 p-2 transition-colors rounded-sm"
+                className="absolute top-6 left-6 text-on-surface-variant hover:text-on-surface border border-outline/20 hover:border-outline p-2 transition-colors rounded-sm"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="relative aspect-video bg-black border-b border-white/5 overflow-hidden">
+              <div className="relative aspect-video bg-surface-container-high border-b border-outline/20 overflow-hidden">
                 {getExerciseMedia(selectedExercise).hasInlineVideo && getExerciseMedia(selectedExercise).embedUrl ? (
                   <iframe
                     key={getExerciseMedia(selectedExercise).embedUrl}
@@ -424,7 +424,7 @@ export default function ExerciseLibrary({
                       className="absolute inset-0 w-full h-full object-cover opacity-85"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                    <div className="absolute bottom-5 right-5 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 text-sm text-white backdrop-blur-sm">
+                    <div className="absolute bottom-5 right-5 rounded-2xl border border-outline/20 bg-surface-container px-4 py-3 text-sm text-on-surface backdrop-blur-sm">
                       לתרגיל הזה עדיין אין וידאו מוטמע מאומת. רצף השלבים המלא מוצג למטה.
                     </div>
                   </>
@@ -443,27 +443,27 @@ export default function ExerciseLibrary({
                   <span className="text-xs uppercase tracking-wider text-secondary font-semibold bg-secondary/10 px-3 py-1">
                     {selectedExercise.apparatusLabel}
                   </span>
-                  <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
+                  <span className="text-xs text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-sm">
                     {selectedExercise.difficultyLabel}
                   </span>
-                  <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
+                  <span className="text-xs text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-sm">
                     {selectedExercise.durationMinutes} דקות
                   </span>
                   {selectedExercise.categoryLabel && (
-                    <span className="text-xs text-on-surface-variant bg-white/5 px-2.5 py-1 rounded-sm">
+                    <span className="text-xs text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-sm">
                       {selectedExercise.categoryLabel}
                     </span>
                   )}
                 </div>
 
                 {/* Title */}
-                <h2 className="serif-text text-2xl md:text-4xl font-bold text-white mb-1">
+                <h2 className="serif-text text-2xl md:text-4xl font-bold text-on-surface mb-1">
                   {selectedExercise.name}
                 </h2>
                 <p className="text-sm font-mono text-secondary mb-6">{selectedExercise.englishName}</p>
 
                 <div className="flex flex-wrap gap-3 mb-8">
-                  <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-on-surface-variant">
+                  <div className="rounded-xl border border-outline/20 bg-surface-container px-4 py-2 text-sm text-on-surface-variant">
                     {getExerciseMedia(selectedExercise).isDedicatedVideo
                       ? 'וידאו מוטמע ומאומת לתרגיל הזה בדיוק'
                       : 'וידאו קטגוריה כללי (לתרגיל הספציפי הזה עדיין אין וידאו ייעודי)'}
@@ -473,7 +473,7 @@ export default function ExerciseLibrary({
                 {/* Main Info Columns */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Targeted Muscles */}
-                <div className="bg-surface-container p-4 border border-white/5 rounded-sm">
+                <div className="bg-surface-container p-4 border border-outline/20 rounded-sm">
                   <h4 className="text-xs font-bold tracking-wider text-secondary uppercase mb-2 flex items-center gap-1.5">
                     <Dumbbell className="w-4 h-4" />
                     שרירי מטרה
@@ -484,7 +484,7 @@ export default function ExerciseLibrary({
                 </div>
 
                 {/* Focus & Breathing */}
-                <div className="bg-surface-container p-4 border border-white/5 rounded-sm">
+                <div className="bg-surface-container p-4 border border-outline/20 rounded-sm">
                   <h4 className="text-xs font-bold tracking-wider text-secondary uppercase mb-2 flex items-center gap-1.5">
                     <Activity className="w-4 h-4" />
                     קצב ונשימה
@@ -497,7 +497,7 @@ export default function ExerciseLibrary({
 
                 {/* Instructions */}
                 <div className="mb-8">
-                <h3 className="serif-text text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <h3 className="serif-text text-xl font-bold text-on-surface mb-4 flex items-center gap-2">
                   שלבי הביצוע (Instructions)
                 </h3>
                 <ol className="space-y-3.5">
@@ -513,7 +513,7 @@ export default function ExerciseLibrary({
                 </div>
 
                 {/* Benefits */}
-                <div className="border-t border-white/10 pt-6">
+                <div className="border-t border-outline/20 pt-6">
                 <h4 className="text-xs font-bold tracking-wider text-secondary uppercase mb-2">יתרונות מרכזיים</h4>
                 <p className="text-sm text-on-surface-variant leading-relaxed">
                   {selectedExercise.benefits}
@@ -522,7 +522,7 @@ export default function ExerciseLibrary({
 
                 {/* Custom Selector mode extra action */}
                 {isSelectorMode && onAddToLesson && (
-                  <div className="mt-8 pt-6 border-t border-white/10 flex justify-end">
+                  <div className="mt-8 pt-6 border-t border-outline/20 flex justify-end">
                     <button
                       onClick={() => {
                         onAddToLesson(selectedExercise);
