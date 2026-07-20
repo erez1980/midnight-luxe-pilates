@@ -118,7 +118,7 @@ export default function ExerciseLibrary({
       {!isSelectorMode && (
         <div className="mb-12 space-y-5">
           <div className="inline-block px-4 py-1 border-l border-r border-secondary/40">
-            <span className="uppercase tracking-[0.2em] text-secondary text-xs font-semibold">Premium exercise workspace</span>
+            <span className="uppercase tracking-[0.2em] text-secondary text-xs font-semibold">פילאטיס ותנועה</span>
           </div>
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div>

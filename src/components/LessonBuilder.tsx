@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, BookOpen, X, Wand2, Printer, MessageCircle, CheckCircle2, Clock3, Layers3, Target } from 'lucide-react';
 import { Exercise, Lesson, LessonExercise } from '../types';
 import ExerciseLibrary from './ExerciseLibrary';
@@ -29,6 +29,10 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [autoBuildDuration, setAutoBuildDuration] = useState<number>(45);
   const [copiedWhatsapp, setCopiedWhatsapp] = useState(false);
   const [activeStep, setActiveStep] = useState<'setup' | 'generate' | 'refine' | 'finish'>('setup');
+  const setupRef = useRef<HTMLDivElement | null>(null);
+  const generateRef = useRef<HTMLDivElement | null>(null);
+  const refineRef = useRef<HTMLDivElement | null>(null);
+  const finishRef = useRef<HTMLDivElement | null>(null);
 
   const levelLabels = {
     beginner: 'מתחילים',
@@ -264,6 +268,17 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     }).slice(0, 24);
   }, [builderSearchQuery, builderApparatus, builderDifficulty, builderCategory]);
 
+  const scrollToStep = (step: 'setup' | 'generate' | 'refine' | 'finish') => {
+    setActiveStep(step);
+    const refs = {
+      setup: setupRef,
+      generate: generateRef,
+      refine: refineRef,
+      finish: finishRef,
+    };
+    refs[step].current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const stepCards = [
     {
       key: 'setup',
@@ -340,7 +355,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               <button
                 key={step.key}
                 type="button"
-                onClick={() => setActiveStep(step.key)}
+                onClick={() => scrollToStep(step.key)}
                 className={`rounded-2xl border p-4 text-right transition-all ${
                   isActive
                     ? 'border-secondary/40 bg-secondary/10 shadow-[0_0_0_1px_rgba(212,175,55,0.12)]'
@@ -369,7 +384,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
         <div className="xl:col-span-7 space-y-6">
           
           {/* Metadata Section */}
-          <div className="bg-surface-container-high border border-white/5 p-6 rounded-lg space-y-4">
+          <div ref={setupRef} className="bg-surface-container-high border border-white/5 p-6 rounded-lg space-y-4 scroll-mt-28">
             <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/5 pb-3">
               <div>
                 <h3 className="serif-text text-xl font-bold text-white">
@@ -379,7 +394,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               </div>
               <button
                 type="button"
-                onClick={() => setActiveStep('generate')}
+                onClick={() => scrollToStep('generate')}
                 className="text-xs text-secondary hover:text-white transition-colors"
               >
                 עברי לשלב הבא
@@ -450,7 +465,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             </div>
           </div>
 
-          <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 space-y-4">
+          <div ref={generateRef} className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 space-y-4 scroll-mt-28">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 text-secondary">
@@ -461,7 +476,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               </div>
               <button
                 type="button"
-                onClick={() => setActiveStep('refine')}
+                onClick={() => scrollToStep('refine')}
                 className="text-xs text-secondary hover:text-white transition-colors"
               >
                 דלגי לעריכה ידנית
@@ -489,7 +504,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
           </div>
 
           {/* Active Flow (Selected Exercises) */}
-          <div className="bg-surface-container-high border border-white/5 p-6 rounded-lg">
+          <div ref={refineRef} className="bg-surface-container-high border border-white/5 p-6 rounded-lg scroll-mt-28">
             <div className="flex flex-wrap justify-between items-center gap-4 border-b border-white/5 pb-4 mb-4">
               <h3 className="serif-text text-xl font-bold text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-secondary" />
@@ -639,7 +654,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
           </div>
 
           {/* Action buttons */}
-          <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+          <div ref={finishRef} className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 scroll-mt-28">
             <div className="flex items-center justify-between gap-4 mb-4">
               <div>
                 <div className="text-xs uppercase tracking-[0.2em] text-secondary font-bold">שלב 4 · שמירה ושיתוף</div>

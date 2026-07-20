@@ -65,14 +65,70 @@
 }
 
 @utility hero-overlay {
-  background: linear-gradient(to top, #021525 0%, rgba(2, 21, 37, 0.4) 60%, rgba(2, 21, 37, 0.7) 100%);
+  background: linear-gradient(to top, color-mix(in srgb, var(--color-background) 96%, transparent) 0%, color-mix(in srgb, var(--color-background) 55%, transparent) 60%, color-mix(in srgb, var(--color-background) 78%, transparent) 100%);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-on-tertiary: #ffffff;
+  --color-outline-variant: #d6d9df;
+  --color-surface-tint: #5b6676;
+  --color-surface-container-low: #f8fafc;
+  --color-surface-bright: #ffffff;
+  --color-inverse-surface: #1f2937;
+  --color-surface-container-lowest: #ffffff;
+  --color-inverse-primary: #dbe6f4;
+  --color-tertiary-fixed: #1f2937;
+  --color-primary-fixed: #eef4fb;
+  --color-on-background: #1e293b;
+  --color-primary-fixed-dim: #dbe6f4;
+  --color-on-error-container: #7f1d1d;
+  --color-tertiary-fixed-dim: #4b5563;
+  --color-on-surface-variant: #5b6472;
+  --color-error-container: #fee2e2;
+  --color-background: #f6f8fb;
+  --color-on-surface: #1e293b;
+  --color-on-tertiary-fixed-variant: #374151;
+  --color-error: #dc2626;
+  --color-on-secondary-fixed-variant: #7c5a00;
+  --color-surface-dim: #edf2f7;
+  --color-primary-container: #ffffff;
+  --color-on-error: #ffffff;
+  --color-on-tertiary-container: #374151;
+  --color-surface-variant: #eef2f7;
+  --color-tertiary: #4b5563;
+  --color-on-secondary-fixed: #4a3500;
+  --color-on-secondary: #4a3500;
+  --color-on-primary-container: #334155;
+  --color-on-primary-fixed-variant: #475569;
+  --color-on-tertiary-fixed: #111827;
+  --color-surface-container-highest: #e9eef5;
+  --color-on-secondary-container: #4a3500;
+  --color-surface-container-high: #f1f5f9;
+  --color-surface-container: #ffffff;
+  --color-on-primary: #223242;
+  --color-surface: #f6f8fb;
+  --color-primary: #64748b;
+  --color-secondary: #c89b12;
+  --color-secondary-fixed: #f8d978;
+  --color-on-primary-fixed: #0c1d2c;
+  --color-tertiary-container: #f3f4f6;
+  --color-secondary-container: #f4dfa0;
+  --color-outline: #bcc4d1;
+  --color-inverse-on-surface: #f8fafc;
+  --color-secondary-fixed-dim: #d4a81e;
 }
 
 body {
   font-family: 'Manrope', sans-serif;
-  background-color: #021525;
-  color: #d1e4fb;
+  background-color: var(--color-background);
+  color: var(--color-on-background);
   direction: rtl;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .serif-text {

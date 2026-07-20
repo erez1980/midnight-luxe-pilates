@@ -79,7 +79,7 @@ export default function MyLessons({
           </button>
           <div className="inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-secondary mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            Premium lesson workspace
+            פילאטיס ותנועה
           </div>
           <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-2">השיעורים שלי</h2>
           <p className="text-on-surface-variant max-w-2xl leading-relaxed">
