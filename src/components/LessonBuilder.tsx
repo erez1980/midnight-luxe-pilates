@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, BookOpen, X, Wand2, Printer, MessageCircle } from 'lucide-react';
+import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, BookOpen, X, Wand2, Printer, MessageCircle, CheckCircle2, Clock3, Layers3, Target } from 'lucide-react';
 import { Exercise, Lesson, LessonExercise } from '../types';
 import ExerciseLibrary from './ExerciseLibrary';
 import { INITIAL_EXERCISES } from '../data';
@@ -28,6 +28,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [builderCategory, setBuilderCategory] = useState<string>('all');
   const [autoBuildDuration, setAutoBuildDuration] = useState<number>(45);
   const [copiedWhatsapp, setCopiedWhatsapp] = useState(false);
+  const [activeStep, setActiveStep] = useState<'setup' | 'generate' | 'refine' | 'finish'>('setup');
 
   const levelLabels = {
     beginner: 'מתחילים',
@@ -160,6 +161,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
       setExercises(generated);
       if (!lessonName.trim()) setLessonName(`שיעור אוטומטי ${autoBuildDuration} דקות`);
       if (!description.trim()) setDescription('שיעור שנבנה אוטומטית לפי זמן, רמה, מכשיר וזרימת שיעור מומלצת.');
+      setActiveStep('refine');
     }
   };
 
@@ -211,6 +213,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     onSaveLesson(savedLesson);
     setShowSuccessToast(true);
     setTimeout(() => setShowSuccessToast(false), 3000);
+    setActiveStep('finish');
   };
 
   const totalCalculatedDuration = exercises.reduce((acc, curr) => acc + curr.customDuration, 0);
@@ -258,6 +261,45 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     }).slice(0, 24);
   }, [builderSearchQuery, builderApparatus, builderDifficulty, builderCategory]);
 
+  const stepCards = [
+    {
+      key: 'setup',
+      title: 'הגדרת שיעור',
+      subtitle: 'שם, רמה, מטרה ומשך',
+      ready: lessonName.trim().length > 0
+    },
+    {
+      key: 'generate',
+      title: 'יצירת שלד',
+      subtitle: 'Auto build או התחלה ידנית',
+      ready: exercises.length > 0
+    },
+    {
+      key: 'refine',
+      title: 'דיוק ה-flow',
+      subtitle: 'סדר, זמנים ודגשי הדרכה',
+      ready: exercises.length > 0 && totalCalculatedDuration >= 20
+    },
+    {
+      key: 'finish',
+      title: 'שמירה ושיתוף',
+      subtitle: 'ספרייה, PDF ו-WhatsApp',
+      ready: false
+    }
+  ] as const;
+
+  const categorySummary = exercises.reduce<Record<string, number>>((acc, item) => {
+    const key = item.exercise.categoryLabel || item.exercise.category;
+    acc[key] = (acc[key] || 0) + item.customDuration;
+    return acc;
+  }, {});
+
+  const builderWarnings = [
+    !exercises.some((item) => item.exercise.category === 'warmup') ? 'חסר חימום ברור בתחילת השיעור' : null,
+    !exercises.some((item) => item.exercise.category === 'cooldown') ? 'חסר שחרור או סיום רגוע' : null,
+    totalCalculatedDuration > 0 && totalCalculatedDuration < 30 ? 'השיעור קצר יחסית - אולי כדאי להרחיב עוד בלוק אחד' : null
+  ].filter(Boolean) as string[];
+
   return (
     <div className="w-full">
       {/* Toast */}
@@ -275,16 +317,47 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
         )}
       </AnimatePresence>
 
-      <div className="mb-12">
-        <div className="inline-block mb-3 px-4 py-1 border-l border-r border-secondary/40">
-          <span className="uppercase tracking-[0.2em] text-secondary text-xs font-semibold">BOUTIQUE WORKOUT PLANNER</span>
+      <div className="mb-12 space-y-8">
+        <div>
+          <div className="inline-block mb-3 px-4 py-1 border-l border-r border-secondary/40">
+            <span className="uppercase tracking-[0.2em] text-secondary text-xs font-semibold">Premium lesson builder</span>
+          </div>
+          <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-4">
+            {existingLessonToEdit ? 'עריכת מערך שיעור' : 'בניית שיעור בצורה מקצועית וברורה'}
+          </h2>
+          <p className="text-on-surface-variant text-lg max-w-3xl leading-relaxed">
+            בחרי מטרה, רמה ומשך, צרי שלד חכם בלחיצה אחת, ואז דייקי את ה-flow עד שיש לך שיעור שמוכן ללמד, לשמור ולשתף.
+          </p>
         </div>
-        <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-4">
-          {existingLessonToEdit ? 'עריכת מערך שיעור' : 'בניית מערך שיעור'}
-        </h2>
-        <p className="text-on-surface-variant text-lg max-w-2xl">
-          תכנני את זרימת התנועה המושלמת בממשק אינטראקטיבי. הוסיפי תרגילים, קבעי זמני ביצוע לכל תנועה, ורשמי דגשים ייחודיים לשיעור.
-        </p>
+
+        <div className="grid gap-3 md:grid-cols-4">
+          {stepCards.map((step, index) => {
+            const isActive = activeStep === step.key;
+            return (
+              <button
+                key={step.key}
+                type="button"
+                onClick={() => setActiveStep(step.key)}
+                className={`rounded-2xl border p-4 text-right transition-all ${
+                  isActive
+                    ? 'border-secondary/40 bg-secondary/10 shadow-[0_0_0_1px_rgba(212,175,55,0.12)]'
+                    : 'border-white/8 bg-white/[0.02] hover:border-white/15'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <span className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-bold ${
+                    isActive ? 'border-secondary/40 bg-secondary text-background' : 'border-white/10 bg-white/5 text-white'
+                  }`}>
+                    {index + 1}
+                  </span>
+                  {step.ready && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                </div>
+                <div className="text-white font-bold mb-1">{step.title}</div>
+                <div className="text-xs text-on-surface-variant">{step.subtitle}</div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <form onSubmit={handleSave} className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
@@ -294,9 +367,21 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
           
           {/* Metadata Section */}
           <div className="bg-surface-container-high border border-white/5 p-6 rounded-lg space-y-4">
-            <h3 className="serif-text text-xl font-bold text-white border-b border-white/5 pb-3">
-              פרטי השיעור הכלליים
-            </h3>
+            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/5 pb-3">
+              <div>
+                <h3 className="serif-text text-xl font-bold text-white">
+                  שלב 1 · הגדרת השיעור
+                </h3>
+                <p className="text-sm text-on-surface-variant mt-1">התחילי ממטרה, רמה ותחושת שיעור ברורה לפני שבוחרים תרגילים.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveStep('generate')}
+                className="text-xs text-secondary hover:text-white transition-colors"
+              >
+                עברי לשלב הבא
+              </button>
+            </div>
 
             {errors.length > 0 && (
               <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 text-xs space-y-1 rounded-sm">
@@ -363,9 +448,21 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
           </div>
 
           <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 space-y-4">
-            <div className="flex items-center gap-2 text-secondary">
-              <Wand2 className="w-4 h-4" />
-              <div className="text-xs font-bold uppercase tracking-[0.2em]">Auto Build</div>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 text-secondary">
+                  <Wand2 className="w-4 h-4" />
+                  <div className="text-xs font-bold uppercase tracking-[0.2em]">שלב 2 · צרי שלד חכם</div>
+                </div>
+                <p className="text-sm text-on-surface-variant mt-2">בחרי משך וקבלי התחלה טובה לפי רמה, ציוד וזרימת שיעור מומלצת.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveStep('refine')}
+                className="text-xs text-secondary hover:text-white transition-colors"
+              >
+                דלגי לעריכה ידנית
+              </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
               <div>
@@ -383,17 +480,17 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               </div>
               <Button type="button" onClick={autoBuildLesson} variant="primary" size="md">
                 <Wand2 className="w-4 h-4" />
-                בנה לי שיעור
+                בנה לי שלד שיעור
               </Button>
             </div>
           </div>
 
           {/* Active Flow (Selected Exercises) */}
           <div className="bg-surface-container-high border border-white/5 p-6 rounded-lg">
-            <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
+            <div className="flex flex-wrap justify-between items-center gap-4 border-b border-white/5 pb-4 mb-4">
               <h3 className="serif-text text-xl font-bold text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-secondary" />
-                רצף תנועת השיעור ({exercises.length} תרגילים)
+                שלב 3 · דיוק רצף השיעור ({exercises.length} תרגילים)
               </h3>
               <div className="text-left font-mono">
                 <span className="text-secondary font-bold text-lg">{totalCalculatedDuration}</span>
@@ -539,50 +636,117 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-wrap justify-between items-center gap-3 pt-4">
-            <div className="flex flex-wrap gap-3">
-              <Button
-                type="button"
-                onClick={handlePrintLesson}
-                disabled={exercises.length === 0}
-                variant="surface"
-                size="md"
-              >
-                <Printer className="w-4 h-4" />
-                ייצוא PDF / הדפסה
-              </Button>
-              <Button
-                type="button"
-                onClick={handleCopyWhatsapp}
-                disabled={exercises.length === 0}
-                variant="surface"
-                size="md"
-              >
-                <MessageCircle className="w-4 h-4" />
-                {copiedWhatsapp ? 'הועתק ל-WhatsApp' : 'WhatsApp-ready'}
+          <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div>
+                <div className="text-xs uppercase tracking-[0.2em] text-secondary font-bold">שלב 4 · שמירה ושיתוף</div>
+                <div className="text-sm text-on-surface-variant mt-1">כשה-flow מוכן, שמרי לספרייה, שתפי בוואטסאפ או הדפיסי להוראה.</div>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-between items-center gap-3 pt-1">
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  type="button"
+                  onClick={handlePrintLesson}
+                  disabled={exercises.length === 0}
+                  variant="surface"
+                  size="md"
+                >
+                  <Printer className="w-4 h-4" />
+                  ייצוא PDF / הדפסה
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleCopyWhatsapp}
+                  disabled={exercises.length === 0}
+                  variant="surface"
+                  size="md"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  {copiedWhatsapp ? 'הועתק ל-WhatsApp' : 'WhatsApp-ready'}
+                </Button>
+              </div>
+              <Button type="submit" variant="primary" size="lg" className="shadow-2xl">
+                <Save className="w-5 h-5" />
+                שמרי מערך שיעור זה
               </Button>
             </div>
-            <Button type="submit" variant="primary" size="lg" className="shadow-2xl">
-              <Save className="w-5 h-5" />
-              שמרי מערך שיעור זה
-            </Button>
           </div>
 
         </div>
 
         {/* RIGHT COLUMN: Selective compact Exercise Library */}
-        <div className="xl:col-span-5 bg-surface-container-high border border-white/5 p-6 rounded-lg">
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
-            <BookOpen className="w-5 h-5 text-secondary" />
-            <h3 className="serif-text text-xl font-bold text-white">
-              בחירת תרגילים לשיעור
-            </h3>
-          </div>
-          <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
-            לחצי על <strong>״הוסיפי לשיעור״</strong> כדי לשלב תרגיל במערך. הוספתי כאן גם חיפוש וסינון מהיר כדי שלא תלכי לאיבוד בתוך כל המאגר.
-          </p>
+        <div className="xl:col-span-5 space-y-6">
+          <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5 md:p-6 xl:sticky xl:top-24">
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <div>
+                <div className="text-xs uppercase tracking-[0.2em] text-secondary font-bold">Session summary</div>
+                <div className="text-white text-lg font-bold mt-1">תמונת מצב של השיעור</div>
+              </div>
+              <Layers3 className="w-5 h-5 text-secondary" />
+            </div>
 
-          <div className="mb-5 space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+            <div className="grid grid-cols-3 gap-3 mb-5">
+              <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+                <Clock3 className="w-4 h-4 text-secondary mx-auto mb-2" />
+                <div className="text-white text-xl font-black">{totalCalculatedDuration}</div>
+                <div className="text-[11px] text-on-surface-variant">דקות</div>
+              </div>
+              <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+                <BookOpen className="w-4 h-4 text-secondary mx-auto mb-2" />
+                <div className="text-white text-xl font-black">{exercises.length}</div>
+                <div className="text-[11px] text-on-surface-variant">תרגילים</div>
+              </div>
+              <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+                <Target className="w-4 h-4 text-secondary mx-auto mb-2" />
+                <div className="text-white text-xl font-black">{levelLabels[level]}</div>
+                <div className="text-[11px] text-on-surface-variant">רמה</div>
+              </div>
+            </div>
+
+            <div className="space-y-3 mb-5">
+              <div>
+                <div className="text-sm text-white font-bold mb-2">איזון שיעור</div>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(categorySummary).length > 0 ? Object.entries(categorySummary).slice(0, 6).map(([category, minutes]) => (
+                    <span key={category} className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-on-surface-variant">
+                      {category} · {minutes} דק׳
+                    </span>
+                  )) : (
+                    <span className="text-xs text-on-surface-variant">עדיין אין בלוקים בשיעור.</span>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm text-white font-bold mb-2">בדיקות מהירות</div>
+                <div className="space-y-2">
+                  {builderWarnings.length > 0 ? builderWarnings.map((warning) => (
+                    <div key={warning} className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+                      {warning}
+                    </div>
+                  )) : (
+                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
+                      המבנה נראה מאוזן ומוכן להמשך ליטוש.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-surface-container-high border border-white/5 p-6 rounded-lg">
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
+              <BookOpen className="w-5 h-5 text-secondary" />
+              <h3 className="serif-text text-xl font-bold text-white">
+                בחירת תרגילים לשיעור
+              </h3>
+            </div>
+            <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
+              לחצי על <strong>״הוסיפי לשיעור״</strong> כדי לשלב תרגיל במערך. הוספתי כאן גם חיפוש וסינון מהיר כדי שלא תלכי לאיבוד בתוך כל המאגר.
+            </p>
+
+            <div className="mb-5 space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
             <div className="relative">
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant w-4 h-4" />
               <input
@@ -726,12 +890,13 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             </div>
           </div>
 
-          <div className="max-h-[85vh] overflow-y-auto pr-1">
-            <ExerciseLibrary 
-              isSelectorMode={true} 
-              onAddToLesson={handleAddExercise}
-              addedExerciseIds={activeExerciseIds}
-            />
+            <div className="max-h-[85vh] overflow-y-auto pr-1">
+              <ExerciseLibrary 
+                isSelectorMode={true} 
+                onAddToLesson={handleAddExercise}
+                addedExerciseIds={activeExerciseIds}
+              />
+            </div>
           </div>
         </div>
 

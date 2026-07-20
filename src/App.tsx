@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { 
   Play, 
   Search, 
@@ -21,10 +21,10 @@ import {
 } from 'lucide-react';
 import { Lesson } from './types';
 import { INITIAL_LESSONS } from './data';
-import ExerciseLibrary from './components/ExerciseLibrary';
-import LessonBuilder from './components/LessonBuilder';
-import MyLessons from './components/MyLessons';
-import CoachingSession from './components/CoachingSession';
+const ExerciseLibrary = lazy(() => import('./components/ExerciseLibrary'));
+const LessonBuilder = lazy(() => import('./components/LessonBuilder'));
+const MyLessons = lazy(() => import('./components/MyLessons'));
+const CoachingSession = lazy(() => import('./components/CoachingSession'));
 import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
 import { pullCloudLessons, pushCloudLessons, createSharedLesson, fetchSharedLesson } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
@@ -124,7 +124,7 @@ export default function App() {
   const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
     if (!isAuthenticated) {
       setActiveScreen('home');
-      setUiNotice('האזור הזה מוגבל למדריכות מחוברות. התחברי עם Google כדי לבנות ולשמור שיעורים.');
+      setUiNotice('האזור הזה מיועד למאמנות מחוברות. התחברי עם Google כדי לבנות שיעורים, לשמור תבניות ולסנכרן את הספרייה שלך.');
       return;
     }
     setActiveScreen(screen);
@@ -166,7 +166,7 @@ export default function App() {
   const handleGoogleLogin = async () => {
     const result = await signInWithGoogle();
     if (!result.ok) {
-      setUiNotice(result.reason === 'disabled' ? 'Google Login דורש חיבור Supabase ו-Google OAuth. כרגע האתר במצב אורח מוגבל.' : `Google login failed: ${result.reason}`);
+      setUiNotice(result.reason === 'disabled' ? 'Google דורש חיבור Supabase ו-Google OAuth. כרגע האתר במצב אורח מוגבל.' : `Google login failed: ${result.reason}`);
     }
   };
 
@@ -272,10 +272,8 @@ export default function App() {
 
   // Delete Lesson handler
   const handleDeleteLesson = (id: string) => {
-    if (window.confirm('האם את בטוחה שברצונך למחוק מערך שיעור זה?')) {
-      const updated = lessons.filter(l => l.id !== id);
-      saveLessonsToStorage(updated);
-    }
+    const updated = lessons.filter(l => l.id !== id);
+    saveLessonsToStorage(updated);
   };
 
   // Edit Lesson click handler
@@ -301,8 +299,8 @@ export default function App() {
     <div className="min-h-screen bg-background text-on-background flex flex-col relative overflow-clip selection:bg-secondary selection:text-background">
       
       {/* Header Section */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-background/85 backdrop-blur-md border-b border-white/5 px-6 md:px-20 py-4 transition-all duration-300">
-        <div className="max-w-[1280px] mx-auto flex items-center justify-between">
+      <header className="fixed top-0 left-0 w-full z-50 bg-background/85 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 md:px-20 py-3 md:py-4 transition-all duration-300">
+        <div className="max-w-[1280px] mx-auto flex items-center justify-between gap-3">
           
           {/* Logo & Brand */}
           <button 
@@ -315,7 +313,7 @@ export default function App() {
                 <path clipRule="evenodd" d="M39.998 12.236C39.9944 12.2537 39.9875 12.2845 39.9748 12.3294C39.9436 12.4399 39.8949 12.5741 39.8346 12.7175C39.8168 12.7597 39.7989 12.8007 39.7813 12.8398C38.5103 13.7113 35.9788 14.9393 33.7095 15.4811C30.9875 16.131 27.6413 16.5217 24 16.5217C20.3587 16.5217 17.0125 16.131 14.2905 15.4811C12.0012 14.9346 9.44505 13.6897 8.18538 12.8168C8.17384 12.7925 8.16216 12.767 8.15052 12.7408C8.09919 12.6249 8.05721 12.5114 8.02977 12.411C8.00356 12.3152 8.00039 12.2667 8.00004 12.2612C8.00004 12.261 8 12.2607 8.00004 12.2612C8.00004 12.2359 8.0104 11.9233 8.68485 11.3686C9.34546 10.8254 10.4222 10.2469 11.9291 9.72276C14.9242 8.68098 19.1919 8 24 8C28.8081 8 33.0758 8.68098 36.0709 9.72276C37.5778 10.2469 38.6545 10.8254 39.3151 11.3686C39.9006 11.8501 39.9857 12.1489 39.998 12.236ZM4.95178 15.2312L21.4543 41.6973C22.6288 43.5809 25.3712 43.5809 26.5457 41.6973L43.0534 15.223C43.0709 15.1948 43.0878 15.1662 43.104 15.1371L41.3563 14.1648C43.104 15.1371 43.1038 15.1374 43.104 15.1371L43.1051 15.135L43.1065 15.1325L43.1101 15.1261L43.1199 15.1082C43.1276 15.094 43.1377 15.0754 43.1497 15.0527C43.1738 15.0075 43.2062 14.9455 43.244 14.8701C43.319 14.7208 43.4196 14.511 43.5217 14.2683C43.6901 13.8679 44 13.0689 44 12.2609C44 10.5573 43.003 9.22254 41.8558 8.2791C40.6947 7.32427 39.1354 6.55361 37.385 5.94477C33.8654 4.72057 29.133 4 24 4C18.867 4 14.1346 4.72057 10.615 5.94478C8.86463 6.55361 7.30529 7.32428 6.14419 8.27911C4.99695 9.22255 3.99999 10.5573 3.99999 12.2609C3.99999 13.1275 4.29264 13.9078 4.49321 14.3607C4.60375 14.6102 4.71348 14.8196 4.79687 14.9689C4.83898 15.0444 4.87547 15.1065 4.9035 15.1529C4.91754 15.1762 4.92954 15.1957 4.93916 15.2111L4.94662 15.223L4.95178 15.2312ZM35.9868 18.996L24 38.22L12.0131 18.996C12.4661 19.1391 12.9179 19.2658 13.3617 19.3718C16.4281 20.1039 20.0901 20.5217 24 20.5217C27.9099 20.5217 31.5719 20.1039 34.6383 19.3718C35.082 19.2658 35.5339 19.1391 35.9868 18.996Z" fill="currentColor" fillRule="evenodd"></path>
               </svg>
             </div>
-            <h2 className="serif-text text-xl font-bold tracking-wide gold-gradient select-none">Midnight Luxe Pilates</h2>
+            <h2 className="serif-text text-base sm:text-xl font-bold tracking-wide gold-gradient select-none">Midnight Luxe Pilates</h2>
           </button>
 
           {/* Desktop Navigation */}
@@ -347,7 +345,7 @@ export default function App() {
           </nav>
 
           {/* User & Action area */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-5">
             {authProfile ? (
               <div className="hidden sm:flex items-center gap-3">
                 <div className="text-right">
@@ -377,7 +375,7 @@ export default function App() {
                 className="hidden sm:inline-flex"
               >
                 <LogIn className="w-4 h-4" />
-                Google Login
+                Google
               </Button>
             )}
 
@@ -400,7 +398,7 @@ export default function App() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-x-0 top-[72px] z-40 bg-background border-b border-white/10 p-6 flex flex-col gap-4 lg:hidden shadow-2xl"
+            className="fixed inset-x-0 top-[68px] sm:top-[72px] z-40 bg-background border-b border-white/10 p-5 sm:p-6 flex flex-col gap-4 lg:hidden shadow-2xl"
           >
             <button
               onClick={() => { setActiveScreen('library'); setEditingLesson(null); setIsMobileMenuOpen(false); }}
@@ -446,8 +444,7 @@ export default function App() {
           <div className="space-y-0">
             
             {/* Hero Section */}
-            <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden -mt-28">
-              {/* Background image underlay */}
+            <section className="relative min-h-[92vh] flex items-center overflow-hidden -mt-28">
               <div 
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
                 style={{ 
@@ -455,51 +452,84 @@ export default function App() {
                 }}
               />
               <div className="absolute inset-0 hero-overlay" />
-              
-              {/* Floating aesthetic lights */}
               <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
 
-              <div className="relative z-10 w-full max-w-[1000px] px-6 text-center py-20 mt-16">
-                <div className="inline-block mb-6 px-4 py-1 border-l border-r border-secondary/40">
-                  <span className="uppercase tracking-[0.3em] text-secondary text-xs md:text-sm font-semibold">
-                    מרחב עבודה למדריכת פילאטיס
-                  </span>
+              <div className="relative z-10 max-w-[1280px] mx-auto w-full px-6 md:px-20 pt-32 md:pt-36 pb-16 md:pb-20 grid lg:grid-cols-[1.2fr_0.8fr] gap-8 md:gap-10 items-center">
+                <div className="max-w-[760px]">
+                  <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 border border-secondary/30 bg-black/20 backdrop-blur-sm">
+                    <span className="uppercase tracking-[0.3em] text-secondary text-xs md:text-sm font-semibold">
+                      Pilates lesson planning platform
+                    </span>
+                  </div>
+
+                  <h1 className="serif-text text-4xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-6 md:mb-8">
+                    בוני שיעורי פילאטיס
+                    <span className="gold-gradient block">מקצועיים תוך דקות</span>
+                  </h1>
+
+                  <p className="text-base md:text-2xl text-white/85 max-w-[700px] mb-5 md:mb-6 leading-relaxed">
+                    מוצר עבודה למאמנות פילאטיס שרוצות לבנות שיעורים מהר יותר, לשמור מערכים מסודרים, וללמד עם יותר ביטחון ופחות בלגן.
+                  </p>
+
+                  <p className="text-sm md:text-lg text-on-surface-variant max-w-[680px] mb-8 md:mb-10 leading-relaxed">
+                    מאגר תרגילים, builder חכם, ספריית שיעורים, שיתוף מהיר ו־teach mode - הכל במקום אחד, עם חוויה שמרגישה כמו כלי פרימיום אמיתי ולא עוד טופס.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 w-full sm:w-auto">
+                    <Button
+                      size="lg"
+                      variant="primary"
+                      onClick={() => goToProtected('builder')}
+                      className="min-w-[240px] w-full sm:w-auto group"
+                    >
+                      התחילי לבנות שיעור
+                      <ChevronLeft className="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" />
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={() => setActiveScreen('library')}
+                      className="min-w-[220px] w-full sm:w-auto border-white/30 text-white hover:bg-white/10 hover:border-white/40"
+                    >
+                      צפי במאגר התרגילים
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-6 text-sm text-white/75">
+                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> בניית שיעור לפי מטרה, רמה ומשך</div>
+                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> ספריית שיעורים פרטית</div>
+                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> שיתוף, הדפסה ו־teach mode</div>
+                  </div>
                 </div>
-                
-                <h1 className="serif-text text-4xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-8">
-                  כל התרגילים.<br/>
-                  <span className="gold-gradient">שיעור אחד בנוי,</span><br/>
-                  בקצב הנשימה שלך.
-                </h1>
-                
-                <p className="text-lg md:text-xl text-on-surface-variant font-light max-w-[700px] mx-auto mb-10 leading-relaxed">
-                  מאגר תרגילים עם וידאו הדגמה, ובנייה של שיעור מלא - בלי טופס אקסל, בלי בלגן.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  {/* Primary CTA leads to the OPEN library so guests experience value before any wall */}
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    onClick={() => setActiveScreen('library')}
-                    className="min-w-[220px] group"
-                  >
-                    גלי את המאגר
-                    <ChevronLeft className="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" />
-                  </Button>
-                  {/* Secondary goes through the auth-aware path (friendly notice, not a dead end) */}
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={() => goToProtected('builder')}
-                    className="min-w-[220px] border-white/30 text-white hover:bg-white/10 hover:border-white/40"
-                  >
-                    בניית שיעור
-                  </Button>
+
+                <div className="grid gap-4">
+                  <div className="rounded-3xl border border-white/10 bg-black/35 backdrop-blur-md p-6 md:p-7 shadow-2xl">
+                    <div className="text-xs uppercase tracking-[0.25em] text-secondary mb-3">למה משלמים על זה</div>
+                    <h3 className="serif-text text-2xl text-white font-bold mb-4">פחות זמן תכנון. יותר מקצועיות מול הלקוחות.</h3>
+                    <div className="space-y-4 text-sm text-on-surface-variant">
+                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>בני שיעור חדש תוך דקות במקום להתחיל כל פעם מדף ריק.</p></div>
+                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>שמרי תבניות ומערכים לשימוש חוזר לפי רמות, ציוד וקבוצות.</p></div>
+                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>הגיעי לשיעור עם flow ברור, notes, ושיתוף מיידי כשצריך.</p></div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
+                      <div className="text-3xl font-black text-secondary mb-2">3 דק'</div>
+                      <div className="text-sm text-white">לבניית שלד שיעור מקצועי</div>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
+                      <div className="text-3xl font-black text-secondary mb-2">1 מקום</div>
+                      <div className="text-sm text-white">לתרגילים, מערכים ושיתוף</div>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
+                      <div className="text-3xl font-black text-secondary mb-2">Premium</div>
+                      <div className="text-sm text-white">UX שמרגיש כמו מוצר בתשלום</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Decorative Scroll indicator */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
                 <div className="w-[1px] h-14 bg-gradient-to-b from-secondary/0 via-secondary to-secondary/0 animate-pulse" />
               </div>
@@ -507,17 +537,16 @@ export default function App() {
 
             {/* Features Module Section */}
             <section className="py-24 bg-surface px-6 md:px-20 relative">
-              {/* Backdrop glow */}
               <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-5">
                 <div className="absolute -top-1/4 -right-1/4 w-1/2 h-1/2 bg-secondary rounded-full blur-[150px]" />
               </div>
 
               <div className="max-w-[1280px] mx-auto">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-                  <div className="max-w-[600px]">
-                    <h2 className="serif-text text-4xl md:text-5xl font-bold text-white mb-6">הכלים שלך להצלחה</h2>
+                  <div className="max-w-[760px]">
+                    <h2 className="serif-text text-4xl md:text-5xl font-bold text-white mb-6">מה מאמנת באמת מקבלת פה</h2>
                     <p className="text-on-surface-variant text-lg leading-relaxed">
-                      כל מה שאת צריכה לניהול השיעורים במקום אחד, בממשק יוקרתי שנועד לפנות לך זמן לדברים החשובים באמת.
+                      לא עוד קטלוג תרגילים. סביבת עבודה מלאה לבנייה, שמירה, התאמה והעברה של שיעורי פילאטיס ברמה מקצועית.
                     </p>
                   </div>
                   <div className="w-24 h-[2px] bg-secondary hidden md:block" />
@@ -539,7 +568,7 @@ export default function App() {
                     
                     <h3 className="serif-text text-2xl font-bold text-white mb-4">מאגר תרגילים</h3>
                     <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
-                      גישה מהירה למאות תרגילי פילאטיס מצולמים באיכות גבוהה, מסודרים לפי רמות ועזרים.
+                      חיפוש מהיר בתרגילים לפי רמה, ציוד ומטרה - כדי להתחיל מכל שיעור עם בסיס חכם ולא מאלתור.
                     </p>
                     
                     <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
@@ -583,7 +612,7 @@ export default function App() {
                     
                     <h3 className="serif-text text-2xl font-bold text-white mb-4">השיעורים שלי</h3>
                     <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
-                      ניהול וצפייה בכל מערכי השיעור ששמרת. הספרייה האישית שלך, תמיד זמינה מכל מכשיר.
+                      ספריית מערכים פרטית לשכפול, התאמה ושימוש חוזר - כדי שכל שיעור חדש יתחיל חצי מוכן.
                     </p>
                     
                     <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
@@ -607,30 +636,79 @@ export default function App() {
               <div className="absolute inset-0 bg-background/60" />
               <div className="absolute inset-0 flex items-center justify-center px-6">
                 <h3 className="serif-text text-2xl md:text-5xl text-white font-black text-center tracking-wide italic leading-normal max-w-4xl">
-                  "פילאטיס זה לא רק אימון, זו אמנות של תנועה."
+                  "כשמערך השיעור ברור, גם ההוראה נראית אחרת."
                 </h3>
               </div>
             </div>
 
+            {/* Pricing / Subscription framing */}
+            <section className="py-24 bg-surface px-6 md:px-20">
+              <div className="max-w-[1280px] mx-auto">
+                <div className="max-w-[760px] mb-14">
+                  <h2 className="serif-text text-4xl md:text-5xl font-bold text-white mb-6">מודל מנוי שמתאים למאמנות פילאטיס</h2>
+                  <p className="text-on-surface-variant text-lg leading-relaxed">
+                    המוצר הזה בנוי להיות כלי עבודה קבוע, לא שימוש חד-פעמי. לכן המסגור הנכון הוא מנוי חודשי שמחזיר את עצמו בזמן תכנון, סדר מקצועי ושימוש חוזר חכם במערכים.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+                  <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8">
+                    <div className="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3">Starter</div>
+                    <div className="text-white text-3xl font-black mb-2">₪79<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
+                    <p className="text-sm text-on-surface-variant mb-6">למאמנת עצמאית שרוצה builder, ספריית שיעורים ו־templates.</p>
+                    <div className="space-y-3 text-sm text-on-surface-variant">
+                      <div>• בניית שיעורים ללא הגבלה</div>
+                      <div>• שמירת מערכים ותבניות</div>
+                      <div>• שיתוף, PDF ו־teach mode</div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-secondary/30 bg-secondary/10 p-8 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-4 left-4 rounded-full bg-secondary text-background text-[11px] font-bold px-3 py-1">מומלץ</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-secondary mb-3">Professional</div>
+                    <div className="text-white text-4xl font-black mb-2">₪149<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
+                    <p className="text-sm text-white/80 mb-6">למאמנות פעילות שרוצות שהמערכת תהיה סביבת העבודה המרכזית שלהן.</p>
+                    <div className="space-y-3 text-sm text-white/85">
+                      <div>• כל מה שב־Starter</div>
+                      <div>• cloud sync מלא</div>
+                      <div>• branded exports ושיתופים מתקדמים</div>
+                      <div>• template packs ו־premium flows</div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8">
+                    <div className="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3">Studio</div>
+                    <div className="text-white text-3xl font-black mb-2">מותאם אישית</div>
+                    <p className="text-sm text-on-surface-variant mb-6">לסטודיו עם כמה מדריכות, ספריית תוכן משותפת ו־workflow צוותי.</p>
+                    <div className="space-y-3 text-sm text-on-surface-variant">
+                      <div>• מספר משתמשות</div>
+                      <div>• ספריית סטודיו משותפת</div>
+                      <div>• onboarding והטמעה</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* Final Call to Action with Live Counter Stats */}
             <section className="py-24 relative overflow-hidden bg-background">
               <div className="max-w-[800px] mx-auto px-6 text-center">
-                <h2 className="serif-text text-4xl md:text-6xl font-bold text-white mb-6">מוכנה לשדרג את השיעור הבא?</h2>
+                <h2 className="serif-text text-4xl md:text-6xl font-bold text-white mb-6">מוכנה להפוך את זה למוצר שמרגיש פרימיום?</h2>
                 <p className="text-on-surface-variant text-lg md:text-xl mb-12 font-light">
-                  הצטרפי לקהילת המדריכות המובילות שנהנות מניהול מקצועי ויוקרתי.
+                  התחילי עם מאגר פתוח, המשיכי ל-builder, ובני מוצר שאפשר גם להציג, גם לבדוק עם לקוחות, וגם למכור כמנוי חודשי.
                 </p>
                 
                 <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14">
                   <div className="flex flex-col items-center">
-                    <span className="text-secondary text-5xl font-black mb-2">500+</span>
-                    <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">מדריכות פעילות</span>
+                    <span className="text-secondary text-5xl font-black mb-2">חיסכון</span>
+                    <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">בזמן תכנון</span>
                   </div>
                   
                   <div className="w-[1px] h-12 bg-white/10 hidden md:block" />
                   
                   <div className="flex flex-col items-center">
-                    <span className="text-secondary text-5xl font-black mb-2">10k+</span>
-                    <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">תרגילי וידאו</span>
+                    <span className="text-secondary text-5xl font-black mb-2">סדר</span>
+                    <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">במערכים ובתבניות</span>
                   </div>
                   
                   <div className="w-[1px] h-12 bg-white/10 hidden md:block" />
@@ -638,9 +716,9 @@ export default function App() {
                   <Button
                     size="lg"
                     variant="primary"
-                    onClick={() => setActiveScreen('library')}
+                    onClick={() => goToProtected('builder')}
                   >
-                    התחילי בחינם
+                    התחילי לבנות
                   </Button>
                 </div>
               </div>
@@ -649,6 +727,15 @@ export default function App() {
           </div>
         )}
 
+        <Suspense
+        fallback={
+          <div className="max-w-[1280px] mx-auto px-6 md:px-20 py-24">
+            <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8 text-center text-on-surface-variant">
+              טוען את סביבת העבודה...
+            </div>
+          </div>
+        }
+      >
         {/* Screen: EXERCISE DATABASE LIBRARY */}
         {activeScreen === 'library' && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
@@ -703,6 +790,7 @@ export default function App() {
             />
           </div>
         )}
+      </Suspense>
 
       </main>
 
@@ -746,24 +834,48 @@ export default function App() {
 
 function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="max-w-2xl w-full rounded-3xl border border-secondary/20 bg-surface-container-high p-8 md:p-12 text-center shadow-2xl">
-        <div className="mx-auto mb-6 h-16 w-16 rounded-full border border-secondary/30 bg-secondary/10 flex items-center justify-center text-secondary">
-          <LogIn className="w-8 h-8" />
+    <div className="min-h-[60vh] flex items-center justify-center py-8">
+      <div className="max-w-4xl w-full rounded-3xl border border-secondary/20 bg-surface-container-high p-6 md:p-12 shadow-2xl">
+        <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-8 items-center">
+          <div>
+            <div className="mb-6 h-16 w-16 rounded-full border border-secondary/30 bg-secondary/10 flex items-center justify-center text-secondary">
+              <LogIn className="w-8 h-8" />
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-secondary mb-4">
+              Private coach workspace
+            </div>
+            <h2 className="serif-text text-3xl md:text-4xl font-bold text-white mb-4">האזור הזה נפתח אחרי התחברות</h2>
+            <p className="text-on-surface-variant leading-relaxed mb-6">
+              מאגר התרגילים פתוח לצפייה חופשית. Builder, ספריית השיעורים, templates והסנכרון לענן מיועדים למאמנות שמנהלות פה את כל סביבת העבודה שלהן.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button onClick={onGoogleLogin} size="md" variant="primary" className="w-full sm:w-auto">
+                <LogIn className="w-5 h-5" />
+                התחברות עם Google
+              </Button>
+            </div>
+            {!supabaseEnabled && (
+              <p className="mt-4 text-xs text-on-surface-variant">
+                מצב פיתוח: Supabase/Google OAuth עדיין לא מוגדר, לכן האתר נשאר מוגבל לאורחים.
+              </p>
+            )}
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+              <div className="text-white font-bold mb-2">Builder חכם</div>
+              <div className="text-sm text-on-surface-variant">בניית שיעורים לפי מטרה, רמה, משך וציוד.</div>
+            </div>
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+              <div className="text-white font-bold mb-2">Templates</div>
+              <div className="text-sm text-on-surface-variant">שכפול והתאמה של מערכים בלי להתחיל כל פעם מאפס.</div>
+            </div>
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+              <div className="text-white font-bold mb-2">Cloud sync</div>
+              <div className="text-sm text-on-surface-variant">ספריית שיעורים מסונכרנת ונגישה מכל מכשיר.</div>
+            </div>
+          </div>
         </div>
-        <h2 className="serif-text text-3xl md:text-4xl font-bold text-white mb-4">אזור מקצועי למדריכות מחוברות</h2>
-        <p className="text-on-surface-variant leading-relaxed mb-8">
-          מאגר התרגילים פתוח לצפייה. בניית תוכנית שיעור, שמירה, templates וסנכרון זמינים רק אחרי התחברות עם חשבון Google.
-        </p>
-        <Button onClick={onGoogleLogin} size="md" variant="primary">
-          <LogIn className="w-5 h-5" />
-          התחברות עם Google
-        </Button>
-        {!supabaseEnabled && (
-          <p className="mt-4 text-xs text-on-surface-variant">
-            מצב פיתוח: Supabase/Google OAuth עדיין לא מוגדר, לכן האתר נשאר מוגבל לאורחים.
-          </p>
-        )}
       </div>
     </div>
   );

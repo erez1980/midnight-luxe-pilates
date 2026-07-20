@@ -116,19 +116,33 @@ export default function ExerciseLibrary({
     <div className="w-full">
       {/* Intro text if not in selector mode */}
       {!isSelectorMode && (
-        <div className="mb-12">
-          <div className="inline-block mb-3 px-4 py-1 border-l border-r border-secondary/40">
-            <span className="uppercase tracking-[0.2em] text-secondary text-xs font-semibold">MIDNIGHT LUXE WORKSPACE</span>
+        <div className="mb-12 space-y-5">
+          <div className="inline-block px-4 py-1 border-l border-r border-secondary/40">
+            <span className="uppercase tracking-[0.2em] text-secondary text-xs font-semibold">Premium exercise workspace</span>
           </div>
-          <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-4">מאגר תרגילים מקצועי</h2>
-          <p className="text-on-surface-variant text-lg max-w-2xl">
-            ספרייה מקיפה של תרגילי פילאטיס יוקרתיים. סנני לפי מכשיר, דרגת קושי או קבוצות שרירים, וצפי בהנחיות נשימה וביצוע מפורטות.
-          </p>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+              <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-4">מאגר תרגילים מקצועי</h2>
+              <p className="text-on-surface-variant text-lg max-w-3xl leading-relaxed">
+                ספריית עבודה למאמנות פילאטיס: חפשי לפי ציוד, רמה, מטרה וקטגוריה, וצאי מכל חיפוש עם תרגילים שבאמת מתאימים לשיעור הבא שלך.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 min-w-[260px]">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                <div className="text-2xl font-black text-white mb-1">{INITIAL_EXERCISES.length}</div>
+                <div className="text-xs text-on-surface-variant">תרגילים בספרייה</div>
+              </div>
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                <div className="text-2xl font-black text-white mb-1">{apparatusOptions.length - 1}</div>
+                <div className="text-xs text-on-surface-variant">סוגי ציוד</div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Controls Container */}
-      <div className="bg-surface-container-high border border-white/5 p-6 mb-8 rounded-lg">
+      <div className="bg-surface-container-high border border-white/5 p-6 mb-8 rounded-3xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           {/* Search bar */}
@@ -140,7 +154,7 @@ export default function ExerciseLibrary({
               placeholder="חפשי לפי שם תרגיל או קבוצת שרירים..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-background border border-white/10 pr-12 pl-4 py-3 text-white text-sm focus:outline-none focus:border-secondary transition-colors"
+              className="w-full bg-background border border-white/10 pr-12 pl-4 py-3 text-white text-sm rounded-2xl focus:outline-none focus:border-secondary transition-colors"
             />
             {searchQuery && (
               <button 
@@ -205,8 +219,8 @@ export default function ExerciseLibrary({
       </div>
 
       {/* Results Count */}
-      <div className="mb-6 flex justify-between items-center text-sm text-on-surface-variant">
-        <span>נמצאו {filteredExercises.length} תרגילים בספרייה</span>
+      <div className="mb-6 flex flex-col sm:flex-row justify-between sm:items-center gap-3 text-sm text-on-surface-variant">
+        <span>נמצאו {filteredExercises.length} תרגילים בספרייה{filteredExercises.length > 0 ? ' — אפשר לפתוח פרטים או להוסיף ישירות לשיעור' : ''}</span>
         {searchQuery || selectedApparatus !== 'all' || selectedDifficulty !== 'all' || selectedCategory !== 'all' ? (
           <button 
             onClick={() => {
@@ -337,10 +351,22 @@ export default function ExerciseLibrary({
         </AnimatePresence>
 
         {filteredExercises.length === 0 && (
-          <div className="col-span-full py-16 text-center border border-dashed border-white/10 rounded-lg">
+          <div className="col-span-full py-16 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
             <Activity className="w-10 h-10 text-secondary/30 mx-auto mb-4" />
             <p className="text-white text-lg font-medium mb-1">לא נמצאו תרגילים תואמים</p>
-            <p className="text-on-surface-variant text-sm">נסי לשנות את מילות החיפוש או להסיר פילטרים</p>
+            <p className="text-on-surface-variant text-sm mb-5">נסי לפתוח את החיפוש, להסיר פילטר אחד, או לעבור לקטגוריה אחרת כדי למצוא flow מתאים.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedApparatus('all');
+                setSelectedDifficulty('all');
+                setSelectedCategory('all');
+              }}
+              className="text-secondary hover:text-white transition-colors text-sm"
+            >
+              איפוס כל הסינונים
+            </button>
           </div>
         )}
       </div>

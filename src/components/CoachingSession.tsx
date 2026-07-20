@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Volume2, VolumeX, X, HelpCircle, Activity, Award } from 'lucide-react';
+import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Volume2, VolumeX, X, HelpCircle, Activity, Award, Clock3, Layers3, Sparkles } from 'lucide-react';
 import { Lesson, LessonExercise } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
@@ -112,12 +112,15 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
     }
   };
 
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+
   // Manual "next" press on the final exercise ends the whole session, so ask
   // first — an accidental tap otherwise drops the instructor into the summary
   // mid-class with no way back.
   const handleNextPressed = () => {
     const isLast = currentIndex === lesson.exercises.length - 1;
-    if (isLast && !window.confirm('זהו התרגיל האחרון. לסיים את השיעור ולעבור למסך הסיכום?')) {
+    if (isLast) {
+      setShowFinishConfirm(true);
       return;
     }
     handleNext();
@@ -185,9 +188,10 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-6">
+    <div className="max-w-5xl mx-auto py-8 px-6">
       {/* Top Session Header */}
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+      <div className="mb-8 rounded-3xl border border-white/8 bg-white/[0.02] p-5 md:p-6">
+        <div className="flex items-center justify-between gap-4 pb-4 border-b border-white/5">
         <div className="flex items-center gap-3">
           <Button
             onClick={onFinishSession}
@@ -212,14 +216,33 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
         >
           {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </Button>
-      </div>
+        </div>
 
-      {/* Global Lesson Progress Bar */}
-      <div className="w-full bg-white/5 h-1.5 mb-8 rounded-full overflow-hidden">
-        <div 
-          className="bg-secondary h-full transition-all duration-500 ease-out" 
-          style={{ width: `${currentProgressPercent}%` }}
-        />
+        <div className="grid grid-cols-3 gap-3 mt-5 mb-5">
+          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+            <Clock3 className="w-4 h-4 text-secondary mx-auto mb-2" />
+            <div className="text-white text-xl font-black">{formatTime(timeLeft)}</div>
+            <div className="text-[11px] text-on-surface-variant">לתרגיל הנוכחי</div>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+            <Layers3 className="w-4 h-4 text-secondary mx-auto mb-2" />
+            <div className="text-white text-xl font-black">{currentIndex + 1}/{lesson.exercises.length}</div>
+            <div className="text-[11px] text-on-surface-variant">התקדמות בשיעור</div>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+            <Sparkles className="w-4 h-4 text-secondary mx-auto mb-2" />
+            <div className="text-white text-xl font-black">{lesson.totalDuration} דק׳</div>
+            <div className="text-[11px] text-on-surface-variant">אורך מתוכנן</div>
+          </div>
+        </div>
+
+        {/* Global Lesson Progress Bar */}
+        <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+          <div 
+            className="bg-secondary h-full transition-all duration-500 ease-out" 
+            style={{ width: `${currentProgressPercent}%` }}
+          />
+        </div>
       </div>
 
       {/* Main Grid: left interactive timer, right instructions */}
@@ -377,6 +400,34 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
         </div>
 
       </div>
+
+      {showFinishConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
+          <div className="w-full max-w-md rounded-3xl border border-secondary/20 bg-surface-container-high p-6 shadow-2xl">
+            <div className="text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-3">Finish session</div>
+            <h3 className="serif-text text-2xl text-white font-bold mb-3">לסיים את השיעור ולעבור לסיכום?</h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+              זהו התרגיל האחרון. אם תמשיכי עכשיו, תעברי למסך הסיכום של השיעור.
+            </p>
+            <div className="flex flex-wrap justify-end gap-3">
+              <Button type="button" variant="surface" size="md" onClick={() => setShowFinishConfirm(false)}>
+                חזרה לשיעור
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                onClick={() => {
+                  setShowFinishConfirm(false);
+                  handleNext();
+                }}
+              >
+                סיום שיעור
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

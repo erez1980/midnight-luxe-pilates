@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Play, Pencil, Trash2, Plus, FolderHeart, Copy, Bookmark, Download, Upload, CloudCheck, CloudAlert, RefreshCw, MoreVertical, Search, X } from 'lucide-react';
+import { Play, Pencil, Trash2, Plus, FolderHeart, Copy, Bookmark, Download, Upload, CloudCheck, CloudAlert, RefreshCw, MoreVertical, Search, X, Sparkles, Clock3, Layers3, ArrowUpRight } from 'lucide-react';
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
 import Button from './ui/Button';
@@ -40,6 +40,7 @@ export default function MyLessons({
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('recent');
+  const [pendingDeleteLesson, setPendingDeleteLesson] = useState<Lesson | null>(null);
 
   const cloudStatusDisplay = {
     idle: null,
@@ -76,9 +77,13 @@ export default function MyLessons({
           <button onClick={onBackHome} className="mb-4 text-sm text-secondary hover:text-white transition-colors">
             ← חזרה לדף הבית
           </button>
+          <div className="inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-secondary mb-4">
+            <Sparkles className="w-3.5 h-3.5" />
+            Premium lesson workspace
+          </div>
           <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-2">השיעורים שלי</h2>
-          <p className="text-on-surface-variant max-w-2xl">
-            כל השיעורים שבנית, במקום אחד — מוכנים להדרכה, עריכה ושיתוף.
+          <p className="text-on-surface-variant max-w-2xl leading-relaxed">
+            כל השיעורים שבנית, במקום אחד — מוכנים להדרכה, עריכה, שכפול ושיתוף.
           </p>
         </div>
 
@@ -141,6 +146,24 @@ export default function MyLessons({
         </div>
       </div>
 
+      <div className="grid gap-4 md:grid-cols-3 mb-10">
+        <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5">
+          <div className="flex items-center gap-2 text-secondary mb-3"><Layers3 className="w-4 h-4" /><span className="text-xs uppercase tracking-[0.2em] font-bold">Library snapshot</span></div>
+          <div className="text-3xl font-black text-white mb-1">{lessons.length}</div>
+          <div className="text-sm text-on-surface-variant">שיעורים שמורים ומוכנים לעבודה</div>
+        </div>
+        <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5">
+          <div className="flex items-center gap-2 text-secondary mb-3"><Bookmark className="w-4 h-4" /><span className="text-xs uppercase tracking-[0.2em] font-bold">Templates</span></div>
+          <div className="text-3xl font-black text-white mb-1">{templates.length}</div>
+          <div className="text-sm text-on-surface-variant">תבניות מוכנות לשימוש חוזר</div>
+        </div>
+        <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5">
+          <div className="flex items-center gap-2 text-secondary mb-3"><Clock3 className="w-4 h-4" /><span className="text-xs uppercase tracking-[0.2em] font-bold">Average duration</span></div>
+          <div className="text-3xl font-black text-white mb-1">{lessons.length ? Math.round(lessons.reduce((sum, lesson) => sum + (lesson.totalDuration || 0), 0) / lessons.length) : 0} דק׳</div>
+          <div className="text-sm text-on-surface-variant">אורך ממוצע למערך בספרייה</div>
+        </div>
+      </div>
+
       {templates.length > 0 && (
         <div className="mb-10">
           <div className="flex items-center gap-2 mb-4 text-secondary">
@@ -164,14 +187,15 @@ export default function MyLessons({
 
       {/* Search + sort toolbar (only useful once there are lessons) */}
       {lessons.length > 0 && (
-        <div className="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="mb-6 rounded-3xl border border-white/8 bg-white/[0.02] p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1 max-w-md">
+            <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white/[0.03] to-transparent rounded-r-lg pointer-events-none" />
             <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="חיפוש בשיעורים..."
-              className="w-full h-11 pr-10 pl-10 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-on-surface-variant focus:outline-none focus:border-secondary/60 transition-colors"
+              className="w-full h-11 pr-10 pl-10 rounded-2xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-on-surface-variant focus:outline-none focus:border-secondary/60 transition-colors"
             />
             {query && (
               <button
@@ -186,7 +210,7 @@ export default function MyLessons({
           <select
             value={sortMode}
             onChange={(e) => setSortMode(e.target.value as SortMode)}
-            className="h-11 px-4 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-secondary/60 cursor-pointer"
+            className="h-11 px-4 rounded-2xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-secondary/60 cursor-pointer"
             aria-label="מיון שיעורים"
           >
             <option value="recent" className="bg-surface-container-high">מיון: חדש → ישן</option>
@@ -220,13 +244,19 @@ export default function MyLessons({
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="group border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden flex flex-col"
+              className="group border border-white/5 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden flex flex-col rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
             >
               {/* Decorative top gold hover line */}
               <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
               {/* Lesson Card Body - compact */}
               <div className="p-6 flex-1">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
+                    <ArrowUpRight className="w-3 h-3" />
+                    Ready to teach
+                  </span>
+                </div>
                 <div className="flex justify-between items-start gap-3 mb-3">
                   <h3 className="serif-text text-xl font-bold text-white group-hover:text-secondary transition-colors">
                     {lesson.name}
@@ -243,7 +273,7 @@ export default function MyLessons({
                 )}
 
                 {/* Meta as one compact chip row (replaces the old 3-line list) */}
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 mb-5">
                   <span className="text-[11px] px-2.5 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20">{lesson.levelLabel}</span>
                   {lesson.targetFocus && (
                     <span className="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-on-surface-variant border border-white/10">{lesson.targetFocus}</span>
@@ -252,10 +282,17 @@ export default function MyLessons({
                     {lesson.exercises.length} תרגילים · {lesson.totalDuration} דק׳
                   </span>
                 </div>
+
+                <div className="rounded-2xl border border-white/8 bg-black/20 p-4 mb-5">
+                  <div className="text-xs uppercase tracking-[0.18em] text-secondary font-bold mb-2">Quick summary</div>
+                  <div className="text-sm text-on-surface-variant leading-relaxed">
+                    {lesson.description || 'מערך מוכן להוראה, עריכה או שיתוף. אפשר להמשיך ממנו לשיעור הבא בלי להתחיל מאפס.'}
+                  </div>
+                </div>
               </div>
 
               {/* Action Footer */}
-              <div className="bg-background/40 px-5 py-4 border-t border-white/5 flex items-center justify-between gap-2">
+              <div className="bg-background/40 px-5 py-4 border-t border-white/5 flex items-center justify-between gap-2 bg-black/10">
                 <Button onClick={() => onStartLesson(lesson)} variant="primary" size="sm">
                   <Play className="w-3.5 h-3.5 fill-background" />
                   התחילי שיעור
@@ -304,7 +341,7 @@ export default function MyLessons({
                           </button>
                           <div className="my-1 h-px bg-white/5" />
                           <button
-                            onClick={() => { closeMenu(); onDeleteLesson(lesson.id); }}
+                            onClick={() => { closeMenu(); setPendingDeleteLesson(lesson); }}
                             className="w-full text-right px-4 py-2.5 text-sm text-rose-400 hover:bg-rose-500/10 flex items-center gap-2.5"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -318,6 +355,36 @@ export default function MyLessons({
               </div>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {pendingDeleteLesson && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
+          <div className="w-full max-w-md rounded-3xl border border-rose-500/20 bg-surface-container-high p-6 shadow-2xl">
+            <div className="text-xs uppercase tracking-[0.2em] text-rose-300 font-bold mb-3">Delete lesson</div>
+            <h3 className="serif-text text-2xl text-white font-bold mb-3">למחוק את "{pendingDeleteLesson.name}"?</h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+              המחיקה תסיר את המערך מספריית השיעורים שלך. אם זה שיעור שתרצי למחזר בעתיד, עדיף קודם לשמור אותו כתבנית.
+            </p>
+            <div className="flex flex-wrap justify-end gap-3">
+              <Button type="button" variant="surface" size="md" onClick={() => setPendingDeleteLesson(null)}>
+                ביטול
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                onClick={() => {
+                  onDeleteLesson(pendingDeleteLesson.id);
+                  setPendingDeleteLesson(null);
+                }}
+                className="!bg-rose-500 hover:!bg-rose-400 !text-white"
+              >
+                <Trash2 className="w-4 h-4" />
+                מחקי שיעור
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
