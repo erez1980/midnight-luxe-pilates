@@ -503,7 +503,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 <Compass className="w-10 h-10 text-secondary/30 mb-3" />
                 <p className="text-white font-medium mb-1">מערך השיעור ריק</p>
                 <p className="text-on-surface-variant text-xs max-w-xs">
-                  בחרי תרגילים מספריית התרגילים בצד שמאל (או למטה) כדי לבנות את זרימת השיעור שלך.
+                  בחרי תרגילים מספריית התרגילים שבצד ימין, או צרי קודם שלד אוטומטי כדי להתחיל עם flow מוכן.
                 </p>
               </div>
             ) : (
@@ -663,7 +663,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                   size="md"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  {copiedWhatsapp ? 'הועתק ל-WhatsApp' : 'WhatsApp-ready'}
+                  {copiedWhatsapp ? 'הועתק ל-WhatsApp' : 'העתקה ל-WhatsApp'}
                 </Button>
               </div>
               <Button type="submit" variant="primary" size="lg" className="shadow-2xl">

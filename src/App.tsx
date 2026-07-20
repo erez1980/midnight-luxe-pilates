@@ -121,6 +121,12 @@ export default function App() {
 
   const isAuthenticated = Boolean(authProfile);
 
+  useEffect(() => {
+    if (!uiNotice) return;
+    const timer = window.setTimeout(() => setUiNotice(''), 4500);
+    return () => window.clearTimeout(timer);
+  }, [uiNotice]);
+
   const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
     if (!isAuthenticated) {
       setActiveScreen(screen === 'session' ? 'builder' : screen);
