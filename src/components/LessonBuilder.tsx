@@ -3,7 +3,6 @@ import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, 
 import { Exercise, Lesson, LessonExercise } from '../types';
 import ExerciseLibrary from './ExerciseLibrary';
 import { INITIAL_EXERCISES } from '../data';
-import { getExerciseMedia } from '../utils/exerciseMedia';
 import { lessonToWhatsappText, openLessonPrint } from '../utils/lessonExport';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
@@ -539,12 +538,12 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                       initial={{ opacity: 0, y: 18 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -18 }}
-                      className="relative overflow-hidden rounded-2xl border border-outline/20 bg-surface-container p-5 md:p-6 group hover:border-secondary/30 hover:shadow-[0_0_0_1px_rgba(212,175,55,0.12)] transition-all"
+                      className="relative overflow-hidden rounded-2xl border border-outline/20 bg-surface-container p-4 group hover:border-secondary/30 hover:shadow-[0_0_0_1px_rgba(212,175,55,0.12)] transition-all"
                     >
                       <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-secondary/80 via-secondary/30 to-transparent" />
 
-                      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="flex items-start gap-4 min-w-0 flex-1">
+                      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
                           <div className="flex flex-col items-center gap-2 pt-1">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full border border-secondary/25 bg-secondary/10 text-secondary font-bold text-sm">
                               {index + 1}
@@ -572,19 +571,6 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                           </div>
 
                           <div className="min-w-0 flex-1">
-                            <div className="mb-4 overflow-hidden rounded-2xl border border-outline/20 bg-surface-container-high">
-                              <div className="relative aspect-[16/7]">
-                                <img
-                                  src={getExerciseMedia(el.exercise).coverUrl}
-                                  alt={el.exercise.name}
-                                  className="absolute inset-0 h-full w-full object-cover"
-                                  loading="lazy"
-                                />
-                                <div className="absolute bottom-3 left-3 rounded-full border border-outline/20 bg-surface-container px-3 py-1.5 text-[11px] text-on-surface">
-                                  {getExerciseMedia(el.exercise).hasInlineVideo ? '▶ וידאו באתר' : 'Cover'}
-                                </div>
-                              </div>
-                            </div>
                             <div className="flex flex-wrap gap-2 items-center mb-2">
                               <span className="rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[10px] font-semibold text-secondary">
                                 {el.exercise.apparatusLabel}
@@ -597,10 +583,18 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                               </span>
                             </div>
 
-                            <h4 className="text-lg md:text-xl font-bold text-on-surface mb-1 truncate">{el.exercise.name}</h4>
-                            <p className="text-[11px] md:text-xs text-on-surface-variant font-mono mb-3 truncate">{el.exercise.englishName}</p>
+                            <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
+                              <div className="min-w-0">
+                                <h4 className="text-base md:text-lg font-bold text-on-surface mb-1 truncate">{el.exercise.name}</h4>
+                                <p className="text-[11px] md:text-xs text-on-surface-variant font-mono truncate">{el.exercise.englishName}</p>
+                              </div>
+                              <div className="shrink-0 rounded-xl border border-outline/20 bg-surface-container-high px-3 py-2 text-center">
+                                <div className="text-sm font-bold text-on-surface font-mono leading-none">{el.customDuration}</div>
+                                <div className="text-[10px] text-on-surface-variant mt-1">דקות</div>
+                              </div>
+                            </div>
 
-                            <div className="flex flex-wrap gap-1.5 mb-4">
+                            <div className="flex flex-wrap gap-1.5 mb-3">
                               {el.exercise.targetMuscles.slice(0, 3).map((muscle, muscleIndex) => (
                                 <span key={muscleIndex} className="rounded-md bg-surface-container-high px-2 py-1 text-[11px] text-on-surface-variant">
                                   {muscle}
@@ -613,12 +607,12 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                               placeholder="דגש הדרכה לשיעור הזה..."
                               value={el.notes || ''}
                               onChange={(e) => handleUpdateNotes(el.exercise.id, e.target.value)}
-                              className="w-full rounded-xl border border-outline/20 bg-surface-container-high px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-secondary/60 focus:outline-none transition-colors"
+                              className="w-full rounded-xl border border-outline/20 bg-surface-container-high px-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-secondary/60 focus:outline-none transition-colors"
                             />
                           </div>
                         </div>
 
-                        <div className="flex w-full lg:w-auto flex-row lg:flex-col items-center lg:items-end justify-between gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-outline/20">
+                        <div className="flex w-full xl:w-auto flex-row items-center justify-between gap-3 pt-3 border-t border-outline/20 xl:border-t-0 xl:pt-0">
                           <div className="flex items-center gap-2 rounded-xl border border-outline/20 bg-surface-container-high p-1">
                             <button
                               type="button"
@@ -627,10 +621,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                             >
                               -
                             </button>
-                            <div className="min-w-[56px] text-center">
-                              <div className="text-base font-bold text-on-surface font-mono leading-none">{el.customDuration}</div>
-                              <div className="text-[10px] text-on-surface-variant mt-1">דקות</div>
-                            </div>
+                            <div className="min-w-[40px] text-center text-[10px] text-on-surface-variant">זמן</div>
                             <button
                               type="button"
                               onClick={() => handleUpdateDuration(el.exercise.id, 1)}
@@ -701,7 +692,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
         {/* RIGHT COLUMN: Selective compact Exercise Library */}
         <div className="xl:col-span-5 space-y-6">
-          <div className="rounded-3xl border border-outline/30 bg-surface-container p-5 md:p-6 xl:sticky xl:top-24">
+          <div className="rounded-3xl border border-outline/30 bg-surface-container p-5 md:p-6">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div>
                 <div className="text-xs uppercase tracking-[0.2em] text-secondary font-bold">Session summary</div>
