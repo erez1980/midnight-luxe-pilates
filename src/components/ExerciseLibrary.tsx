@@ -174,7 +174,7 @@ export default function ExerciseLibrary({
                 onClick={() => setSelectedApparatus(opt.value)}
                 className={`px-3 py-2 text-xs font-medium border transition-all ${
                   selectedApparatus === opt.value
-                    ? 'bg-secondary border-secondary text-background font-bold'
+                    ? 'bg-secondary border-secondary text-on-secondary font-bold'
                     : 'border-outline/30 text-on-surface hover:border-secondary/50'
                 }`}
               >
@@ -328,7 +328,7 @@ export default function ExerciseLibrary({
                       className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                         isAdded
                           ? 'bg-emerald-600 text-white'
-                          : 'bg-secondary text-background hover:bg-secondary-fixed'
+                          : 'bg-secondary text-on-secondary hover:bg-secondary-fixed'
                       }`}
                     >
                       {isAdded ? (
@@ -531,7 +531,7 @@ export default function ExerciseLibrary({
                       className={`px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2 ${
                         addedExerciseIds.includes(selectedExercise.id)
                           ? 'bg-emerald-600 text-white'
-                          : 'bg-secondary text-background hover:bg-secondary-fixed'
+                          : 'bg-secondary text-on-secondary hover:bg-secondary-fixed'
                       }`}
                     >
                       {addedExerciseIds.includes(selectedExercise.id) ? (

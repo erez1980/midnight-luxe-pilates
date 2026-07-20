@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, BookOpen, X, Wand2, Printer, MessageCircle, CheckCircle2, Clock3, Layers3, Target } from 'lucide-react';
+import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, BookOpen, X, Wand2, Printer, MessageCircle, CheckCircle2, Clock3, Layers3, Target, SlidersHorizontal, GripVertical } from 'lucide-react';
 import { Exercise, Lesson, LessonExercise } from '../types';
 import ExerciseLibrary from './ExerciseLibrary';
 import { INITIAL_EXERCISES } from '../data';
@@ -28,6 +28,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [autoBuildDuration, setAutoBuildDuration] = useState<number>(45);
   const [copiedWhatsapp, setCopiedWhatsapp] = useState(false);
   const [activeStep, setActiveStep] = useState<'setup' | 'generate' | 'refine' | 'finish'>('setup');
+  const [showBuilderFilters, setShowBuilderFilters] = useState(false);
   const setupRef = useRef<HTMLDivElement | null>(null);
   const generateRef = useRef<HTMLDivElement | null>(null);
   const refineRef = useRef<HTMLDivElement | null>(null);
@@ -273,6 +274,12 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     }).slice(0, 24);
   }, [builderSearchQuery, builderApparatus, builderDifficulty, builderCategory]);
 
+  const activeBuilderFilterCount = [
+    builderApparatus !== 'all',
+    builderDifficulty !== 'all',
+    builderCategory !== 'all'
+  ].filter(Boolean).length;
+
   const scrollToStep = (step: 'setup' | 'generate' | 'refine' | 'finish') => {
     setActiveStep(step);
     const refs = {
@@ -353,33 +360,42 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
           </p>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-4">
-          {stepCards.map((step, index) => {
-            const isActive = activeStep === step.key;
-            return (
-              <button
-                key={step.key}
-                type="button"
-                onClick={() => scrollToStep(step.key)}
-                className={`rounded-2xl border p-4 text-right transition-all ${
-                  isActive
-                    ? 'border-secondary/40 bg-secondary/10 shadow-[0_0_0_1px_rgba(212,175,55,0.12)]'
-                    : 'border-outline/20 bg-surface-container hover:border-outline'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <span className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-bold ${
-                    isActive ? 'border-secondary/40 bg-secondary text-background' : 'border-outline/20 bg-surface-container text-on-surface'
-                  }`}>
-                    {index + 1}
-                  </span>
-                  {step.ready && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                </div>
-                <div className="text-on-surface font-bold mb-1">{step.title}</div>
-                <div className="text-xs text-on-surface-variant">{step.subtitle}</div>
-              </button>
-            );
-          })}
+        <div className="rounded-2xl border border-outline/20 bg-surface-container-high px-4 py-4 sm:px-6">
+          <div className="flex items-center gap-2">
+            {stepCards.map((step, index) => {
+              const isActive = activeStep === step.key;
+              const isDone = !isActive && step.ready;
+              return (
+                <React.Fragment key={step.key}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToStep(step.key)}
+                    title={step.title}
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors ${
+                      isActive
+                        ? 'border-secondary bg-secondary text-on-secondary'
+                        : isDone
+                          ? 'border-secondary/50 bg-secondary/15 text-secondary'
+                          : 'border-outline/30 bg-surface-container text-on-surface-variant'
+                    }`}
+                  >
+                    {isDone ? <CheckCircle2 className="w-4 h-4" /> : index + 1}
+                  </button>
+                  {index < stepCards.length - 1 && (
+                    <div className={`h-[2px] flex-1 rounded-full transition-colors ${step.ready ? 'bg-secondary/50' : 'bg-outline/20'}`} />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+          <div className="mt-3">
+            <div className="text-on-surface font-bold text-sm">
+              שלב {stepCards.findIndex((step) => step.key === activeStep) + 1} · {stepCards.find((step) => step.key === activeStep)?.title}
+            </div>
+            <div className="text-xs text-on-surface-variant mt-0.5">
+              {stepCards.find((step) => step.key === activeStep)?.subtitle}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -530,119 +546,97 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="divide-y divide-outline/15">
                 <AnimatePresence initial={false}>
                   {exercises.map((el, index) => (
                     <motion.div
                       key={el.exercise.id}
-                      initial={{ opacity: 0, y: 18 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -18 }}
-                      className="relative overflow-hidden rounded-2xl border border-outline/20 bg-surface-container p-4 group hover:border-secondary/30 hover:shadow-[0_0_0_1px_rgba(212,175,55,0.12)] transition-all"
+                      exit={{ opacity: 0, y: -12 }}
+                      className="group py-3 first:pt-0 last:pb-0"
                     >
-                      <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-secondary/80 via-secondary/30 to-transparent" />
-
-                      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                        <div className="flex items-start gap-3 min-w-0 flex-1">
-                          <div className="flex flex-col items-center gap-2 pt-1">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-secondary/25 bg-secondary/10 text-secondary font-bold text-sm">
-                              {index + 1}
-                            </div>
-                            <div className="flex flex-col gap-1 rounded-xl border border-outline/20 bg-surface-container-high p-1">
-                              <button
-                                type="button"
-                                onClick={() => handleMoveUp(index)}
-                                disabled={index === 0}
-                                className={`p-1.5 text-on-surface-variant hover:text-secondary rounded-lg transition-colors ${index === 0 ? 'opacity-25 cursor-not-allowed' : ''}`}
-                                title="העבר למעלה"
-                              >
-                                <ArrowUp className="w-4 h-4" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleMoveDown(index)}
-                                disabled={index === exercises.length - 1}
-                                className={`p-1.5 text-on-surface-variant hover:text-secondary rounded-lg transition-colors ${index === exercises.length - 1 ? 'opacity-25 cursor-not-allowed' : ''}`}
-                                title="העבר למטה"
-                              >
-                                <ArrowDown className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                        <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                          <GripVertical className="w-4 h-4 text-on-surface-variant/40 mt-1 hidden sm:block shrink-0" />
+                          <span className="serif-text text-secondary text-sm font-bold w-5 text-center shrink-0 pt-0.5">
+                            {index + 1}
+                          </span>
                           <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap gap-2 items-center mb-2">
-                              <span className="rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[10px] font-semibold text-secondary">
+                            <div className="flex flex-wrap items-baseline gap-x-2">
+                              <h4 className="text-sm md:text-base font-bold text-on-surface truncate">{el.exercise.name}</h4>
+                              <span className="text-[11px] text-on-surface-variant font-mono truncate">{el.exercise.englishName}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              <span className="rounded-full bg-secondary/10 px-2 py-0.5 text-[10px] font-semibold text-secondary">
                                 {el.exercise.apparatusLabel}
                               </span>
-                              <span className="rounded-full border border-outline/20 bg-surface-container-high px-3 py-1 text-[10px] text-on-surface-variant">
+                              <span className="rounded-full bg-surface-container-high px-2 py-0.5 text-[10px] text-on-surface-variant">
                                 {el.exercise.difficultyLabel}
                               </span>
-                              <span className="rounded-full border border-outline/20 bg-surface-container-high px-3 py-1 text-[10px] text-on-surface-variant">
-                                {el.customDuration} דק׳
-                              </span>
                             </div>
-
-                            <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
-                              <div className="min-w-0">
-                                <h4 className="text-base md:text-lg font-bold text-on-surface mb-1 truncate">{el.exercise.name}</h4>
-                                <p className="text-[11px] md:text-xs text-on-surface-variant font-mono truncate">{el.exercise.englishName}</p>
-                              </div>
-                              <div className="shrink-0 rounded-xl border border-outline/20 bg-surface-container-high px-3 py-2 text-center">
-                                <div className="text-sm font-bold text-on-surface font-mono leading-none">{el.customDuration}</div>
-                                <div className="text-[10px] text-on-surface-variant mt-1">דקות</div>
-                              </div>
-                            </div>
-
-                            <div className="flex flex-wrap gap-1.5 mb-3">
-                              {el.exercise.targetMuscles.slice(0, 3).map((muscle, muscleIndex) => (
-                                <span key={muscleIndex} className="rounded-md bg-surface-container-high px-2 py-1 text-[11px] text-on-surface-variant">
-                                  {muscle}
-                                </span>
-                              ))}
-                            </div>
-
-                            <input
-                              type="text"
-                              placeholder="דגש הדרכה לשיעור הזה..."
-                              value={el.notes || ''}
-                              onChange={(e) => handleUpdateNotes(el.exercise.id, e.target.value)}
-                              className="w-full rounded-xl border border-outline/20 bg-surface-container-high px-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-secondary/60 focus:outline-none transition-colors"
-                            />
                           </div>
                         </div>
 
-                        <div className="flex w-full xl:w-auto flex-row items-center justify-between gap-3 pt-3 border-t border-outline/20 xl:border-t-0 xl:pt-0">
-                          <div className="flex items-center gap-2 rounded-xl border border-outline/20 bg-surface-container-high p-1">
+                        <div className="flex items-center justify-between sm:justify-end gap-1 shrink-0 pr-7 sm:pr-0">
+                          <div className="flex items-center gap-0.5">
                             <button
                               type="button"
                               onClick={() => handleUpdateDuration(el.exercise.id, -1)}
-                              className="h-9 w-9 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors"
+                              className="h-7 w-7 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                              title="פחות דקה"
                             >
-                              -
+                              −
                             </button>
-                            <div className="min-w-[40px] text-center text-[10px] text-on-surface-variant">זמן</div>
+                            <span className="min-w-[52px] text-center text-xs font-mono text-on-surface">{el.customDuration} דק׳</span>
                             <button
                               type="button"
                               onClick={() => handleUpdateDuration(el.exercise.id, 1)}
-                              className="h-9 w-9 rounded-lg bg-secondary text-background hover:bg-secondary-fixed transition-colors font-bold"
+                              className="h-7 w-7 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                              title="עוד דקה"
                             >
                               +
                             </button>
                           </div>
 
-                          <Button
-                            type="button"
-                            onClick={() => handleRemoveExercise(el.exercise.id)}
-                            variant="danger"
-                            size="sm"
-                            title="הסר תרגיל"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            הסרה
-                          </Button>
+                          <div className="flex items-center gap-0.5 border-r border-outline/15 pr-1 mr-1">
+                            <button
+                              type="button"
+                              onClick={() => handleMoveUp(index)}
+                              disabled={index === 0}
+                              className={`p-1.5 text-on-surface-variant hover:text-secondary rounded-md transition-colors ${index === 0 ? 'opacity-20 cursor-not-allowed' : ''}`}
+                              title="העבר למעלה"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMoveDown(index)}
+                              disabled={index === exercises.length - 1}
+                              className={`p-1.5 text-on-surface-variant hover:text-secondary rounded-md transition-colors ${index === exercises.length - 1 ? 'opacity-20 cursor-not-allowed' : ''}`}
+                              title="העבר למטה"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveExercise(el.exercise.id)}
+                              className="p-1.5 text-rose-400/70 hover:text-rose-400 rounded-md transition-colors"
+                              title="הסר תרגיל"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
+
+                      <input
+                        type="text"
+                        placeholder="דגש הדרכה לתרגיל הזה..."
+                        value={el.notes || ''}
+                        onChange={(e) => handleUpdateNotes(el.exercise.id, e.target.value)}
+                        className="mt-2 w-full rounded-lg border border-transparent bg-surface-container-high/60 px-3 py-1.5 text-xs text-on-surface placeholder:text-on-surface-variant focus:border-secondary/50 focus:bg-surface-container-high focus:outline-none transition-colors"
+                      />
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -758,97 +752,126 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               </h3>
             </div>
             <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
-              לחצי על <strong>״הוסיפי לשיעור״</strong> כדי לשלב תרגיל במערך. הוספתי כאן גם חיפוש וסינון מהיר כדי שלא תלכי לאיבוד בתוך כל המאגר.
+              לחצי על <strong>״הוסיפי לשיעור״</strong> כדי לשלב תרגיל במערך. אפשר לחפש לפי שם, ולפתוח סינון לפי ציוד, רמה וקטגוריה.
             </p>
 
-            <div className="mb-5 space-y-4 rounded-2xl border border-outline/20 bg-surface-container p-4">
-            <div className="relative">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant w-4 h-4" />
-              <input
-                type="text"
-                placeholder="חיפוש מהיר לפי שם תרגיל, English או קבוצת שריר..."
-                value={builderSearchQuery}
-                onChange={(e) => setBuilderSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-outline/30 bg-background pr-11 pl-10 py-3 text-sm text-on-surface focus:outline-none focus:border-secondary transition-colors"
-              />
-              {builderSearchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setBuilderSearchQuery('')}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {apparatusOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setBuilderApparatus(opt.value)}
-                  className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
-                    builderApparatus === opt.value
-                      ? 'bg-secondary border-secondary text-background font-bold'
-                      : 'border-outline/30 text-on-surface hover:border-secondary/50'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-2 mb-1">
-              {categoryOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setBuilderCategory(opt.value)}
-                  className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
-                    builderCategory === opt.value
-                      ? 'bg-secondary/15 border-secondary/50 text-secondary font-bold'
-                      : 'border-outline/30 text-on-surface hover:border-secondary/30'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-2 items-center justify-between">
-              <div className="flex flex-wrap gap-2">
-                {difficultyOptions.map((opt) => (
+            <div className="mb-5 space-y-3 rounded-2xl border border-outline/20 bg-surface-container p-4">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="חיפוש לפי שם תרגיל, English או קבוצת שריר..."
+                  value={builderSearchQuery}
+                  onChange={(e) => setBuilderSearchQuery(e.target.value)}
+                  className="w-full rounded-xl border border-outline/30 bg-background pr-11 pl-10 py-3 text-sm text-on-surface focus:outline-none focus:border-secondary transition-colors"
+                />
+                {builderSearchQuery && (
                   <button
-                    key={opt.value}
                     type="button"
-                    onClick={() => setBuilderDifficulty(opt.value)}
-                    className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
-                      builderDifficulty === opt.value
-                        ? 'bg-secondary/12 border-secondary/50 text-secondary font-bold'
-                        : 'border-outline/30 text-on-surface hover:border-outline'
-                    }`}
+                    onClick={() => setBuilderSearchQuery('')}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
                   >
-                    {opt.label}
+                    <X className="w-4 h-4" />
                   </button>
-                ))}
+                )}
               </div>
-
-              {(builderSearchQuery || builderApparatus !== 'all' || builderDifficulty !== 'all' || builderCategory !== 'all') && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setBuilderSearchQuery('');
-                    setBuilderApparatus('all');
-                    setBuilderDifficulty('all');
-                    setBuilderCategory('all');
-                  }}
-                  className="text-xs text-secondary hover:underline"
-                >
-                  איפוס סינונים
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowBuilderFilters((prev) => !prev)}
+                className={`relative shrink-0 flex items-center gap-1.5 rounded-xl border px-3.5 text-xs font-semibold transition-colors ${
+                  showBuilderFilters || activeBuilderFilterCount > 0
+                    ? 'border-secondary/50 bg-secondary/10 text-secondary'
+                    : 'border-outline/30 text-on-surface-variant hover:border-outline'
+                }`}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                סינון
+                {activeBuilderFilterCount > 0 && (
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[10px] text-on-secondary font-bold">
+                    {activeBuilderFilterCount}
+                  </span>
+                )}
+              </button>
             </div>
+
+            <AnimatePresence initial={false}>
+              {showBuilderFilters && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-3 overflow-hidden"
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {apparatusOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setBuilderApparatus(opt.value)}
+                        className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
+                          builderApparatus === opt.value
+                            ? 'bg-secondary border-secondary text-on-secondary font-bold'
+                            : 'border-outline/30 text-on-surface hover:border-secondary/50'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {categoryOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setBuilderCategory(opt.value)}
+                        className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
+                          builderCategory === opt.value
+                            ? 'bg-secondary/15 border-secondary/50 text-secondary font-bold'
+                            : 'border-outline/30 text-on-surface hover:border-secondary/30'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 items-center justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      {difficultyOptions.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setBuilderDifficulty(opt.value)}
+                          className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
+                            builderDifficulty === opt.value
+                              ? 'bg-secondary/12 border-secondary/50 text-secondary font-bold'
+                              : 'border-outline/30 text-on-surface hover:border-outline'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {(builderApparatus !== 'all' || builderDifficulty !== 'all' || builderCategory !== 'all') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setBuilderApparatus('all');
+                          setBuilderDifficulty('all');
+                          setBuilderCategory('all');
+                        }}
+                        className="text-xs text-secondary hover:underline"
+                      >
+                        איפוס סינונים
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {quickFilteredExercises.map((exercise) => {

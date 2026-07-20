@@ -54,10 +54,10 @@ export function pickPose(stepText: string): PoseKey {
   return 'standing';
 }
 
-const GOLD = '#e9c349';
-const GOLD_SOFT = 'rgba(233, 195, 73, 0.55)';
-const GOLD_FILL = 'rgba(233, 195, 73, 0.16)';
-const GOLD_FAINT = 'rgba(233, 195, 73, 0.3)';
+const GOLD = '#7f9271';
+const GOLD_SOFT = 'rgba(127, 146, 113, 0.55)';
+const GOLD_FILL = 'rgba(127, 146, 113, 0.16)';
+const GOLD_FAINT = 'rgba(127, 146, 113, 0.3)';
 
 // A limb is a gently curved capsule (not a straight stick) with a small
 // rounded cap at the free end standing in for a hand or foot. `bend` offsets
