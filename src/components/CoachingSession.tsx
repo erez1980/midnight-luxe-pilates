@@ -162,7 +162,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
             <div className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs uppercase tracking-wider font-semibold">
               COMPLETE SESSION
             </div>
-            <h2 className="serif-text text-3xl font-bold text-white">השיעור הושלם!</h2>
+            <h2 className="serif-text text-3xl font-bold text-on-surface">השיעור הושלם!</h2>
             <p className="text-on-surface-variant text-sm">
               כל הכבוד! העברת בהצלחה את השיעור <strong>{lesson.name}</strong>.
             </p>
@@ -171,11 +171,11 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
           <div className="grid grid-cols-2 gap-4 border-t border-b border-white/5 py-6">
             <div className="text-center">
               <p className="text-xs text-on-surface-variant mb-1">סך הכל זמן</p>
-              <p className="text-2xl font-mono text-white font-bold">{lesson.totalDuration} דק׳</p>
+              <p className="text-2xl font-mono text-on-surface font-bold">{lesson.totalDuration} דק׳</p>
             </div>
             <div className="text-center">
               <p className="text-xs text-on-surface-variant mb-1">תרגילים שבוצעו</p>
-              <p className="text-2xl font-mono text-white font-bold">{lesson.exercises.length}</p>
+              <p className="text-2xl font-mono text-on-surface font-bold">{lesson.exercises.length}</p>
             </div>
           </div>
 
@@ -190,7 +190,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
   return (
     <div className="max-w-5xl mx-auto py-8 px-6">
       {/* Top Session Header */}
-      <div className="mb-8 rounded-3xl border border-white/8 bg-white/[0.02] p-5 md:p-6">
+      <div className="mb-8 rounded-3xl border border-outline/30 bg-surface-container p-5 md:p-6">
         <div className="flex items-center justify-between gap-4 pb-4 border-b border-white/5">
         <div className="flex items-center gap-3">
           <Button
@@ -203,7 +203,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
           </Button>
           <div>
             <span className="text-[10px] font-bold text-secondary uppercase tracking-widest block">מצב אימון פעיל</span>
-            <h3 className="serif-text font-bold text-white text-base leading-tight">{lesson.name}</h3>
+            <h3 className="serif-text font-bold text-on-surface text-base leading-tight">{lesson.name}</h3>
           </div>
         </div>
 
@@ -218,20 +218,20 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
         </Button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-5 mb-5">
-          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 mb-5">
+          <div className="rounded-2xl border border-outline/30 bg-surface-container-high p-4 text-center">
             <Clock3 className="w-4 h-4 text-secondary mx-auto mb-2" />
-            <div className="text-white text-xl font-black">{formatTime(timeLeft)}</div>
+            <div className="text-on-surface text-xl font-black">{formatTime(timeLeft)}</div>
             <div className="text-[11px] text-on-surface-variant">לתרגיל הנוכחי</div>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+          <div className="rounded-2xl border border-outline/30 bg-surface-container-high p-4 text-center">
             <Layers3 className="w-4 h-4 text-secondary mx-auto mb-2" />
-            <div className="text-white text-xl font-black">{currentIndex + 1}/{lesson.exercises.length}</div>
+            <div className="text-on-surface text-xl font-black">{currentIndex + 1}/{lesson.exercises.length}</div>
             <div className="text-[11px] text-on-surface-variant">התקדמות בשיעור</div>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-center">
+          <div className="rounded-2xl border border-outline/30 bg-surface-container-high p-4 text-center">
             <Sparkles className="w-4 h-4 text-secondary mx-auto mb-2" />
-            <div className="text-white text-xl font-black">{lesson.totalDuration} דק׳</div>
+            <div className="text-on-surface text-xl font-black">{lesson.totalDuration} דק׳</div>
             <div className="text-[11px] text-on-surface-variant">אורך מתוכנן</div>
           </div>
         </div>

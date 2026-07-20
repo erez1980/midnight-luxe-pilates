@@ -108,7 +108,11 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   useEffect(() => {
     const draftKey = existingLessonToEdit ? `pilates_lesson_draft_${existingLessonToEdit.id}` : 'pilates_lesson_builder_draft';
     const draft = { lessonName, description, level, targetFocus, exercises, autoBuildDuration };
-    localStorage.setItem(draftKey, JSON.stringify(draft));
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(draft));
+    } catch {
+      // Keep the builder usable even when storage is blocked/full.
+    }
   }, [lessonName, description, level, targetFocus, exercises, autoBuildDuration, existingLessonToEdit]);
 
   const buildCurrentLessonPayload = (): Lesson => ({
@@ -189,6 +193,8 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
       if (printWindow) {
         printWindow.document.write(`<!doctype html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>WhatsApp Copy</title><style>body{font-family:Arial,sans-serif;padding:24px;background:#111;color:#fff;white-space:pre-wrap;line-height:1.6}textarea{width:100%;height:70vh;background:#1a1a1a;color:#fff;border:1px solid #444;padding:16px;font:14px/1.6 Arial}</style></head><body><h2>העתקה ל-WhatsApp</h2><p>אם ההעתקה האוטומטית נכשלה, העתיקי מכאן:</p><textarea>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea></body></html>`);
         printWindow.document.close();
+      } else {
+        window.alert('ההעתקה האוטומטית נכשלה וגם חלון חלופי נחסם. נסי שוב בדפדפן אחר או אפשרי popups.');
       }
     }
   };

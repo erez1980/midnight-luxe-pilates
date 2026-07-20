@@ -51,10 +51,10 @@ const variants: Record<Variant, string> = {
   outline:
     'border border-secondary/60 text-secondary hover:bg-secondary/10 hover:border-secondary active:bg-secondary/15',
   // Quiet, for tertiary actions.
-  ghost: 'text-on-surface hover:text-secondary hover:bg-white/5',
+  ghost: 'text-on-surface hover:text-secondary hover:bg-surface-container-high',
   // Neutral bordered surface — for icon controls (play/nav/close, etc.).
   surface:
-    'bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/30',
+    'bg-surface-container border border-outline/40 text-on-surface hover:bg-surface-container-high hover:border-outline',
   danger:
     'border border-rose-500/30 text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/50',
 };

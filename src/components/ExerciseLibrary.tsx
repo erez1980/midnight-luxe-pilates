@@ -122,18 +122,18 @@ export default function ExerciseLibrary({
           </div>
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div>
-              <h2 className="serif-text text-3xl md:text-5xl font-bold text-white mb-4">מאגר תרגילים מקצועי</h2>
+              <h2 className="serif-text text-3xl md:text-5xl font-bold text-on-surface mb-4">מאגר תרגילים מקצועי</h2>
               <p className="text-on-surface-variant text-lg max-w-3xl leading-relaxed">
                 ספריית עבודה למאמנות פילאטיס: חפשי לפי ציוד, רמה, מטרה וקטגוריה, וצאי מכל חיפוש עם תרגילים שבאמת מתאימים לשיעור הבא שלך.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 min-w-[260px]">
               <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-                <div className="text-2xl font-black text-white mb-1">{INITIAL_EXERCISES.length}</div>
+                <div className="text-2xl font-black text-on-surface mb-1">{INITIAL_EXERCISES.length}</div>
                 <div className="text-xs text-on-surface-variant">תרגילים בספרייה</div>
               </div>
               <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-                <div className="text-2xl font-black text-white mb-1">{apparatusOptions.length - 1}</div>
+                <div className="text-2xl font-black text-on-surface mb-1">{apparatusOptions.length - 1}</div>
                 <div className="text-xs text-on-surface-variant">סוגי ציוד</div>
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function ExerciseLibrary({
               placeholder="חפשי לפי שם תרגיל או קבוצת שרירים..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-background border border-white/10 pr-12 pl-4 py-3 text-white text-sm rounded-2xl focus:outline-none focus:border-secondary transition-colors"
+              className="w-full bg-background border border-outline/40 pr-12 pl-4 py-3 text-on-surface text-sm rounded-2xl focus:outline-none focus:border-secondary transition-colors"
             />
             {searchQuery && (
               <button 
