@@ -173,8 +173,8 @@ export default function MyLessons({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {templates.map((lesson) => (
               <div key={lesson.id} className="rounded-2xl border border-secondary/15 bg-secondary/5 p-5">
-                <div className="text-white font-bold mb-1">{lesson.name}</div>
-                <div className="text-xs text-on-surface-variant mb-4">{lesson.levelLabel} · {lesson.totalDuration} דק׳</div>
+                <div className="text-white font-bold mb-1">{lesson.name || 'שיעור ללא שם'}</div>
+                <div className="text-xs text-on-surface-variant mb-4">{lesson.levelLabel || 'מותאם אישית'} · {lesson.totalDuration || 0} דק׳</div>
                 <div className="flex gap-2 flex-wrap">
                   <Button onClick={() => onEditLesson(lesson)} variant="primary" size="sm">השתמשי כתבנית</Button>
                   <Button onClick={() => onCopyShareLink(lesson)} variant="surface" size="sm"><Copy className="w-3.5 h-3.5" />שיתוף</Button>
@@ -262,7 +262,7 @@ export default function MyLessons({
                     {lesson.name}
                   </h3>
                   <span className="shrink-0 text-[10px] font-mono text-on-surface-variant bg-white/5 px-2 py-1 rounded-sm">
-                    {lesson.createdAt}
+                    {lesson.createdAt || 'ללא תאריך'}
                   </span>
                 </div>
 
@@ -279,7 +279,7 @@ export default function MyLessons({
                     <span className="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-on-surface-variant border border-white/10">{lesson.targetFocus}</span>
                   )}
                   <span className="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-on-surface-variant border border-white/10">
-                    {lesson.exercises.length} תרגילים · {lesson.totalDuration} דק׳
+                    {(lesson.exercises?.length || 0)} תרגילים · {lesson.totalDuration || 0} דק׳
                   </span>
                 </div>
 

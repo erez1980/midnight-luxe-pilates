@@ -3,28 +3,50 @@ import { Lesson } from '../types';
 const LESSONS_KEY = 'pilates_lessons';
 const TEMPLATES_KEY = 'pilates_saved_templates';
 
+function normalizeLesson(raw: any): Lesson {
+  const exercises = Array.isArray(raw?.exercises) ? raw.exercises : [];
+  const totalDuration = typeof raw?.totalDuration === 'number'
+    ? raw.totalDuration
+    : exercises.reduce((sum: number, item: any) => sum + (Number(item?.customDuration) || 0), 0);
+
+  return {
+    id: String(raw?.id || `lesson_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`),
+    name: String(raw?.name || 'שיעור ללא שם'),
+    description: String(raw?.description || ''),
+    level: raw?.level || 'mixed',
+    levelLabel: String(raw?.levelLabel || 'מותאם אישית'),
+    targetFocus: String(raw?.targetFocus || ''),
+    exercises,
+    totalDuration,
+    createdAt: String(raw?.createdAt || new Date().toISOString().split('T')[0]),
+    isCustom: Boolean(raw?.isCustom ?? true)
+  };
+}
+
 export function readLessons(): Lesson[] {
   try {
-    return JSON.parse(localStorage.getItem(LESSONS_KEY) || '[]');
+    const parsed = JSON.parse(localStorage.getItem(LESSONS_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed.map(normalizeLesson) : [];
   } catch {
     return [];
   }
 }
 
 export function writeLessons(lessons: Lesson[]) {
-  localStorage.setItem(LESSONS_KEY, JSON.stringify(lessons));
+  localStorage.setItem(LESSONS_KEY, JSON.stringify(lessons.map(normalizeLesson)));
 }
 
 export function readTemplates(): Lesson[] {
   try {
-    return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '[]');
+    const parsed = JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed.map(normalizeLesson) : [];
   } catch {
     return [];
   }
 }
 
 export function writeTemplates(templates: Lesson[]) {
-  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
+  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates.map(normalizeLesson)));
 }
 
 export function exportLessonsBundle(lessons: Lesson[], templates: Lesson[]) {
