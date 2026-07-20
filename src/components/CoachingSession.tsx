@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Volume2, VolumeX, X, HelpCircle, Activity, Award, Clock3, Layers3, Sparkles } from 'lucide-react';
+import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Volume2, VolumeX, X, HelpCircle, Activity, Award, Clock3, Layers3, Sparkles, ArrowRight } from 'lucide-react';
 import { Lesson, LessonExercise } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
@@ -193,15 +193,14 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
       <div className="mb-8 rounded-3xl border border-outline/30 bg-surface-container p-5 md:p-6">
         <div className="flex items-center justify-between gap-4 pb-4 border-b border-outline/20">
         <div className="flex items-center gap-3">
-          <Button
-            onClick={onFinishSession}
-            variant="surface"
-            size="icon-sm"
-            title="עזבי שיעור"
-          >
-            <X className="w-4 h-4" />
-          </Button>
           <div>
+            <button
+              onClick={onFinishSession}
+              className="mb-2 inline-flex items-center gap-1.5 text-xs text-secondary hover:text-on-surface transition-colors"
+            >
+              <ArrowRight className="w-3.5 h-3.5" />
+              חזרה לשיעורים
+            </button>
             <span className="text-[10px] font-bold text-secondary uppercase tracking-widest block">מצב אימון פעיל</span>
             <h3 className="serif-text font-bold text-on-surface text-base leading-tight">{lesson.name}</h3>
           </div>

@@ -58,6 +58,40 @@ export default function App() {
   const [uiNotice, setUiNotice] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const navigateTo = (
+    screen: 'home' | 'library' | 'builder' | 'lessons' | 'session',
+    options?: { lesson?: Lesson | null; editingLesson?: Lesson | null; replace?: boolean }
+  ) => {
+    const nextLesson = options?.lesson ?? (screen === 'session' ? activeSessionLesson : null);
+    const nextEditingLesson = options?.editingLesson ?? (screen === 'builder' ? editingLesson : null);
+
+    if (screen === 'session') {
+      setActiveSessionLesson(nextLesson ?? null);
+    } else if (activeSessionLesson) {
+      setActiveSessionLesson(null);
+    }
+
+    if (screen === 'builder') {
+      setEditingLesson(nextEditingLesson ?? null);
+    } else if (editingLesson) {
+      setEditingLesson(null);
+    }
+
+    setActiveScreen(screen);
+
+    const state = {
+      screen,
+      lessonId: nextLesson?.id ?? null,
+      editingLessonId: nextEditingLesson?.id ?? null,
+    };
+
+    if (options?.replace) {
+      window.history.replaceState(state, '');
+    } else {
+      window.history.pushState(state, '');
+    }
+  };
+
   // Load lessons from localStorage on mount, fall back to initial ones
   useEffect(() => {
     try {
@@ -96,8 +130,10 @@ export default function App() {
       }
 
       if (sharedLesson) {
-        setEditingLesson({ ...sharedLesson, id: `shared_${Date.now()}` });
+        const nextSharedLesson = { ...sharedLesson, id: `shared_${Date.now()}` };
+        setEditingLesson(nextSharedLesson);
         setActiveScreen('builder');
+        window.history.replaceState({ screen: 'builder', lessonId: null, editingLessonId: nextSharedLesson.id }, '');
       }
     })();
   }, []);
@@ -155,6 +191,45 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
+
+  useEffect(() => {
+    const initialState = {
+      screen: 'home',
+      lessonId: null,
+      editingLessonId: null,
+    };
+    window.history.replaceState(window.history.state ?? initialState, '');
+
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+      if (!state?.screen) {
+        setActiveSessionLesson(null);
+        setEditingLesson(null);
+        setActiveScreen('home');
+        return;
+      }
+
+      const nextScreen = state.screen as 'home' | 'library' | 'builder' | 'lessons' | 'session';
+      setActiveScreen(nextScreen);
+
+      if (nextScreen === 'session' && state.lessonId) {
+        const lesson = lessons.find((item) => item.id === state.lessonId) ?? null;
+        setActiveSessionLesson(lesson);
+      } else {
+        setActiveSessionLesson(null);
+      }
+
+      if (nextScreen === 'builder' && state.editingLessonId) {
+        const lesson = lessons.find((item) => item.id === state.editingLessonId) ?? null;
+        setEditingLesson(lesson);
+      } else {
+        setEditingLesson(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [lessons]);
 
   useEffect(() => {
     if (!uiNotice) return;
@@ -215,7 +290,7 @@ export default function App() {
     await signOut();
     setAuthProfile(null);
     setCloudStatus('idle');
-    setActiveScreen('home');
+    navigateTo('home', { replace: true, lesson: null, editingLesson: null });
     setUiNotice('התנתקת בהצלחה.');
   };
 
@@ -307,7 +382,7 @@ export default function App() {
     
     // Transition to saved playlist screen with delay so user sees success toast
     setTimeout(() => {
-      setActiveScreen('lessons');
+      navigateTo('lessons');
     }, 1000);
   };
 
@@ -322,15 +397,13 @@ export default function App() {
     // No auth re-check: only reachable from screens already gated at render
     // time, and a click-time re-check risks a transient auth flicker silently
     // swallowing the action.
-    setEditingLesson(lesson);
-    setActiveScreen('builder');
+    navigateTo('builder', { editingLesson: lesson });
   };
 
   // Launch Coaching Mode
   const handleStartLesson = (lesson: Lesson) => {
     // Same rationale as handleEditLesson - gated by the parent screen already.
-    setActiveSessionLesson(lesson);
-    setActiveScreen('session');
+    navigateTo('session', { lesson });
   };
 
   return (
@@ -345,7 +418,7 @@ export default function App() {
           
           {/* Logo & Brand */}
           <button 
-            onClick={() => { setActiveScreen('home'); setEditingLesson(null); }}
+            onClick={() => navigateTo('home', { editingLesson: null })}
             className="flex items-center gap-3 cursor-pointer group"
           >
             <div className="w-10 h-10 flex items-center justify-center rounded-full border border-secondary/50 group-hover:border-secondary transition-all">
@@ -360,7 +433,7 @@ export default function App() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-10">
             <button
-              onClick={() => { setActiveScreen('library'); setEditingLesson(null); }}
+              onClick={() => navigateTo('library', { editingLesson: null })}
               className={`hover:text-secondary transition-all text-sm font-medium tracking-wide relative py-1 cursor-pointer ${
                 activeScreen === 'library' ? 'text-secondary font-bold border-b border-secondary' : 'text-on-surface'
               }`}
@@ -452,7 +525,7 @@ export default function App() {
             className="fixed inset-x-0 top-[68px] sm:top-[72px] z-40 bg-background border-b border-outline/20 p-5 sm:p-6 flex flex-col gap-4 lg:hidden shadow-2xl"
           >
             <button
-              onClick={() => { setActiveScreen('library'); setEditingLesson(null); setIsMobileMenuOpen(false); }}
+              onClick={() => { navigateTo('library', { editingLesson: null }); setIsMobileMenuOpen(false); }}
               className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'library' ? 'text-secondary' : 'text-on-surface'}`}
             >
               מאגר תרגילים
@@ -539,7 +612,7 @@ export default function App() {
                     <Button
                       size="lg"
                       variant="outline"
-                      onClick={() => setActiveScreen('library')}
+                      onClick={() => navigateTo('library')}
                       className="min-w-[220px] w-full sm:w-auto border-outline/40 text-on-surface hover:bg-surface-container-high hover:border-outline"
                     >
                       צפי במאגר התרגילים
@@ -824,7 +897,7 @@ export default function App() {
                 onCreateNewLesson={() => { setEditingLesson(null); goToProtected('builder'); }}
                 onSaveTemplate={handleSaveTemplate}
                 onCopyShareLink={handleCopyShareLink}
-                onBackHome={() => setActiveScreen('home')}
+                onBackHome={() => navigateTo('home')}
                 onExportBundle={handleExportBundle}
                 onImportBundle={handleImportBundle}
                 cloudStatus={supabaseEnabled ? cloudStatus : null}
@@ -840,7 +913,7 @@ export default function App() {
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
             <CoachingSession 
               lesson={activeSessionLesson}
-              onFinishSession={() => { setActiveSessionLesson(null); setActiveScreen('lessons'); }}
+              onFinishSession={() => navigateTo('lessons', { lesson: null })}
             />
           </div>
         )}
@@ -871,7 +944,7 @@ export default function App() {
             <button onClick={() => setActiveScreen('lessons')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               <Share2 className="w-5 h-5" />
             </button>
-            <button onClick={() => setActiveScreen('home')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+            <button onClick={() => navigateTo('home')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               <Award className="w-5 h-5" />
             </button>
             <a href="mailto:support@pilatesvetnua.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
