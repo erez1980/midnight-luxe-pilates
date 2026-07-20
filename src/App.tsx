@@ -390,7 +390,7 @@ export default function App() {
             {authProfile ? (
               <div className="hidden sm:flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-sm text-white font-semibold leading-tight">{authProfile.name}</div>
+                  <div className="text-sm text-on-surface font-semibold leading-tight">{authProfile.name}</div>
                 </div>
                 <button
                   onClick={() => goToProtected('lessons')}
@@ -453,19 +453,19 @@ export default function App() {
           >
             <button
               onClick={() => { setActiveScreen('library'); setEditingLesson(null); setIsMobileMenuOpen(false); }}
-              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'library' ? 'text-secondary' : 'text-white'}`}
+              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'library' ? 'text-secondary' : 'text-on-surface'}`}
             >
               מאגר תרגילים
             </button>
             <button
               onClick={() => { setEditingLesson(null); setIsMobileMenuOpen(false); goToProtected('builder'); }}
-              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'builder' ? 'text-secondary' : 'text-white'}`}
+              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'builder' ? 'text-secondary' : 'text-on-surface'}`}
             >
               בניית שיעור
             </button>
             <button
               onClick={() => { setEditingLesson(null); setIsMobileMenuOpen(false); goToProtected('lessons'); }}
-              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'lessons' ? 'text-secondary' : 'text-white'}`}
+              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'lessons' ? 'text-secondary' : 'text-on-surface'}`}
             >
               השיעורים שלי
             </button>
@@ -483,9 +483,9 @@ export default function App() {
       <main className="flex-grow pt-28 pb-16">
         {uiNotice && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20 mb-4">
-            <div className="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3 text-sm text-white flex items-center justify-between gap-3">
+            <div className="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3 text-sm text-on-surface flex items-center justify-between gap-3">
               <span>{uiNotice}</span>
-              <button onClick={() => setUiNotice('')} className="text-secondary hover:text-white">סגירה</button>
+              <button onClick={() => setUiNotice('')} className="text-secondary hover:text-on-surface">סגירה</button>
             </div>
           </div>
         )}
@@ -513,12 +513,12 @@ export default function App() {
                     </span>
                   </div>
 
-                  <h1 className="serif-text text-4xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-6 md:mb-8">
+                  <h1 className="serif-text text-4xl md:text-7xl lg:text-8xl font-black text-on-surface leading-tight mb-6 md:mb-8">
                     בוני שיעורי פילאטיס
                     <span className="gold-gradient block">מקצועיים תוך דקות</span>
                   </h1>
 
-                  <p className="text-base md:text-2xl text-white/85 max-w-[700px] mb-5 md:mb-6 leading-relaxed">
+                  <p className="text-base md:text-2xl text-on-surface max-w-[700px] mb-5 md:mb-6 leading-relaxed">
                     מוצר עבודה למאמנות פילאטיס שרוצות לבנות שיעורים מהר יותר, לשמור מערכים מסודרים, וללמד עם יותר ביטחון ופחות בלגן.
                   </p>
 
@@ -540,13 +540,13 @@ export default function App() {
                       size="lg"
                       variant="outline"
                       onClick={() => setActiveScreen('library')}
-                      className="min-w-[220px] w-full sm:w-auto border-white/30 text-white hover:bg-white/10 hover:border-white/40"
+                      className="min-w-[220px] w-full sm:w-auto border-outline/40 text-on-surface hover:bg-surface-container-high hover:border-outline"
                     >
                       צפי במאגר התרגילים
                     </Button>
                   </div>
 
-                  <div className="flex flex-wrap gap-6 text-sm text-white/75">
+                  <div className="flex flex-wrap gap-6 text-sm text-on-surface">
                     <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> בניית שיעור לפי מטרה, רמה ומשך</div>
                     <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> ספריית שיעורים פרטית</div>
                     <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> שיתוף, הדפסה ו־teach mode</div>
@@ -556,7 +556,7 @@ export default function App() {
                 <div className="grid gap-4">
                   <div className="rounded-3xl border border-white/10 bg-black/35 backdrop-blur-md p-6 md:p-7 shadow-2xl">
                     <div className="text-xs uppercase tracking-[0.25em] text-secondary mb-3">למה משלמים על זה</div>
-                    <h3 className="serif-text text-2xl text-white font-bold mb-4">פחות זמן תכנון. יותר מקצועיות מול הלקוחות.</h3>
+                    <h3 className="serif-text text-2xl text-on-surface font-bold mb-4">פחות זמן תכנון. יותר מקצועיות מול הלקוחות.</h3>
                     <div className="space-y-4 text-sm text-on-surface-variant">
                       <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>בני שיעור חדש תוך דקות במקום להתחיל כל פעם מדף ריק.</p></div>
                       <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>שמרי תבניות ומערכים לשימוש חוזר לפי רמות, ציוד וקבוצות.</p></div>
@@ -567,11 +567,11 @@ export default function App() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
                       <div className="text-3xl font-black text-secondary mb-2">3 דק'</div>
-                      <div className="text-sm text-white">לבניית שלד שיעור מקצועי</div>
+                      <div className="text-sm text-on-surface">לבניית שלד שיעור מקצועי</div>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
                       <div className="text-3xl font-black text-secondary mb-2">1 מקום</div>
-                      <div className="text-sm text-white">לתרגילים, מערכים ושיתוף</div>
+                      <div className="text-sm text-on-surface">לתרגילים, מערכים ושיתוף</div>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur-md p-5">
                       <div className="text-3xl font-black text-secondary mb-2">פרימיום</div>
