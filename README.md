@@ -1,20 +1,27 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Midnight Luxe Pilates
 
-# Run and deploy your AI Studio app
+אפליקציית ווב לבניית שיעורי פילאטיס למדריכות — מאגר של 255 תרגילים מקצועיים, בניית מערכי שיעור, מצב הדרכה חי, שיתוף וסנכרון לענן.
 
-This contains everything you need to run your app locally.
+**Stack:** React + TypeScript + Vite · Supabase (Auth + DB) · GitHub Pages (auto-deploy via Actions)
 
-View your app in AI Studio: https://ai.studio/apps/7d8560ae-3887-44ec-acf0-ad4d87d8ef12
+## הרצה מקומית
 
-## Run Locally
+```bash
+npm install
+npm run dev
+```
 
-**Prerequisites:**  Node.js
+צור קובץ `.env` עם:
+```
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
+(בלעדיהם האתר עובד במצב מקומי בלבד — בלי התחברות וסנכרון ענן.)
 
+## פריסה
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+כל push ל-`main` בונה ופורס אוטומטית ל-GitHub Pages דרך `.github/workflows/deploy.yml`. ה-secrets `VITE_SUPABASE_URL` ו-`VITE_SUPABASE_ANON_KEY` מוגדרים ב-GitHub Actions.
+
+## הגדרת Supabase
+
+ראה `SUPABASE_SETUP.md` — כולל את כל ה-SQL (טבלאות lessons / lesson_templates / shared_lessons / profiles + RLS policies) והגדרת Google OAuth.

@@ -36,6 +36,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import Button from './components/ui/Button';
 
 export default function App() {
+  // Feature flag: pricing is hidden until a real payment decision + processor
+  // are in place. Flip to true to bring the section back - the markup is kept.
+  const SHOW_PRICING = false;
   const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session'>('home');
   const [themeMode, setThemeMode] = useState<'system' | 'light' | 'dark'>(() => {
     try {
@@ -596,7 +599,7 @@ export default function App() {
                   </p>
 
                   <p className="text-sm md:text-lg text-on-surface-variant max-w-[680px] mb-8 md:mb-10 leading-relaxed">
-                    מאגר תרגילים, builder חכם, ספריית שיעורים, שיתוף מהיר ו־teach mode - הכל במקום אחד, עם חוויה שמרגישה כמו כלי פרימיום אמיתי ולא עוד טופס.
+                    מאגר של 255 תרגילים, builder חכם, ספריית שיעורים, שיתוף מהיר ומצב הדרכה חי — הכל במקום אחד.
                   </p>
 
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 w-full sm:w-auto">
@@ -647,8 +650,8 @@ export default function App() {
                       <div className="text-sm text-on-surface">לתרגילים, מערכים ושיתוף</div>
                     </div>
                     <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5">
-                      <div className="text-3xl font-black text-secondary mb-2">פרימיום</div>
-                      <div className="text-sm text-on-surface">חוויית שימוש שמרגישה כמו מוצר בתשלום</div>
+                      <div className="text-3xl font-black text-secondary mb-2">255</div>
+                      <div className="text-sm text-on-surface">תרגילים מקצועיים במאגר</div>
                     </div>
                   </div>
                 </div>
@@ -765,7 +768,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* Pricing / Subscription framing */}
+            {/* Pricing / Subscription framing - hidden until payments are real (SHOW_PRICING) */}
+            {SHOW_PRICING && (
             <section className="py-24 bg-surface px-6 md:px-20">
               <div className="max-w-[1280px] mx-auto">
                 <div className="max-w-[760px] mb-14">
@@ -816,13 +820,14 @@ export default function App() {
                 </div>
               </div>
             </section>
+            )}
 
             {/* Final Call to Action with Live Counter Stats */}
             <section className="py-24 relative overflow-hidden bg-background">
               <div className="max-w-[800px] mx-auto px-6 text-center">
-                <h2 className="serif-text text-4xl md:text-6xl font-bold text-on-surface mb-6">מוכנה להפוך את זה למוצר שמרגיש פרימיום?</h2>
+                <h2 className="serif-text text-4xl md:text-6xl font-bold text-on-surface mb-6">מוכנה לבנות את השיעור הבא שלך?</h2>
                 <p className="text-on-surface-variant text-lg md:text-xl mb-12 font-light">
-                  התחילי עם מאגר פתוח, המשיכי ל-builder, ובני מוצר שאפשר גם להציג, גם לבדוק עם לקוחות, וגם למכור כמנוי חודשי.
+                  התחילי מהמאגר הפתוח, הרכיבי מערך משלך ב-builder, ולמדי אותו במצב הדרכה חי — הכל במקום אחד.
                 </p>
                 
                 <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14">
@@ -947,7 +952,7 @@ export default function App() {
             <button onClick={() => navigateTo('home')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               <Award className="w-5 h-5" />
             </button>
-            <a href="mailto:support@pilatesvetnua.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+            <a href="mailto:erez1980@gmail.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer" aria-label="יצירת קשר במייל">
               <Mail className="w-5 h-5" />
             </a>
           </div>
