@@ -17,7 +17,8 @@ import {
   Sliders,
   ChevronLeft,
   Sun,
-  Moon
+  Moon,
+  Download
 } from 'lucide-react';
 import { Lesson } from './types';
 import { INITIAL_LESSONS } from './data';
@@ -57,6 +58,30 @@ export default function App() {
   const [cloudStatus, setCloudStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
   const [hydrated, setHydrated] = useState(false);
   const [uiNotice, setUiNotice] = useState('');
+  // PWA install: browsers fire beforeinstallprompt when the app qualifies for
+  // installation; stashing the event lets us show our own "התקנה" button.
+  const [installPrompt, setInstallPrompt] = useState<{ prompt: () => void; userChoice: Promise<unknown> } | null>(null);
+
+  useEffect(() => {
+    const onBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e as unknown as { prompt: () => void; userChoice: Promise<unknown> });
+    };
+    const onInstalled = () => setInstallPrompt(null);
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  };
 
   const navigateTo = (
     screen: 'home' | 'library' | 'builder' | 'lessons' | 'session',
@@ -327,13 +352,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessons, templates, hydrated, isAuthenticated]);
 
-  const handleSaveTemplate = (lesson: Lesson) => {
-    const updated = [lesson, ...templates.filter((item) => item.id !== lesson.id)];
-    setTemplates(updated);
-    writeTemplates(updated);
-    setUiNotice('השיעור נשמר כתבנית.');
-  };
-
   const handleExportBundle = () => {
     exportLessonsBundle(lessons, templates);
     setUiNotice('קובץ הגיבוי הורד בהצלחה.');
@@ -360,6 +378,18 @@ export default function App() {
     // lessons with many exercises, but it's better than no link at all.
     const sharedId = await createSharedLesson(lesson);
     const url = sharedId ? buildShortShareUrl(sharedId) : buildShareUrl(lesson);
+
+    // The OS share sheet (WhatsApp / mail / messages) is the useful path on
+    // phones; clipboard copy is the desktop fallback.
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: lesson.name, text: `מערך שיעור: ${lesson.name}`, url });
+        return;
+      } catch (e) {
+        // AbortError = user closed the sheet; anything else falls through to copy.
+        if ((e as DOMException)?.name === 'AbortError') return;
+      }
+    }
     try {
       await navigator.clipboard.writeText(url);
       setUiNotice(sharedId ? 'קישור השיתוף הועתק.' : 'קישור השיתוף הועתק (גרסה ארוכה - Cloud לא היה זמין).');
@@ -499,6 +529,28 @@ export default function App() {
                     title="התחברות עם Google"
                   >
                     <LogIn className="w-4 h-4" />
+                  </Button>
+                </span>
+              </>
+            )}
+
+            {installPrompt && (
+              <>
+                <span className="hidden md:block">
+                  <Button onClick={handleInstallApp} variant="primary" size="sm">
+                    <Download className="w-4 h-4" />
+                    התקנת האפליקציה
+                  </Button>
+                </span>
+                <span className="md:hidden">
+                  <Button
+                    onClick={handleInstallApp}
+                    variant="primary"
+                    size="icon-sm"
+                    aria-label="התקנת האפליקציה"
+                    title="התקנת האפליקציה"
+                  >
+                    <Download className="w-4 h-4" />
                   </Button>
                 </span>
               </>
@@ -953,7 +1005,6 @@ export default function App() {
                 onEditLesson={handleEditLesson}
                 onDeleteLesson={handleDeleteLesson}
                 onCreateNewLesson={() => { setEditingLesson(null); goToProtected('builder'); }}
-                onSaveTemplate={handleSaveTemplate}
                 onCopyShareLink={handleCopyShareLink}
                 onBackHome={() => navigateTo('home')}
                 onExportBundle={handleExportBundle}

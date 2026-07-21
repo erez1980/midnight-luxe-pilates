@@ -139,12 +139,60 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
     return `${mins.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
   };
 
-  // Progress calculations
+  // Keep the screen awake while teaching — a phone that dims and locks
+  // mid-class is the single biggest usability failure of a coaching timer.
+  // Re-acquired on tab return since the browser releases the lock on hide.
+  const [wakeLockActive, setWakeLockActive] = useState(false);
+  useEffect(() => {
+    let lock: { release: () => Promise<void> } | null = null;
+    let disposed = false;
+
+    const acquire = async () => {
+      try {
+        const nav = navigator as Navigator & { wakeLock?: { request: (type: 'screen') => Promise<any> } };
+        if (!nav.wakeLock) return;
+        lock = await nav.wakeLock.request('screen');
+        if (disposed) { lock?.release(); return; }
+        setWakeLockActive(true);
+        (lock as any).addEventListener?.('release', () => setWakeLockActive(false));
+      } catch {
+        setWakeLockActive(false);
+      }
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') acquire();
+    };
+
+    acquire();
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      disposed = true;
+      document.removeEventListener('visibilitychange', onVisibility);
+      lock?.release().catch(() => {});
+    };
+  }, []);
+
+  // Progress calculations — overall progress is time-based (elapsed minutes of
+  // the whole lesson), not exercise-count-based, so a long exercise doesn't
+  // make the bar look stuck.
   const totalDurationSeconds = lesson.exercises.reduce((acc, curr) => acc + curr.customDuration * 60, 0);
-  const currentProgressPercent = ((currentIndex) / lesson.exercises.length) * 100;
-  const currentTimeProgressPercent = currentLessonExercise 
+  const elapsedBeforeCurrent = lesson.exercises.slice(0, currentIndex).reduce((acc, curr) => acc + curr.customDuration * 60, 0);
+  const elapsedInCurrent = currentLessonExercise ? currentLessonExercise.customDuration * 60 - timeLeft : 0;
+  const totalElapsedSeconds = elapsedBeforeCurrent + Math.max(0, elapsedInCurrent);
+  const totalRemainingMinutes = Math.max(0, Math.ceil((totalDurationSeconds - totalElapsedSeconds) / 60));
+  const currentProgressPercent = totalDurationSeconds > 0 ? (totalElapsedSeconds / totalDurationSeconds) * 100 : 0;
+  const currentTimeProgressPercent = currentLessonExercise
     ? ((currentLessonExercise.customDuration * 60 - timeLeft) / (currentLessonExercise.customDuration * 60)) * 100
     : 0;
+
+  // Equipment transition warning: give the coach a heads-up when the next
+  // exercise moves to a different apparatus, so the changeover is prepared
+  // before the timer runs out.
+  const apparatusChange = nextLessonExercise &&
+    nextLessonExercise.exercise.apparatus !== currentLessonExercise?.exercise.apparatus
+      ? nextLessonExercise.exercise.apparatusLabel
+      : null;
 
   if (showSummary) {
     return (
@@ -188,83 +236,78 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-6">
-      {/* Top Session Header */}
-      <div className="mb-8 rounded-3xl border border-outline/30 bg-surface-container p-5 md:p-6">
-        <div className="flex items-center justify-between gap-4 pb-4 border-b border-outline/20">
-        <div className="flex items-center gap-3">
-          <div>
+    <div className="max-w-5xl mx-auto py-4 md:py-8 px-4 md:px-6">
+      {/* Compact sticky session bar: name, live overall progress, sound. The
+          coach glances here mid-class, so it stays visible while scrolling. */}
+      <div className="sticky top-[64px] md:top-[72px] z-30 mb-6 rounded-2xl border border-outline/30 bg-background/90 backdrop-blur-md px-4 py-3 shadow-lg">
+        <div className="flex items-center justify-between gap-3 mb-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               onClick={onFinishSession}
-              className="mb-2 inline-flex items-center gap-1.5 text-xs text-secondary hover:text-on-surface transition-colors"
+              className="shrink-0 inline-flex items-center gap-1 text-xs text-secondary hover:text-on-surface transition-colors"
+              title="חזרה לשיעורים"
             >
-              <ArrowRight className="w-3.5 h-3.5" />
-              חזרה לשיעורים
+              <ArrowRight className="w-4 h-4" />
             </button>
-            <span className="text-[10px] font-bold text-secondary uppercase tracking-widest block">מצב אימון פעיל</span>
-            <h3 className="serif-text font-bold text-on-surface text-base leading-tight">{lesson.name}</h3>
+            <div className="min-w-0">
+              <h3 className="serif-text font-bold text-on-surface text-sm leading-tight truncate">{lesson.name}</h3>
+              <div className="text-[11px] text-on-surface-variant">
+                תרגיל {currentIndex + 1}/{lesson.exercises.length} · נותרו ~{totalRemainingMinutes} דק׳
+                {wakeLockActive && <span className="mr-1.5 text-secondary">· המסך נשאר דולק</span>}
+              </div>
+            </div>
           </div>
+
+          <button
+            onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+              isSoundEnabled
+                ? 'border-secondary/40 bg-secondary/10 text-secondary'
+                : 'border-outline/30 text-on-surface-variant'
+            }`}
+            title={isSoundEnabled ? 'כיבוי צליל המעבר בין תרגילים' : 'הפעלת צליל המעבר בין תרגילים'}
+          >
+            {isSoundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            צליל מעבר {isSoundEnabled ? 'פועל' : 'כבוי'}
+          </button>
         </div>
 
-        {/* Audio control */}
-        <Button
-          onClick={() => setIsSoundEnabled(!isSoundEnabled)}
-          variant="surface"
-          size="icon-sm"
-          title={isSoundEnabled ? "השתק צליל מעבר" : "אפשר צליל מעבר"}
-        >
-          {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-        </Button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 mb-5">
-          <div className="rounded-2xl border border-outline/30 bg-surface-container-high p-4 text-center">
-            <Clock3 className="w-4 h-4 text-secondary mx-auto mb-2" />
-            <div className="text-on-surface text-xl font-black">{formatTime(timeLeft)}</div>
-            <div className="text-[11px] text-on-surface-variant">לתרגיל הנוכחי</div>
-          </div>
-          <div className="rounded-2xl border border-outline/30 bg-surface-container-high p-4 text-center">
-            <Layers3 className="w-4 h-4 text-secondary mx-auto mb-2" />
-            <div className="text-on-surface text-xl font-black">{currentIndex + 1}/{lesson.exercises.length}</div>
-            <div className="text-[11px] text-on-surface-variant">התקדמות בשיעור</div>
-          </div>
-          <div className="rounded-2xl border border-outline/30 bg-surface-container-high p-4 text-center">
-            <Sparkles className="w-4 h-4 text-secondary mx-auto mb-2" />
-            <div className="text-on-surface text-xl font-black">{lesson.totalDuration} דק׳</div>
-            <div className="text-[11px] text-on-surface-variant">אורך מתוכנן</div>
-          </div>
-        </div>
-
-        {/* Global Lesson Progress Bar */}
         <div className="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
-          <div 
-            className="bg-secondary h-full transition-all duration-500 ease-out" 
+          <div
+            className="bg-secondary h-full transition-all duration-500 ease-out"
             style={{ width: `${currentProgressPercent}%` }}
           />
         </div>
       </div>
 
-      {/* Main Grid: left interactive timer, right instructions */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left Interactive Panel */}
-        <div className="lg:col-span-5 bg-surface-container-high border border-outline/20 p-8 text-center flex flex-col items-center relative overflow-hidden">
-          {/* Subtle spinning background layout */}
+      {/* Coach note — the instructor's own emphasis for this lesson, pinned
+          above everything so it isn't forgotten mid-class. */}
+      {currentLessonExercise.notes && (
+        <div className="mb-5 rounded-2xl bg-secondary/10 border-r-4 border-secondary px-4 py-3">
+          <span className="text-[10px] font-bold text-secondary uppercase block mb-0.5">הדגש שלך לשיעור הזה</span>
+          <p className="text-base md:text-lg text-on-surface font-semibold leading-snug">"{currentLessonExercise.notes}"</p>
+        </div>
+      )}
+
+      {/* Main Grid: timer panel + teaching panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+
+        {/* Timer & controls */}
+        <div className="lg:col-span-5 rounded-3xl bg-surface-container-high border border-outline/20 p-6 md:p-8 text-center flex flex-col items-center relative overflow-hidden lg:sticky lg:top-[150px]">
           <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/20 to-secondary/0"></div>
-          
-          <span className="text-xs uppercase tracking-wider text-secondary font-semibold bg-secondary/10 px-3 py-1 mb-6 rounded-sm">
+
+          <span className="text-xs uppercase tracking-wider text-secondary font-semibold bg-secondary/10 px-3 py-1 mb-4 rounded-full">
             {currentLessonExercise.exercise.apparatusLabel}
           </span>
 
-          <h2 className="serif-text text-2xl md:text-3xl font-black text-on-surface mb-2">
+          <h2 className="serif-text text-2xl md:text-3xl font-black text-on-surface mb-1">
             {currentLessonExercise.exercise.name}
           </h2>
-          <p className="text-xs font-mono text-on-surface-variant mb-8">{currentLessonExercise.exercise.englishName}</p>
+          <p className="text-xs font-mono text-on-surface-variant mb-6">{currentLessonExercise.exercise.englishName}</p>
 
           {/* Interactive Circle Timer */}
-          <div className="w-48 h-48 rounded-full border-2 border-outline/20 flex flex-col items-center justify-center relative mb-8">
-            {/* SVG Progress Circle */}
-            <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+          <div className="w-44 h-44 md:w-48 md:h-48 rounded-full border-2 border-outline/20 flex flex-col items-center justify-center relative mb-6">
+            <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 192 192">
               <circle
                 cx="96"
                 cy="96"
@@ -286,14 +329,20 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
               />
             </svg>
 
-            <span className="text-4xl font-mono font-bold text-on-surface mb-1">
+            <span className="text-5xl font-mono font-bold text-on-surface mb-1 tabular-nums">
               {formatTime(timeLeft)}
             </span>
-            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">דגש: {currentLessonExercise.exercise.durationMinutes} דק׳ סה"כ</span>
+            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">מתוך {currentLessonExercise.customDuration} דק׳</span>
+          </div>
+
+          {/* Breathing cue lives next to the timer — it's a pacing tool. */}
+          <div className="mb-6 rounded-2xl border border-outline/20 bg-surface-container px-4 py-2.5 max-w-xs">
+            <span className="text-[10px] text-secondary font-bold uppercase block mb-0.5">נשימה וקצב</span>
+            <p className="text-xs text-on-surface-variant leading-relaxed">{currentLessonExercise.exercise.breathing}</p>
           </div>
 
           {/* Timer Controls */}
-          <div className="flex items-center gap-6 mb-8">
+          <div className="flex items-center gap-4 md:gap-6 mb-4">
             <Button
               onClick={handlePrev}
               disabled={currentIndex === 0}
@@ -338,33 +387,21 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
               <ChevronLeft className="w-5 h-5" />
             </Button>
           </div>
-
-          {/* Progress numeric marker */}
-          <div className="text-xs text-on-surface-variant">
-            תרגיל <span className="text-on-surface font-bold">{currentIndex + 1}</span> מתוך <span className="text-on-surface">{lesson.exercises.length}</span>
-          </div>
         </div>
 
-        {/* Right Instructions Panel */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* Custom lesson note if any */}
-          {currentLessonExercise.notes && (
-            <div className="bg-secondary/10 border-r-2 border-secondary p-4">
-              <span className="text-[10px] font-bold text-secondary uppercase block mb-1">דגש מיוחד שבחרת לשיעור זה:</span>
-              <p className="text-sm text-on-surface italic">"{currentLessonExercise.notes}"</p>
-            </div>
-          )}
-
-          {/* Execution steps */}
-          <div className="bg-surface-container-high border border-outline/20 p-6 rounded-lg">
-            <h3 className="serif-text text-xl font-bold text-on-surface mb-4 border-b border-outline/20 pb-3">
-              הנחיות קוליות ושלבי ביצוע
+        {/* Teaching panel: steps front and center, then prep-ahead info */}
+        <div className="lg:col-span-7 space-y-5">
+          {/* Execution steps — the core teaching content, sized to be readable
+              at a glance from a distance. */}
+          <div className="bg-surface-container-high border border-outline/20 p-5 md:p-6 rounded-3xl">
+            <h3 className="serif-text text-lg md:text-xl font-bold text-on-surface mb-4 border-b border-outline/20 pb-3">
+              שלבי ביצוע והנחיה
             </h3>
-            
-            <ol className="space-y-4 mb-6">
+
+            <ol className="space-y-4 mb-5">
               {currentLessonExercise.exercise.instructions.map((step, idx) => (
-                <li key={idx} className="flex gap-3 text-sm text-on-surface-variant leading-relaxed">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full border border-secondary/30 text-secondary text-xs flex items-center justify-center font-bold">
+                <li key={idx} className="flex gap-3 text-base md:text-lg text-on-surface leading-relaxed">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-secondary/10 border border-secondary/30 text-secondary text-sm flex items-center justify-center font-bold mt-0.5">
                     {idx + 1}
                   </span>
                   <span>{step}</span>
@@ -372,28 +409,46 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
               ))}
             </ol>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-outline/20">
-              <div>
-                <span className="text-xs text-secondary font-bold uppercase block mb-1">נשימה וקצב:</span>
-                <p className="text-xs text-on-surface-variant leading-relaxed">{currentLessonExercise.exercise.breathing}</p>
-              </div>
-              <div>
-                <span className="text-xs text-secondary font-bold uppercase block mb-1">שרירי מטרה:</span>
-                <p className="text-xs text-on-surface-variant leading-relaxed">{currentLessonExercise.exercise.targetMuscles.join(', ')}</p>
+            <div className="pt-4 border-t border-outline/20">
+              <span className="text-xs text-secondary font-bold uppercase block mb-1.5">שרירי מטרה</span>
+              <div className="flex flex-wrap gap-1.5">
+                {currentLessonExercise.exercise.targetMuscles.map((muscle, idx) => (
+                  <span key={idx} className="text-xs px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant">
+                    {muscle}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Up next preview */}
-          {nextLessonExercise && (
-            <div className="bg-background border border-outline/20 p-4 rounded-lg flex justify-between items-center">
-              <div>
-                <span className="text-[9px] font-mono uppercase text-secondary/70 tracking-widest block">התרגיל הבא</span>
-                <span className="text-sm text-on-surface font-bold">{nextLessonExercise.exercise.name}</span>
+          {/* Up next: enough detail to prepare the transition, not just a name */}
+          {nextLessonExercise ? (
+            <div className="rounded-3xl border border-outline/20 bg-surface-container p-5">
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <span className="text-[10px] font-bold uppercase text-secondary tracking-widest">הבא בתור</span>
+                <span className="text-xs text-on-surface-variant bg-surface-container-high rounded-full px-2.5 py-1">
+                  {nextLessonExercise.customDuration} דק׳
+                </span>
               </div>
-              <span className="text-xs text-on-surface-variant bg-surface-container px-2.5 py-1">
-                {nextLessonExercise.customDuration} דקות
-              </span>
+              <div className="text-on-surface font-bold text-base mb-1">{nextLessonExercise.exercise.name}</div>
+              <div className="text-xs text-on-surface-variant mb-3">{nextLessonExercise.exercise.englishName} · {nextLessonExercise.exercise.apparatusLabel}</div>
+
+              {apparatusChange && (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-on-surface flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  מעבר ציוד בתרגיל הבא: {apparatusChange} — כדאי להכין מראש
+                </div>
+              )}
+
+              {nextLessonExercise.notes && (
+                <div className="mt-2 text-xs text-on-surface-variant">
+                  דגש מתוכנן: {nextLessonExercise.notes}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-secondary/20 bg-secondary/5 p-5 text-sm text-on-surface-variant">
+              זהו התרגיל האחרון בשיעור — בסיום, מעבר טבעי לשחרור ולסיכום.
             </div>
           )}
         </div>
