@@ -8,8 +8,6 @@ import {
   Compass, 
   ChevronRight, 
   CheckCircle,
-  Menu,
-  X,
   User,
   LogIn,
   Activity,
@@ -59,7 +57,6 @@ export default function App() {
   const [cloudStatus, setCloudStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
   const [hydrated, setHydrated] = useState(false);
   const [uiNotice, setUiNotice] = useState('');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigateTo = (
     screen: 'home' | 'library' | 'builder' | 'lessons' | 'session',
@@ -163,7 +160,7 @@ export default function App() {
         setAuthProfile(profile);
       }
       if (event === 'SIGNED_IN' && profile) {
-        setUiNotice('התחברת בהצלחה עם Google. מסנכרנת שיעורים...');
+        setUiNotice('ההתחברות עם Google הצליחה. מסנכרנים שיעורים...');
         upsertProfile(profile);
         mergeCloudOnLogin();
       }
@@ -243,7 +240,7 @@ export default function App() {
   const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
     if (!isAuthenticated) {
       navigateTo(screen === 'session' ? 'builder' : screen, { lesson: null });
-      setUiNotice('התחברי עם Google כדי לפתוח את סביבת העבודה המלאה: builder, ספריית שיעורים, תבניות וסנכרון.');
+      setUiNotice('יש להתחבר עם Google כדי לפתוח את סביבת העבודה המלאה: builder, ספריית שיעורים, תבניות וסנכרון.');
       return;
     }
     navigateTo(screen);
@@ -294,7 +291,7 @@ export default function App() {
     setAuthProfile(null);
     setCloudStatus('idle');
     navigateTo('home', { replace: true, lesson: null, editingLesson: null });
-    setUiNotice('התנתקת בהצלחה.');
+    setUiNotice('ההתנתקות הושלמה.');
   };
 
   // Save lessons to localStorage on updates
@@ -304,7 +301,7 @@ export default function App() {
       writeLessons(updatedLessons);
     } catch (e) {
       console.warn('Failed to write to localStorage', e);
-      setUiNotice('שמירת השיעור נכשלה במכשיר הזה (יתכן שאין מספיק מקום אחסון). נסי לגבות לקובץ.');
+      setUiNotice('שמירת השיעור נכשלה במכשיר הזה (ייתכן שאין מספיק מקום אחסון). מומלץ לגבות לקובץ.');
     }
   };
 
@@ -464,8 +461,8 @@ export default function App() {
           {/* User & Action area */}
           <div className="flex items-center gap-3 sm:gap-5">
             {authProfile ? (
-              <div className="hidden sm:flex items-center gap-3">
-                <div className="text-right">
+              <div className="flex items-center gap-3">
+                <div className="text-right hidden sm:block">
                   <div className="text-sm text-on-surface font-semibold leading-tight">{authProfile.name}</div>
                 </div>
                 <button
@@ -479,21 +476,32 @@ export default function App() {
                     <User className="w-5 h-5 mx-auto text-secondary" />
                   )}
                 </button>
-                <button onClick={handleLogout} className="text-xs text-on-surface-variant hover:text-secondary transition-colors">
+                <button onClick={handleLogout} className="hidden sm:block text-xs text-on-surface-variant hover:text-secondary transition-colors">
                   יציאה
                 </button>
               </div>
             ) : (
-              <Button
-                onClick={handleGoogleLogin}
-                variant="outline"
-                size="sm"
-                latin
-                className="hidden sm:inline-flex"
-              >
-                <LogIn className="w-4 h-4" />
-                Google
-              </Button>
+              <>
+                {/* span wrappers: Button's own inline-flex would fight a
+                    responsive `hidden` utility placed directly on it. */}
+                <span className="hidden sm:block">
+                  <Button onClick={handleGoogleLogin} variant="outline" size="sm" latin>
+                    <LogIn className="w-4 h-4" />
+                    Google
+                  </Button>
+                </span>
+                <span className="sm:hidden">
+                  <Button
+                    onClick={handleGoogleLogin}
+                    variant="outline"
+                    size="icon-sm"
+                    aria-label="התחברות עם Google"
+                    title="התחברות עם Google"
+                  >
+                    <LogIn className="w-4 h-4" />
+                  </Button>
+                </span>
+              </>
             )}
 
             <Button
@@ -506,57 +514,49 @@ export default function App() {
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </Button>
 
-            {/* Mobile burger toggle */}
-            <button 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-on-surface-variant hover:text-on-surface transition-colors"
-            >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
 
         </div>
       </header>
 
-      {/* Mobile Drawer Navigation */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-x-0 top-[68px] sm:top-[72px] z-40 bg-background border-b border-outline/20 p-5 sm:p-6 flex flex-col gap-4 lg:hidden shadow-2xl"
-          >
-            <button
-              onClick={() => { navigateTo('library', { editingLesson: null }); setIsMobileMenuOpen(false); }}
-              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'library' ? 'text-secondary' : 'text-on-surface'}`}
-            >
-              מאגר תרגילים
-            </button>
-            <button
-              onClick={() => { setEditingLesson(null); setIsMobileMenuOpen(false); goToProtected('builder'); }}
-              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'builder' ? 'text-secondary' : 'text-on-surface'}`}
-            >
-              בניית שיעור
-            </button>
-            <button
-              onClick={() => { setEditingLesson(null); setIsMobileMenuOpen(false); goToProtected('lessons'); }}
-              className={`text-right py-2 text-base font-semibold border-b border-white/5 ${activeScreen === 'lessons' ? 'text-secondary' : 'text-on-surface'}`}
-            >
-              השיעורים שלי
-            </button>
-            <button
-              onClick={() => { setIsMobileMenuOpen(false); authProfile ? handleLogout() : handleGoogleLogin(); }}
-              className="mt-2 w-full text-center py-3 border border-secondary text-secondary font-bold text-sm tracking-widest uppercase"
-            >
-              {authProfile ? 'יציאה' : 'התחברות Google'}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile Bottom Navigation — replaces the burger drawer with an
+          app-like, always-visible bar. Hidden on lg where the top nav exists. */}
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-background/90 backdrop-blur-md border-t border-outline/20 pb-[env(safe-area-inset-bottom)]">
+        <div className="grid grid-cols-4">
+          {([
+            { key: 'home', label: 'בית', icon: Compass, action: () => navigateTo('home', { editingLesson: null }) },
+            { key: 'library', label: 'מאגר', icon: BookOpen, action: () => navigateTo('library', { editingLesson: null }) },
+            { key: 'builder', label: 'בנייה', icon: Sliders, action: () => { setEditingLesson(null); goToProtected('builder'); } },
+            { key: 'lessons', label: 'שיעורים', icon: FolderHeart, action: () => { setEditingLesson(null); goToProtected('lessons'); } },
+          ] as const).map((item) => {
+            const isActive = activeScreen === item.key || (item.key === 'lessons' && activeScreen === 'session');
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.key}
+                onClick={item.action}
+                className="relative flex flex-col items-center gap-1 py-2.5 min-h-[56px] justify-center"
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="bottom-nav-pill"
+                    className="absolute top-1.5 h-7 w-12 rounded-full bg-secondary/15"
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <Icon className={`relative w-5 h-5 transition-colors ${isActive ? 'text-secondary' : 'text-on-surface-variant'}`} />
+                <span className={`relative text-[11px] font-semibold transition-colors ${isActive ? 'text-secondary' : 'text-on-surface-variant'}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* MAIN SCREEN ROUTING */}
-      <main className="flex-grow pt-28 pb-16">
+      <main className="flex-grow pt-28 pb-28 lg:pb-16">
         {uiNotice && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20 mb-4">
             <div className="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3 text-sm text-on-surface flex items-center justify-between gap-3">
@@ -572,44 +572,70 @@ export default function App() {
             
             {/* Hero Section */}
             <section className="relative min-h-[92vh] flex items-center overflow-hidden -mt-28">
-              <div 
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
-                style={{ 
-                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXAl95YHGH-F5kaLMkqTA2daHzOPPxSWIjprKasVFV01N8WYnOJtlN-QYeor3aB_es0L7bnVl-wEs-KVDtdPVmeSB3r4LDir4QfKITEwX9HSWi098cE6tsYIpQP2F6y32FNOYKiFiJwCJaMCPmWIsTKSjQ_DwXlellyOgcMfD97uXssrdFghEIf_aFZHCatZIchk_QZUCsNDilfet9-rMsH0qR8dwja8ia5-yPU2WOvU1XhRhq1ddPovidpJtwvzUp7QQR6drYsEtjU')" 
+              <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat hero-zoom"
+                style={{
+                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXAl95YHGH-F5kaLMkqTA2daHzOPPxSWIjprKasVFV01N8WYnOJtlN-QYeor3aB_es0L7bnVl-wEs-KVDtdPVmeSB3r4LDir4QfKITEwX9HSWi098cE6tsYIpQP2F6y32FNOYKiFiJwCJaMCPmWIsTKSjQ_DwXlellyOgcMfD97uXssrdFghEIf_aFZHCatZIchk_QZUCsNDilfet9-rMsH0qR8dwja8ia5-yPU2WOvU1XhRhq1ddPovidpJtwvzUp7QQR6drYsEtjU')"
                 }}
               />
               <div className="absolute inset-0 hero-overlay" />
-              <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
+              <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-secondary/15 rounded-full blur-[130px] pointer-events-none breathe" />
+              <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-tertiary/20 rounded-full blur-[110px] pointer-events-none breathe-slow" />
 
               <div className="relative z-10 max-w-[1280px] mx-auto w-full px-6 md:px-20 pt-32 md:pt-36 pb-16 md:pb-20 grid lg:grid-cols-[1.2fr_0.8fr] gap-8 md:gap-10 items-center">
                 <div className="max-w-[760px]">
-                  <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 border border-secondary/30 bg-surface-container backdrop-blur-sm">
+                  <motion.div
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-secondary/30 bg-surface-container/80 backdrop-blur-sm"
+                  >
                     <span className="uppercase tracking-[0.3em] text-secondary text-xs md:text-sm font-semibold">
                       פילאטיס ותנועה
                     </span>
-                  </div>
+                  </motion.div>
 
-                  <h1 className="serif-text text-4xl md:text-7xl lg:text-8xl font-black text-on-surface leading-tight mb-6 md:mb-8">
-                    בוני שיעורי פילאטיס
+                  <motion.h1
+                    initial={{ opacity: 0, y: 26 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+                    className="serif-text text-4xl md:text-7xl lg:text-8xl font-black text-on-surface leading-tight mb-6 md:mb-8"
+                  >
+                    שיעורי פילאטיס
                     <span className="brand-gradient block">מקצועיים תוך דקות</span>
-                  </h1>
+                  </motion.h1>
 
-                  <p className="text-base md:text-2xl text-on-surface max-w-[700px] mb-5 md:mb-6 leading-relaxed">
-                    מוצר עבודה למאמנות פילאטיס שרוצות לבנות שיעורים מהר יותר, לשמור מערכים מסודרים, וללמד עם יותר ביטחון ופחות בלגן.
-                  </p>
+                  <motion.p
+                    initial={{ opacity: 0, y: 22 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-base md:text-2xl text-on-surface max-w-[700px] mb-5 md:mb-6 leading-relaxed"
+                  >
+                    כלי עבודה למדריכות ומדריכי פילאטיס: בניית שיעורים מהירה, מערכים מסודרים, והוראה עם יותר ביטחון ופחות בלגן.
+                  </motion.p>
 
-                  <p className="text-sm md:text-lg text-on-surface-variant max-w-[680px] mb-8 md:mb-10 leading-relaxed">
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-sm md:text-lg text-on-surface-variant max-w-[680px] mb-8 md:mb-10 leading-relaxed"
+                  >
                     מאגר של 255 תרגילים, builder חכם, ספריית שיעורים, שיתוף מהיר ומצב הדרכה חי — הכל במקום אחד.
-                  </p>
+                  </motion.p>
 
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 w-full sm:w-auto">
+                  <motion.div
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 w-full sm:w-auto"
+                  >
                     <Button
                       size="lg"
                       variant="primary"
                       onClick={() => goToProtected('builder')}
                       className="min-w-[240px] w-full sm:w-auto group"
                     >
-                      התחילי לבנות שיעור
+                      להתחיל לבנות שיעור
                       <ChevronLeft className="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" />
                     </Button>
                     <Button
@@ -618,43 +644,53 @@ export default function App() {
                       onClick={() => navigateTo('library')}
                       className="min-w-[220px] w-full sm:w-auto border-outline/40 text-on-surface hover:bg-surface-container-high hover:border-outline"
                     >
-                      צפי במאגר התרגילים
+                      לצפייה במאגר התרגילים
                     </Button>
-                  </div>
+                  </motion.div>
 
-                  <div className="flex flex-wrap gap-6 text-sm text-on-surface">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1, delay: 0.62 }}
+                    className="flex flex-wrap gap-6 text-sm text-on-surface"
+                  >
                     <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> בניית שיעור לפי מטרה, רמה ומשך</div>
                     <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> ספריית שיעורים פרטית</div>
                     <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> שיתוף, הדפסה ו־teach mode</div>
-                  </div>
+                  </motion.div>
                 </div>
 
-                <div className="grid gap-4">
-                  <div className="rounded-3xl border border-outline/20 bg-surface-container backdrop-blur-md p-6 md:p-7 shadow-2xl">
-                    <div className="text-xs uppercase tracking-[0.25em] text-secondary mb-3">למה משלמים על זה</div>
+                <motion.div
+                  initial={{ opacity: 0, y: 32 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                  className="grid gap-4"
+                >
+                  <div className="rounded-3xl border border-outline/20 bg-surface-container/90 backdrop-blur-md p-6 md:p-7 shadow-2xl">
+                    <div className="text-xs uppercase tracking-[0.25em] text-secondary mb-3">למה זה שווה את הזמן</div>
                     <h3 className="serif-text text-2xl text-on-surface font-bold mb-4">פחות זמן תכנון. יותר מקצועיות מול הלקוחות.</h3>
                     <div className="space-y-4 text-sm text-on-surface-variant">
-                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>בני שיעור חדש תוך דקות במקום להתחיל כל פעם מדף ריק.</p></div>
-                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>שמרי תבניות ומערכים לשימוש חוזר לפי רמות, ציוד וקבוצות.</p></div>
-                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>הגיעי לשיעור עם flow ברור, notes, ושיתוף מיידי כשצריך.</p></div>
+                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>שיעור חדש נבנה תוך דקות במקום להתחיל כל פעם מדף ריק.</p></div>
+                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>תבניות ומערכים נשמרים לשימוש חוזר לפי רמות, ציוד וקבוצות.</p></div>
+                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>מגיעים לשיעור עם flow ברור, דגשי הדרכה ושיתוף מיידי כשצריך.</p></div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5">
+                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5 lift">
                       <div className="text-3xl font-black text-secondary mb-2">3 דק'</div>
                       <div className="text-sm text-on-surface">לבניית שלד שיעור מקצועי</div>
                     </div>
-                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5">
+                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5 lift">
                       <div className="text-3xl font-black text-secondary mb-2">1 מקום</div>
                       <div className="text-sm text-on-surface">לתרגילים, מערכים ושיתוף</div>
                     </div>
-                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5">
+                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5 lift">
                       <div className="text-3xl font-black text-secondary mb-2">255</div>
                       <div className="text-sm text-on-surface">תרגילים מקצועיים במאגר</div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
 
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
@@ -669,84 +705,92 @@ export default function App() {
               </div>
 
               <div className="max-w-[1280px] mx-auto">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-                  <div className="max-w-[760px]">
-                    <h2 className="serif-text text-4xl md:text-5xl font-bold text-on-surface mb-6">מה מאמנת באמת מקבלת פה</h2>
-                    <p className="text-on-surface-variant text-lg leading-relaxed">
-                      לא עוד קטלוג תרגילים. סביבת עבודה מלאה לבנייה, שמירה, התאמה והעברה של שיעורי פילאטיס ברמה מקצועית.
-                    </p>
+                <Reveal>
+                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+                    <div className="max-w-[760px]">
+                      <h2 className="serif-text text-4xl md:text-5xl font-bold text-on-surface mb-6">מה מקבלים כאן באמת</h2>
+                      <p className="text-on-surface-variant text-lg leading-relaxed">
+                        לא עוד קטלוג תרגילים. סביבת עבודה מלאה לבנייה, שמירה, התאמה והעברה של שיעורי פילאטיס ברמה מקצועית.
+                      </p>
+                    </div>
+                    <div className="w-24 h-[2px] bg-secondary hidden md:block" />
                   </div>
-                  <div className="w-24 h-[2px] bg-secondary hidden md:block" />
-                </div>
+                </Reveal>
 
                 {/* Features Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  
+
                   {/* Feature 1: Exercise Database */}
-                  <div 
-                    onClick={() => setActiveScreen('library')}
-                    className="group p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer"
-                  >
-                    <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                    
-                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
-                      <BookOpen className="w-7 h-7" />
+                  <Reveal delay={0}>
+                    <div
+                      onClick={() => setActiveScreen('library')}
+                      className="group h-full p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
+                    >
+                      <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
+                        <BookOpen className="w-7 h-7" />
+                      </div>
+
+                      <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">מאגר תרגילים</h3>
+                      <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
+                        חיפוש מהיר בתרגילים לפי רמה, ציוד ומטרה - כדי להתחיל כל שיעור עם בסיס חכם ולא מאלתור.
+                      </p>
+
+                      <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
+                        לגלות את המאגר
+                        <ChevronLeft className="w-4 h-4" />
+                      </span>
                     </div>
-                    
-                    <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">מאגר תרגילים</h3>
-                    <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
-                      חיפוש מהיר בתרגילים לפי רמה, ציוד ומטרה - כדי להתחיל מכל שיעור עם בסיס חכם ולא מאלתור.
-                    </p>
-                    
-                    <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
-                      גלי עכשיו
-                      <ChevronLeft className="w-4 h-4" />
-                    </span>
-                  </div>
+                  </Reveal>
 
                   {/* Feature 2: Lesson Builder */}
-                  <div 
-                    onClick={() => goToProtected('builder')}
-                    className="group p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer rounded-3xl"
-                  >
-                    <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                    
-                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
-                      <Sliders className="w-7 h-7" />
+                  <Reveal delay={0.12}>
+                    <div
+                      onClick={() => goToProtected('builder')}
+                      className="group h-full p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
+                    >
+                      <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
+                        <Sliders className="w-7 h-7" />
+                      </div>
+
+                      <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">בניית שיעור</h3>
+                      <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
+                        תכנון שיעור זורם ומקצועי בדקות ספורות בעזרת ממשק בנייה חכם ואינטואיטיבי.
+                      </p>
+
+                      <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
+                        להתחיל לבנות
+                        <ChevronLeft className="w-4 h-4" />
+                      </span>
                     </div>
-                    
-                    <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">בניית שיעור</h3>
-                    <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
-                      תכנון שיעור זורם ומקצועי בדקות ספורות בעזרת ממשק Drag &amp; Drop חכם ואינטואיטיבי.
-                    </p>
-                    
-                    <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
-                      התחילי לבנות
-                      <ChevronLeft className="w-4 h-4" />
-                    </span>
-                  </div>
+                  </Reveal>
 
                   {/* Feature 3: My Lessons */}
-                  <div 
-                    onClick={() => goToProtected('lessons')}
-                    className="group p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 transition-all duration-500 relative overflow-hidden cursor-pointer rounded-3xl"
-                  >
-                    <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                    
-                    <div className="mb-8 w-14 h-14 flex items-center justify-center bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
-                      <FolderHeart className="w-7 h-7" />
+                  <Reveal delay={0.24}>
+                    <div
+                      onClick={() => goToProtected('lessons')}
+                      className="group h-full p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
+                    >
+                      <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
+                        <FolderHeart className="w-7 h-7" />
+                      </div>
+
+                      <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">השיעורים שלי</h3>
+                      <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
+                        ספריית מערכים פרטית לשכפול, התאמה ושימוש חוזר - כדי שכל שיעור חדש יתחיל חצי מוכן.
+                      </p>
+
+                      <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
+                        לספרייה שלי
+                        <ChevronLeft className="w-4 h-4" />
+                      </span>
                     </div>
-                    
-                    <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">השיעורים שלי</h3>
-                    <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
-                      ספריית מערכים פרטית לשכפול, התאמה ושימוש חוזר - כדי שכל שיעור חדש יתחיל חצי מוכן.
-                    </p>
-                    
-                    <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
-                      לספרייה שלי
-                      <ChevronLeft className="w-4 h-4" />
-                    </span>
-                  </div>
+                  </Reveal>
 
                 </div>
               </div>
@@ -754,17 +798,21 @@ export default function App() {
 
             {/* Parallax Quote Split Image Section */}
             <div className="w-full h-[400px] relative overflow-hidden">
-              <div 
-                className="absolute inset-0 bg-fixed bg-center bg-cover"
-                style={{ 
-                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD6dNJiCrMADWX-EfAYPTzxMFTn8lgZAVN0UeaBy-bUrJVTOMmZPsoKWeTbpi-QJ3Ymuy1QHeQROS-BWFhvdPYpLbkyJEl0JT_Ilko4409ILnfCigRAvtGjHTkXxad3bMOPfKs54I-Cmo33BT5CyG8XhFQVjOpjN3b3YZfoTp48Q0mM9QDAdPrROijdtYhN3aSYqaZLtWA1kUfa2WNGz9rgIQ1Lqhv5SWPposQIltcxriQ5V9eRslUAORKnRAfCpFzkEwLsonCTwK8')" 
+              {/* bg-fixed only from md up — mobile Safari/Chrome don't support
+                  fixed backgrounds and render a broken, oversized image. */}
+              <div
+                className="absolute inset-0 md:bg-fixed bg-center bg-cover"
+                style={{
+                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD6dNJiCrMADWX-EfAYPTzxMFTn8lgZAVN0UeaBy-bUrJVTOMmZPsoKWeTbpi-QJ3Ymuy1QHeQROS-BWFhvdPYpLbkyJEl0JT_Ilko4409ILnfCigRAvtGjHTkXxad3bMOPfKs54I-Cmo33BT5CyG8XhFQVjOpjN3b3YZfoTp48Q0mM9QDAdPrROijdtYhN3aSYqaZLtWA1kUfa2WNGz9rgIQ1Lqhv5SWPposQIltcxriQ5V9eRslUAORKnRAfCpFzkEwLsonCTwK8')"
                 }}
               />
               <div className="absolute inset-0 bg-background/60" />
               <div className="absolute inset-0 flex items-center justify-center px-6">
-                <h3 className="serif-text text-2xl md:text-5xl text-on-surface font-black text-center tracking-wide italic leading-normal max-w-4xl">
-                  "כשמערך השיעור ברור, גם ההוראה נראית אחרת."
-                </h3>
+                <Reveal>
+                  <h3 className="serif-text text-2xl md:text-5xl text-on-surface font-black text-center tracking-wide italic leading-normal max-w-4xl">
+                    "כשמערך השיעור ברור, גם ההוראה נראית אחרת."
+                  </h3>
+                </Reveal>
               </div>
             </div>
 
@@ -773,7 +821,7 @@ export default function App() {
             <section className="py-24 bg-surface px-6 md:px-20">
               <div className="max-w-[1280px] mx-auto">
                 <div className="max-w-[760px] mb-14">
-                  <h2 className="serif-text text-4xl md:text-5xl font-bold text-on-surface mb-6">מודל מנוי שמתאים למאמנות פילאטיס</h2>
+                  <h2 className="serif-text text-4xl md:text-5xl font-bold text-on-surface mb-6">מודל מנוי שמתאים למדריכות ומדריכי פילאטיס</h2>
                   <p className="text-on-surface-variant text-lg leading-relaxed">
                     המוצר הזה בנוי להיות כלי עבודה קבוע, לא שימוש חד-פעמי. לכן המסגור הנכון הוא מנוי חודשי שמחזיר את עצמו בזמן תכנון, סדר מקצועי ושימוש חוזר חכם במערכים.
                   </p>
@@ -783,7 +831,7 @@ export default function App() {
                   <div className="rounded-3xl border border-outline/30 bg-surface-container p-8">
                     <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">מסלול התחלה</div>
                     <div className="text-on-surface text-3xl font-black mb-2">₪79<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
-                    <p className="text-sm text-on-surface-variant mb-6">למאמנת עצמאית שרוצה builder, ספריית שיעורים ותבניות.</p>
+                    <p className="text-sm text-on-surface-variant mb-6">למי שעובד באופן עצמאי ורוצה builder, ספריית שיעורים ותבניות.</p>
                     <div className="space-y-3 text-sm text-on-surface-variant mb-8">
                       <div>• בניית שיעורים ללא הגבלה</div>
                       <div>• שמירת מערכים ותבניות</div>
@@ -796,7 +844,7 @@ export default function App() {
                     <div className="absolute top-4 left-4 rounded-full bg-secondary text-on-secondary text-[11px] font-bold px-3 py-1">מומלץ</div>
                     <div className="text-xs tracking-[0.2em] text-secondary mb-3">מסלול מקצועי</div>
                     <div className="text-on-surface text-4xl font-black mb-2">₪149<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
-                    <p className="text-sm text-on-surface-variant mb-6">למאמנות פעילות שרוצות שהמערכת תהיה סביבת העבודה המרכזית שלהן.</p>
+                    <p className="text-sm text-on-surface-variant mb-6">למי שמלמד באופן קבוע ורוצה שהמערכת תהיה סביבת העבודה המרכזית.</p>
                     <div className="space-y-3 text-sm text-on-surface-variant mb-8">
                       <div>• כל מה שבמסלול ההתחלה</div>
                       <div>• סנכרון מלא לענן</div>
@@ -809,9 +857,9 @@ export default function App() {
                   <div className="rounded-3xl border border-outline/30 bg-surface-container p-8">
                     <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">לסטודיו</div>
                     <div className="text-on-surface text-3xl font-black mb-2">מותאם אישית</div>
-                    <p className="text-sm text-on-surface-variant mb-6">לסטודיו עם כמה מדריכות, ספריית תוכן משותפת ו־workflow צוותי.</p>
+                    <p className="text-sm text-on-surface-variant mb-6">לסטודיו עם כמה מדריכות ומדריכים, ספריית תוכן משותפת ו־workflow צוותי.</p>
                     <div className="space-y-3 text-sm text-on-surface-variant mb-8">
-                      <div>• מספר משתמשות</div>
+                      <div>• ריבוי משתמשים</div>
                       <div>• ספריית סטודיו משותפת</div>
                       <div>• onboarding והטמעה</div>
                     </div>
@@ -824,35 +872,40 @@ export default function App() {
 
             {/* Final Call to Action with Live Counter Stats */}
             <section className="py-24 relative overflow-hidden bg-background">
-              <div className="max-w-[800px] mx-auto px-6 text-center">
-                <h2 className="serif-text text-4xl md:text-6xl font-bold text-on-surface mb-6">מוכנה לבנות את השיעור הבא שלך?</h2>
-                <p className="text-on-surface-variant text-lg md:text-xl mb-12 font-light">
-                  התחילי מהמאגר הפתוח, הרכיבי מערך משלך ב-builder, ולמדי אותו במצב הדרכה חי — הכל במקום אחד.
-                </p>
-                
-                <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14">
-                  <div className="flex flex-col items-center">
-                    <span className="text-secondary text-5xl font-black mb-2">חיסכון</span>
-                    <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">בזמן תכנון</span>
+              <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-secondary/10 rounded-full blur-[130px] pointer-events-none breathe" />
+              <div className="max-w-[800px] mx-auto px-6 text-center relative">
+                <Reveal>
+                  <h2 className="serif-text text-4xl md:text-6xl font-bold text-on-surface mb-6">מוכנים לבנות את השיעור הבא?</h2>
+                  <p className="text-on-surface-variant text-lg md:text-xl mb-12 font-light">
+                    מתחילים מהמאגר הפתוח, מרכיבים מערך אישי ב-builder, ומלמדים אותו במצב הדרכה חי — הכל במקום אחד.
+                  </p>
+                </Reveal>
+
+                <Reveal delay={0.15}>
+                  <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14">
+                    <div className="flex flex-col items-center">
+                      <span className="text-secondary text-5xl font-black mb-2">חיסכון</span>
+                      <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">בזמן תכנון</span>
+                    </div>
+
+                    <div className="w-[1px] h-12 bg-outline/30 hidden md:block" />
+
+                    <div className="flex flex-col items-center">
+                      <span className="text-secondary text-5xl font-black mb-2">סדר</span>
+                      <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">במערכים ובתבניות</span>
+                    </div>
+
+                    <div className="w-[1px] h-12 bg-outline/30 hidden md:block" />
+
+                    <Button
+                      size="lg"
+                      variant="primary"
+                      onClick={() => goToProtected('builder')}
+                    >
+                      להתחיל לבנות
+                    </Button>
                   </div>
-                  
-                  <div className="w-[1px] h-12 bg-outline/30 hidden md:block" />
-                  
-                  <div className="flex flex-col items-center">
-                    <span className="text-secondary text-5xl font-black mb-2">סדר</span>
-                    <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">במערכים ובתבניות</span>
-                  </div>
-                  
-                  <div className="w-[1px] h-12 bg-outline/30 hidden md:block" />
-                  
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    onClick={() => goToProtected('builder')}
-                  >
-                    התחילי לבנות
-                  </Button>
-                </div>
+                </Reveal>
               </div>
             </section>
 
@@ -941,7 +994,7 @@ export default function App() {
           </div>
           
           <p className="text-on-surface-variant text-sm text-center">
-            © 2026 פילאטיס ותנועה. כל הזכויות שמורות למרחב העבודה של מדריכות הפילאטיס שלך.
+            © 2026 פילאטיס ותנועה. מרחב העבודה של מדריכות ומדריכי פילאטיס.
           </p>
           
           {/* Social icons */}
@@ -964,6 +1017,22 @@ export default function App() {
   );
 }
 
+// Soft scroll-reveal wrapper: content floats up and fades in the first time it
+// enters the viewport. `delay` staggers siblings for a breathing rhythm.
+function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
   return (
     <div className="min-h-[60vh] flex items-center justify-center py-8">
@@ -974,11 +1043,11 @@ function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
               <LogIn className="w-8 h-8" />
             </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[11px] tracking-[0.2em] text-secondary mb-4">
-              סביבת עבודה למאמנות
+              סביבת עבודה מקצועית
             </div>
             <h2 className="serif-text text-3xl md:text-4xl font-bold text-on-surface mb-4">האזור הזה נפתח אחרי התחברות</h2>
             <p className="text-on-surface-variant leading-relaxed mb-6">
-              מאגר התרגילים פתוח לצפייה חופשית. Builder, ספריית השיעורים, תבניות והסנכרון לענן מיועדים למאמנות שמנהלות פה את כל סביבת העבודה שלהן.
+              מאגר התרגילים פתוח לצפייה חופשית. ה-builder, ספריית השיעורים, התבניות והסנכרון לענן נפתחים אחרי התחברות — למי שמנהל כאן את סביבת העבודה.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button onClick={onGoogleLogin} size="md" variant="primary" className="w-full sm:w-auto">

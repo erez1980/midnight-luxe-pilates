@@ -124,7 +124,7 @@ export default function ExerciseLibrary({
             <div>
               <h2 className="serif-text text-3xl md:text-5xl font-bold text-on-surface mb-4">מאגר תרגילים מקצועי</h2>
               <p className="text-on-surface-variant text-lg max-w-3xl leading-relaxed">
-                ספריית עבודה למאמנות פילאטיס: חפשי לפי ציוד, רמה, מטרה וקטגוריה, וצאי מכל חיפוש עם תרגילים שבאמת מתאימים לשיעור הבא שלך.
+                ספריית עבודה למדריכות ומדריכי פילאטיס: חיפוש לפי ציוד, רמה, מטרה וקטגוריה — ומכל חיפוש יוצאים עם תרגילים שבאמת מתאימים לשיעור הבא.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 min-w-[260px]">
@@ -151,7 +151,7 @@ export default function ExerciseLibrary({
             <input
               id="exercise-search"
               type="text"
-              placeholder="חפשי לפי שם תרגיל או קבוצת שרירים..."
+              placeholder="חיפוש לפי שם תרגיל או קבוצת שרירים..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-background border border-outline/40 pr-12 pl-4 py-3 text-on-surface text-sm rounded-2xl focus:outline-none focus:border-secondary transition-colors"
@@ -249,7 +249,7 @@ export default function ExerciseLibrary({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
-                className="group border border-outline/20 bg-surface-container hover:border-secondary/30 transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
+                className="group rounded-3xl border border-outline/20 bg-surface-container hover:border-secondary/30 lift hover:shadow-xl flex flex-col justify-between relative overflow-hidden"
               >
                 <button
                   type="button"
@@ -262,7 +262,7 @@ export default function ExerciseLibrary({
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="rounded-full bg-surface-container p-3 text-on-surface border border-outline/20">
                       <PlayCircle className="w-8 h-8" />
@@ -313,7 +313,7 @@ export default function ExerciseLibrary({
                 </div>
 
                 {/* Bottom Row Controls */}
-                <div className="pt-4 border-t border-outline/20 flex justify-between items-center mt-auto">
+                <div className="px-6 pb-5 pt-4 border-t border-outline/20 flex justify-between items-center mt-auto">
                   <button
                     onClick={() => setSelectedExercise(exercise)}
                     className="text-on-surface-variant hover:text-on-surface text-xs flex items-center gap-1.5 transition-colors"
@@ -339,7 +339,7 @@ export default function ExerciseLibrary({
                       ) : (
                         <>
                           <Plus className="w-3.5 h-3.5" />
-                          הוסיפי לשיעור
+                          הוספה לשיעור
                         </>
                       )}
                     </button>
@@ -354,7 +354,7 @@ export default function ExerciseLibrary({
           <div className="col-span-full py-16 text-center border border-dashed border-outline/30 rounded-3xl bg-surface-container">
             <Activity className="w-10 h-10 text-secondary/30 mx-auto mb-4" />
             <p className="text-on-surface text-lg font-medium mb-1">לא נמצאו תרגילים תואמים</p>
-            <p className="text-on-surface-variant text-sm mb-5">נסי לפתוח את החיפוש, להסיר פילטר אחד, או לעבור לקטגוריה אחרת כדי למצוא flow מתאים.</p>
+            <p className="text-on-surface-variant text-sm mb-5">אפשר לפתוח את החיפוש, להסיר פילטר אחד, או לעבור לקטגוריה אחרת כדי למצוא flow מתאים.</p>
             <button
               type="button"
               onClick={() => {
@@ -423,7 +423,7 @@ export default function ExerciseLibrary({
                       alt={`${selectedExercise.name} cover`}
                       className="absolute inset-0 w-full h-full object-cover opacity-85"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                     <div className="absolute bottom-5 right-5 rounded-2xl border border-outline/20 bg-surface-container px-4 py-3 text-sm text-on-surface backdrop-blur-sm">
                       לתרגיל הזה עדיין אין וידאו מוטמע מאומת. רצף השלבים המלא מוצג למטה.
                     </div>
@@ -542,7 +542,7 @@ export default function ExerciseLibrary({
                       ) : (
                         <>
                           <Plus className="w-4 h-4" />
-                          הוסיפי לשיעור עכשיו
+                          הוספה לשיעור עכשיו
                         </>
                       )}
                     </button>
