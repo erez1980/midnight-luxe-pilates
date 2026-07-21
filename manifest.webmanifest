@@ -1,0 +1,17 @@
+{
+  "name": "פילאטיס ותנועה — בניית שיעורי פילאטיס",
+  "short_name": "פילאטיס ותנועה",
+  "description": "בניית שיעורי פילאטיס מקצועיים: מאגר תרגילים, builder חכם, ספריית שיעורים ומצב הדרכה חי.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2eee3",
+  "theme_color": "#7f9271",
+  "icons": [
+    { "src": "./pwa-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./pwa-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./pwa-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
