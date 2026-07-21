@@ -116,3 +116,70 @@ create policy profiles_update_own on public.profiles
 The upsert runs on every sign-in (`src/utils/profile.ts`), so `last_seen_at`
 doubles as a lightweight active-user signal and the name/avatar stay current.
 It is best-effort — a failure logs a warning and never blocks sign-in.
+
+## Billing readiness — Phase 1 (customer details + subscriptions)
+
+תשתית הנתונים לקראת מודל בתשלום: הרחבת `profiles` בפרטים עסקיים שנאספים
+בטופס השלמת פרופיל, טבלת `subscriptions` (כולם נכנסים כ-free), וטבלת
+`payments` להיסטוריית חיובים (כתיבה אליה תגיע רק מ-Edge Function בשלב 2).
+הרץ פעם אחת ב-SQL Editor:
+
+```sql
+-- 1. Extra customer fields collected by the in-app profile-setup form.
+alter table public.profiles
+  add column if not exists phone text,
+  add column if not exists studio_name text,
+  add column if not exists business_type text,
+  add column if not exists business_id text,
+  add column if not exists marketing_opt_in boolean not null default false,
+  add column if not exists onboarding_completed_at timestamptz;
+
+-- 2. One subscription row per user. The client may only self-enroll as
+--    'free' — paid plans will be written exclusively by a service-role
+--    Edge Function (bypasses RLS) once a payment provider is connected,
+--    so a user cannot upgrade themselves through the public API.
+create table if not exists public.subscriptions (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  plan text not null default 'free',
+  status text not null default 'active',
+  provider text,
+  provider_customer_id text,
+  provider_subscription_id text,
+  current_period_end timestamptz,
+  trial_ends_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.subscriptions enable row level security;
+
+create policy subscriptions_select_own on public.subscriptions
+  for select using (auth.uid() = user_id);
+create policy subscriptions_insert_free_own on public.subscriptions
+  for insert with check (auth.uid() = user_id and plan = 'free');
+-- Deliberately no user update/delete policies: plan changes are server-side only.
+
+-- 3. Payment history. Read-only for users; rows are inserted only by the
+--    payment webhook (service role) in Phase 2.
+create table if not exists public.payments (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  plan text,
+  amount_agorot integer not null,
+  currency text not null default 'ILS',
+  status text not null,
+  provider text,
+  provider_payment_id text,
+  invoice_url text,
+  paid_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+alter table public.payments enable row level security;
+
+create policy payments_select_own on public.payments
+  for select using (auth.uid() = user_id);
+```
+
+ניהול לקוחות בשלב הזה נעשה ישירות מ-Supabase Dashboard (Table Editor על
+`profiles` + `subscriptions`) — אין צורך בממשק אדמין נפרד.

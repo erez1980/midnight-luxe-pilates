@@ -29,7 +29,9 @@ import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, importLessonsBu
 import { pullCloudLessons, pushCloudLessons, createSharedLesson, fetchSharedLesson } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
 import { AuthProfile, getAuthProfile, listenToAuthChanges, signInWithGoogle, signOut } from './utils/auth';
-import { upsertProfile } from './utils/profile';
+import { ProfileDetails, fetchProfileDetails, upsertProfile } from './utils/profile';
+import { Subscription, FREE_SUBSCRIPTION, ensureSubscription, fetchSubscription } from './utils/subscription';
+import ProfileSetup from './components/ProfileSetup';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './components/ui/Button';
 
@@ -57,6 +59,11 @@ export default function App() {
   const [cloudStatus, setCloudStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
   const [hydrated, setHydrated] = useState(false);
   const [uiNotice, setUiNotice] = useState('');
+  // Customer-management state (billing readiness Phase 1): profile details
+  // collected by the one-time setup form, and the user's subscription row.
+  const [profileDetails, setProfileDetails] = useState<ProfileDetails | null>(null);
+  const [profileSetupOpen, setProfileSetupOpen] = useState(false);
+  const [subscription, setSubscription] = useState<Subscription>(FREE_SUBSCRIPTION);
   // PWA install: browsers fire beforeinstallprompt when the app qualifies for
   // installation; stashing the event lets us show our own "התקנה" button.
   const [installPrompt, setInstallPrompt] = useState<{ prompt: () => void; userChoice: Promise<unknown> } | null>(null);
@@ -162,11 +169,28 @@ export default function App() {
     })();
   }, []);
 
+  // Runs after every confirmed sign-in: enrolls the user on the free plan
+  // (no-op if they already have a subscription row), loads their saved
+  // profile details, and opens the one-time setup form if it was never
+  // completed. Details fetch failing (or Supabase disabled) skips the form —
+  // it must never appear when saving would be impossible.
+  const bootstrapCustomer = async (profile: AuthProfile) => {
+    if (!supabaseEnabled) return;
+    ensureSubscription(profile.id);
+    fetchSubscription(profile.id).then(setSubscription);
+    const details = await fetchProfileDetails(profile.id);
+    setProfileDetails(details);
+    if (details && !details.onboardingCompletedAt) {
+      setProfileSetupOpen(true);
+    }
+  };
+
   useEffect(() => {
     getAuthProfile().then((profile) => {
       setAuthProfile(profile);
-      if (profile) upsertProfile(profile);
+      if (profile) upsertProfile(profile).then(() => bootstrapCustomer(profile));
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -185,7 +209,7 @@ export default function App() {
       }
       if (event === 'SIGNED_IN' && profile) {
         setUiNotice('ההתחברות עם Google הצליחה. מסנכרנים שיעורים...');
-        upsertProfile(profile);
+        upsertProfile(profile).then(() => bootstrapCustomer(profile));
         mergeCloudOnLogin();
       }
     });
@@ -314,6 +338,9 @@ export default function App() {
     await signOut();
     setAuthProfile(null);
     setCloudStatus('idle');
+    setProfileDetails(null);
+    setProfileSetupOpen(false);
+    setSubscription(FREE_SUBSCRIPTION);
     navigateTo('home', { replace: true, lesson: null, editingLesson: null });
     setUiNotice('ההתנתקות הושלמה.');
   };
@@ -505,6 +532,9 @@ export default function App() {
                     <User className="w-5 h-5 mx-auto text-secondary" />
                   )}
                 </button>
+                <button onClick={() => setProfileSetupOpen(true)} className="hidden sm:block text-xs text-on-surface-variant hover:text-secondary transition-colors">
+                  הפרופיל שלי
+                </button>
                 <button onClick={handleLogout} className="hidden sm:block text-xs text-on-surface-variant hover:text-secondary transition-colors">
                   יציאה
                 </button>
@@ -605,6 +635,22 @@ export default function App() {
           })}
         </div>
       </nav>
+
+      {/* One-time customer-details form after first sign-in */}
+      {authProfile && (
+        <ProfileSetup
+          open={profileSetupOpen}
+          userId={authProfile.id}
+          userName={authProfile.name}
+          initialDetails={profileDetails}
+          onClose={() => setProfileSetupOpen(false)}
+          onSaved={() => {
+            setProfileSetupOpen(false);
+            setUiNotice('הפרטים נשמרו, תודה!');
+            fetchProfileDetails(authProfile.id).then(setProfileDetails);
+          }}
+        />
+      )}
 
       {/* MAIN SCREEN ROUTING */}
       <main className="flex-grow pt-28 pb-28 lg:pb-16">
