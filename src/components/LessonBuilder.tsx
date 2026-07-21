@@ -177,7 +177,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     if (exercises.length === 0) return;
     const ok = openLessonPrint(buildCurrentLessonPayload());
     if (!ok) {
-      window.alert('חלון ההדפסה נחסם בדפדפן. נסי לאפשר popups ולנסות שוב.');
+      window.alert('חלון ההדפסה נחסם בדפדפן. יש לאפשר popups ולנסות שוב.');
     }
   };
 
@@ -191,10 +191,10 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     } catch {
       const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=700,height=900');
       if (printWindow) {
-        printWindow.document.write(`<!doctype html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>WhatsApp Copy</title><style>body{font-family:Arial,sans-serif;padding:24px;background:#111;color:#fff;white-space:pre-wrap;line-height:1.6}textarea{width:100%;height:70vh;background:#1a1a1a;color:#fff;border:1px solid #444;padding:16px;font:14px/1.6 Arial}</style></head><body><h2>העתקה ל-WhatsApp</h2><p>אם ההעתקה האוטומטית נכשלה, העתיקי מכאן:</p><textarea>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea></body></html>`);
+        printWindow.document.write(`<!doctype html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>WhatsApp Copy</title><style>body{font-family:Arial,sans-serif;padding:24px;background:#111;color:#fff;white-space:pre-wrap;line-height:1.6}textarea{width:100%;height:70vh;background:#1a1a1a;color:#fff;border:1px solid #444;padding:16px;font:14px/1.6 Arial}</style></head><body><h2>העתקה ל-WhatsApp</h2><p>אם ההעתקה האוטומטית נכשלה, אפשר להעתיק מכאן:</p><textarea>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea></body></html>`);
         printWindow.document.close();
       } else {
-        window.alert('ההעתקה האוטומטית נכשלה וגם חלון חלופי נחסם. נסי שוב בדפדפן אחר או אפשרי popups.');
+        window.alert('ההעתקה האוטומטית נכשלה וגם חלון חלופי נחסם. אפשר לנסות בדפדפן אחר או לאפשר popups.');
       }
     }
   };
@@ -205,10 +205,10 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     const currentErrors: string[] = [];
 
     if (!lessonName.trim()) {
-      currentErrors.push('אנא הזיני שם לשיעור');
+      currentErrors.push('יש להזין שם לשיעור');
     }
     if (exercises.length === 0) {
-      currentErrors.push('אנא הוסיפי לפחות תרגיל אחד לשיעור');
+      currentErrors.push('יש להוסיף לפחות תרגיל אחד לשיעור');
     }
 
     if (currentErrors.length > 0) {
@@ -356,7 +356,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             {existingLessonToEdit ? 'עריכת מערך שיעור' : 'בניית שיעור בצורה מקצועית וברורה'}
           </h2>
           <p className="text-on-surface-variant text-lg max-w-3xl leading-relaxed">
-            בחרי מטרה, רמה ומשך, צרי שלד חכם בלחיצה אחת, ואז דייקי את ה-flow עד שיש לך שיעור שמוכן ללמד, לשמור ולשתף.
+            בוחרים מטרה, רמה ומשך, יוצרים שלד חכם בלחיצה אחת, ואז מדייקים את ה-flow עד שיש שיעור שמוכן ללמד, לשמור ולשתף.
           </p>
         </div>
 
@@ -411,14 +411,14 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 <h3 className="serif-text text-xl font-bold text-on-surface">
                   שלב 1 · הגדרת השיעור
                 </h3>
-                <p className="text-sm text-on-surface-variant mt-1">התחילי ממטרה, רמה ותחושת שיעור ברורה לפני שבוחרים תרגילים.</p>
+                <p className="text-sm text-on-surface-variant mt-1">מתחילים ממטרה, רמה ותחושת שיעור ברורה לפני שבוחרים תרגילים.</p>
               </div>
               <button
                 type="button"
                 onClick={() => scrollToStep('generate')}
                 className="text-xs text-secondary hover:text-on-surface transition-colors"
               >
-                עברי לשלב הבא
+                לשלב הבא
               </button>
             </div>
 
@@ -439,7 +439,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                   placeholder="לדוגמה: זרימת בוקר דינמית, פוקוס אגן וליבה..."
                   value={lessonName}
                   onChange={(e) => setLessonName(e.target.value)}
-                  className="w-full bg-background border border-outline/30 px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-secondary transition-colors"
+                  className="w-full rounded-xl bg-background border border-outline/30 px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-secondary transition-colors"
                 />
               </div>
 
@@ -451,7 +451,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                   placeholder="לדוגמה: יציבה, גמישות, חיזוק השרשרת האחורית"
                   value={targetFocus}
                   onChange={(e) => setTargetFocus(e.target.value)}
-                  className="w-full bg-background border border-outline/30 px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-secondary transition-colors"
+                  className="w-full rounded-xl bg-background border border-outline/30 px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-secondary transition-colors"
                 />
               </div>
             </div>
@@ -463,7 +463,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                   id="lesson-level"
                   value={level}
                   onChange={(e) => setLevel(e.target.value as Lesson['level'])}
-                  className="w-full bg-background border border-outline/30 px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-secondary transition-colors"
+                  className="w-full rounded-xl bg-background border border-outline/30 px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-secondary transition-colors"
                 >
                   <option value="beginner">מתחילים</option>
                   <option value="intermediate">בינוני</option>
@@ -480,7 +480,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                   placeholder="איזה סוג חוויה השיעור הזה מציע למתאמנים שלך?"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-background border border-outline/30 px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-secondary transition-colors"
+                  className="w-full rounded-xl bg-background border border-outline/30 px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-secondary transition-colors"
                 />
               </div>
             </div>
@@ -491,16 +491,16 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               <div>
                 <div className="flex items-center gap-2 text-secondary">
                   <Wand2 className="w-4 h-4" />
-                  <div className="text-xs font-bold uppercase tracking-[0.2em]">שלב 2 · צרי שלד חכם</div>
+                  <div className="text-xs font-bold uppercase tracking-[0.2em]">שלב 2 · יצירת שלד חכם</div>
                 </div>
-                <p className="text-sm text-on-surface-variant mt-2">בחרי משך וקבלי התחלה טובה לפי רמה, ציוד וזרימת שיעור מומלצת.</p>
+                <p className="text-sm text-on-surface-variant mt-2">בוחרים משך ומקבלים התחלה טובה לפי רמה, ציוד וזרימת שיעור מומלצת.</p>
               </div>
               <button
                 type="button"
                 onClick={() => scrollToStep('refine')}
                 className="text-xs text-secondary hover:text-on-surface transition-colors"
               >
-                דלגי לעריכה ידנית
+                דילוג לעריכה ידנית
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
@@ -519,7 +519,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               </div>
               <Button type="button" onClick={autoBuildLesson} variant="primary" size="md">
                 <Wand2 className="w-4 h-4" />
-                בנה לי שלד שיעור
+                בניית שלד שיעור
               </Button>
             </div>
           </div>
@@ -542,7 +542,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 <Compass className="w-10 h-10 text-secondary/30 mb-3" />
                 <p className="text-on-surface font-medium mb-1">מערך השיעור ריק</p>
                 <p className="text-on-surface-variant text-xs max-w-xs">
-                  בחרי תרגילים מספריית התרגילים שבצד ימין, או צרי קודם שלד אוטומטי כדי להתחיל עם flow מוכן.
+                  בוחרים תרגילים מספריית התרגילים שבהמשך העמוד, או יוצרים קודם שלד אוטומטי כדי להתחיל עם flow מוכן.
                 </p>
               </div>
             ) : (
@@ -649,7 +649,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             <div className="flex items-center justify-between gap-4 mb-4">
               <div>
                 <div className="text-xs uppercase tracking-[0.2em] text-secondary font-bold">שלב 4 · שמירה ושיתוף</div>
-                <div className="text-sm text-on-surface-variant mt-1">כשה-flow מוכן, שמרי לספרייה, שתפי בוואטסאפ או הדפיסי להוראה.</div>
+                <div className="text-sm text-on-surface-variant mt-1">כשה-flow מוכן — שמירה לספרייה, שיתוף בוואטסאפ או הדפסה להוראה.</div>
               </div>
             </div>
             <div className="flex flex-wrap justify-between items-center gap-3 pt-1">
@@ -677,7 +677,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               </div>
               <Button type="submit" variant="primary" size="lg" className="shadow-2xl">
                 <Save className="w-5 h-5" />
-                שמרי מערך שיעור זה
+                שמירת מערך השיעור
               </Button>
             </div>
           </div>
@@ -752,7 +752,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               </h3>
             </div>
             <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
-              לחצי על <strong>״הוסיפי לשיעור״</strong> כדי לשלב תרגיל במערך. אפשר לחפש לפי שם, ולפתוח סינון לפי ציוד, רמה וקטגוריה.
+              לחיצה על <strong>״הוספה לשיעור״</strong> משלבת תרגיל במערך. אפשר לחפש לפי שם, ולפתוח סינון לפי ציוד, רמה וקטגוריה.
             </p>
 
             <div className="mb-5 space-y-3 rounded-2xl border border-outline/20 bg-surface-container p-4">
@@ -907,7 +907,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                       ))}
                     </div>
                     <div className={`text-xs font-bold ${isAdded ? 'text-emerald-300' : 'text-secondary'}`}>
-                      {isAdded ? 'נוסף לשיעור' : 'הוסיפי לשיעור'}
+                      {isAdded ? 'נוסף לשיעור' : 'הוספה לשיעור'}
                     </div>
                   </button>
                 );

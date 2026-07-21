@@ -406,7 +406,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
             <div className="text-xs tracking-[0.2em] text-secondary font-bold mb-3">סיום שיעור</div>
             <h3 className="serif-text text-2xl text-on-surface font-bold mb-3">לסיים את השיעור ולעבור לסיכום?</h3>
             <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
-              זהו התרגיל האחרון. אם תמשיכי עכשיו, תעברי למסך הסיכום של השיעור.
+              זהו התרגיל האחרון. המשך מכאן מוביל למסך הסיכום של השיעור.
             </p>
             <div className="flex flex-wrap justify-end gap-3">
               <Button type="button" variant="surface" size="md" onClick={() => setShowFinishConfirm(false)}>

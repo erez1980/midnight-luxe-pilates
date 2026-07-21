@@ -91,7 +91,7 @@ export default function MyLessons({
           <div className="flex items-center gap-3">
             <Button onClick={onCreateNewLesson} variant="primary" size="md" className="whitespace-nowrap">
               <Plus className="w-4 h-4" />
-              בני שיעור חדש
+              שיעור חדש
             </Button>
 
             {/* Page-level overflow menu: backup actions live here now */}
@@ -226,7 +226,7 @@ export default function MyLessons({
           <FolderHeart className="w-12 h-12 text-secondary/20 mb-4" />
           <h3 className="serif-text text-2xl font-bold text-on-surface mb-2">לא נמצאו שיעורים שמורים</h3>
           <p className="text-on-surface-variant mb-8 max-w-md text-sm leading-relaxed">
-            עדיין לא שמרת אף מערך שיעור מותאם אישית. לחצי על הכפתור למטה כדי ליצור את הזרימה האישית שלך עכשיו.
+            עדיין אין כאן מערכי שיעור מותאמים אישית. הכפתור למטה יוצר את הזרימה האישית הראשונה שלך.
           </p>
           <Button onClick={onCreateNewLesson} variant="outline" size="md">
             בניית שיעור פילאטיס ראשון
@@ -295,7 +295,7 @@ export default function MyLessons({
               <div className="bg-surface-container px-5 py-4 border-t border-outline/20 flex items-center justify-between gap-2">
                 <Button onClick={() => onStartLesson(lesson)} variant="primary" size="sm">
                   <Play className="w-3.5 h-3.5 fill-background" />
-                  התחילי שיעור
+                  התחלת שיעור
                 </Button>
 
                 {lesson.isCustom && (

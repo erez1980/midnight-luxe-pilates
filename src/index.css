@@ -157,3 +157,57 @@ body {
   letter-spacing: 0.1em;
 }
 
+/*
+  Ambient motion — the "breathing" feel of the studio.
+  Everything here is slow, subtle, and disabled for reduced-motion users.
+*/
+@keyframes breathe {
+  0%, 100% { transform: scale(1) translateY(0); opacity: 0.55; }
+  50% { transform: scale(1.12) translateY(-10px); opacity: 0.9; }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -24px) scale(1.06); }
+  66% { transform: translate(-20px, 16px) scale(0.97); }
+}
+
+@keyframes slow-zoom {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.1); }
+}
+
+.breathe {
+  animation: breathe 9s ease-in-out infinite;
+}
+
+.breathe-slow {
+  animation: drift 18s ease-in-out infinite;
+}
+
+.hero-zoom {
+  animation: slow-zoom 22s ease-out both;
+}
+
+/* Soft lift for interactive cards — pairs with a transition on the element. */
+.lift {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease;
+}
+.lift:hover {
+  transform: translateY(-6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breathe, .breathe-slow, .hero-zoom {
+    animation: none;
+  }
+  .lift:hover {
+    transform: none;
+  }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
