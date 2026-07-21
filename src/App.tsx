@@ -1,18 +1,16 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { 
-  Play, 
-  Search, 
-  Award, 
-  FolderHeart, 
-  BookOpen, 
-  Compass, 
-  ChevronRight, 
+import {
+  Play,
+  Search,
+  FolderHeart,
+  BookOpen,
+  Compass,
+  ChevronRight,
   CheckCircle,
   User,
   LogIn,
   Activity,
   Heart,
-  Share2,
   Mail,
   Sliders,
   ChevronLeft,
@@ -26,6 +24,7 @@ const ExerciseLibrary = lazy(() => import('./components/ExerciseLibrary'));
 const LessonBuilder = lazy(() => import('./components/LessonBuilder'));
 const MyLessons = lazy(() => import('./components/MyLessons'));
 const CoachingSession = lazy(() => import('./components/CoachingSession'));
+import { PrivacyPolicy, TermsOfUse } from './components/LegalPages';
 import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
 import { pullCloudLessons, pushCloudLessons, createSharedLesson, fetchSharedLesson } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
@@ -38,7 +37,7 @@ export default function App() {
   // Feature flag: pricing is hidden until a real payment decision + processor
   // are in place. Flip to true to bring the section back - the markup is kept.
   const SHOW_PRICING = false;
-  const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session'>('home');
+  const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms'>('home');
   const [themeMode, setThemeMode] = useState<'system' | 'light' | 'dark'>(() => {
     try {
       const saved = localStorage.getItem('pilates-theme-mode');
@@ -84,7 +83,7 @@ export default function App() {
   };
 
   const navigateTo = (
-    screen: 'home' | 'library' | 'builder' | 'lessons' | 'session',
+    screen: 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms',
     options?: { lesson?: Lesson | null; editingLesson?: Lesson | null; replace?: boolean }
   ) => {
     const nextLesson = options?.lesson ?? (screen === 'session' ? activeSessionLesson : null);
@@ -234,7 +233,7 @@ export default function App() {
         return;
       }
 
-      const nextScreen = state.screen as 'home' | 'library' | 'builder' | 'lessons' | 'session';
+      const nextScreen = state.screen as 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms';
       setActiveScreen(nextScreen);
 
       if (nextScreen === 'session' && state.lessonId) {
@@ -1028,14 +1027,28 @@ export default function App() {
         )}
       </Suspense>
 
+      {/* Screen: LEGAL — plain text, no need for lazy loading or auth */}
+      {activeScreen === 'privacy' && (
+        <div className="max-w-[1280px] mx-auto px-6 md:px-20">
+          <PrivacyPolicy onBack={() => navigateTo('home')} />
+        </div>
+      )}
+      {activeScreen === 'terms' && (
+        <div className="max-w-[1280px] mx-auto px-6 md:px-20">
+          <TermsOfUse onBack={() => navigateTo('home')} />
+        </div>
+      )}
+
       </main>
 
       {/* Footer Section */}
-      <footer className="py-12 bg-surface-container-lowest border-t border-outline/20 px-6 md:px-20 mt-auto">
-        <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          
-          <div 
-            onClick={() => { setActiveScreen('home'); setEditingLesson(null); }}
+      {/* pb accounts for the fixed mobile bottom nav so footer links (privacy/
+          terms) aren't hidden underneath it. */}
+      <footer className="pt-10 pb-28 lg:py-10 bg-surface-container-lowest border-t border-outline/20 px-6 md:px-20 mt-auto">
+        <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+
+          <div
+            onClick={() => { navigateTo('home'); }}
             className="flex items-center gap-3 cursor-pointer"
           >
             <div className="w-8 h-8 rounded-full border border-secondary/40 flex items-center justify-center">
@@ -1043,18 +1056,17 @@ export default function App() {
             </div>
             <span className="serif-text font-bold tracking-widest text-secondary text-sm">פילאטיס ותנועה</span>
           </div>
-          
+
           <p className="text-on-surface-variant text-sm text-center">
             © 2026 פילאטיס ותנועה. מרחב העבודה של מדריכות ומדריכי פילאטיס.
           </p>
-          
-          {/* Social icons */}
-          <div className="flex gap-6">
-            <button onClick={() => setActiveScreen('lessons')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
-              <Share2 className="w-5 h-5" />
+
+          <div className="flex items-center gap-5 text-sm">
+            <button onClick={() => navigateTo('privacy')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+              מדיניות פרטיות
             </button>
-            <button onClick={() => navigateTo('home')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
-              <Award className="w-5 h-5" />
+            <button onClick={() => navigateTo('terms')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+              תנאי שימוש
             </button>
             <a href="mailto:erez1980@gmail.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer" aria-label="יצירת קשר במייל">
               <Mail className="w-5 h-5" />
