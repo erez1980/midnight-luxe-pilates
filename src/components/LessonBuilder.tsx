@@ -3,7 +3,7 @@ import { Search, Trash2, ArrowUp, ArrowDown, Save, FileText, Compass, Sparkles, 
 import { Exercise, Lesson, LessonExercise } from '../types';
 import ExerciseLibrary from './ExerciseLibrary';
 import { INITIAL_EXERCISES } from '../data';
-import { lessonToWhatsappText, openLessonPrint } from '../utils/lessonExport';
+import { openLessonPrint, shareLessonToWhatsapp } from '../utils/lessonExport';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
 
@@ -26,7 +26,6 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [builderDifficulty, setBuilderDifficulty] = useState<string>('all');
   const [builderCategory, setBuilderCategory] = useState<string>('all');
   const [autoBuildDuration, setAutoBuildDuration] = useState<number>(45);
-  const [copiedWhatsapp, setCopiedWhatsapp] = useState(false);
   const [activeStep, setActiveStep] = useState<'setup' | 'generate' | 'refine' | 'finish'>('setup');
   const [showBuilderFilters, setShowBuilderFilters] = useState(false);
   const setupRef = useRef<HTMLDivElement | null>(null);
@@ -118,7 +117,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const buildCurrentLessonPayload = (): Lesson => ({
     id: existingLessonToEdit?.id || `custom_lesson_${Date.now()}`,
     name: lessonName || 'שיעור ללא שם',
-    description: description || 'אין תיאור לשיעור זה.',
+    description: description.trim(),
     level,
     levelLabel: levelLabels[level],
     targetFocus,
@@ -168,7 +167,8 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     if (generated.length) {
       setExercises(generated);
       if (!lessonName.trim()) setLessonName(`שיעור אוטומטי ${autoBuildDuration} דקות`);
-      if (!description.trim()) setDescription('שיעור שנבנה אוטומטית לפי זמן, רמה, מכשיר וזרימת שיעור מומלצת.');
+      // Description intentionally left for the user — an auto-filled generic
+      // sentence just repeats itself on every lesson card.
       setActiveStep('refine');
     }
   };
@@ -181,21 +181,13 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     }
   };
 
-  const handleCopyWhatsapp = async () => {
+  // Opens WhatsApp directly with the lesson text ready to send — a real share,
+  // not a copy-to-clipboard that leaves the user to figure out the next step.
+  const handleShareWhatsapp = () => {
     if (exercises.length === 0) return;
-    const text = lessonToWhatsappText(buildCurrentLessonPayload());
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedWhatsapp(true);
-      setTimeout(() => setCopiedWhatsapp(false), 2500);
-    } catch {
-      const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=700,height=900');
-      if (printWindow) {
-        printWindow.document.write(`<!doctype html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>WhatsApp Copy</title><style>body{font-family:Arial,sans-serif;padding:24px;background:#111;color:#fff;white-space:pre-wrap;line-height:1.6}textarea{width:100%;height:70vh;background:#1a1a1a;color:#fff;border:1px solid #444;padding:16px;font:14px/1.6 Arial}</style></head><body><h2>העתקה ל-WhatsApp</h2><p>אם ההעתקה האוטומטית נכשלה, אפשר להעתיק מכאן:</p><textarea>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea></body></html>`);
-        printWindow.document.close();
-      } else {
-        window.alert('ההעתקה האוטומטית נכשלה וגם חלון חלופי נחסם. אפשר לנסות בדפדפן אחר או לאפשר popups.');
-      }
+    const ok = shareLessonToWhatsapp(buildCurrentLessonPayload());
+    if (!ok) {
+      window.alert('פתיחת WhatsApp נחסמה בדפדפן. יש לאפשר חלונות קופצים לאתר ולנסות שוב.');
     }
   };
 
@@ -666,13 +658,13 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 </Button>
                 <Button
                   type="button"
-                  onClick={handleCopyWhatsapp}
+                  onClick={handleShareWhatsapp}
                   disabled={exercises.length === 0}
                   variant="surface"
                   size="md"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  {copiedWhatsapp ? 'הועתק ל-WhatsApp' : 'העתקה ל-WhatsApp'}
+                  שיתוף ב-WhatsApp
                 </Button>
               </div>
               <Button type="submit" variant="primary" size="lg" className="shadow-2xl">

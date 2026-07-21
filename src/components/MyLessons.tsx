@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Play, Pencil, Trash2, Plus, FolderHeart, Copy, Bookmark, Download, Upload, CloudCheck, CloudAlert, RefreshCw, MoreVertical, Search, X, Sparkles, Clock3, Layers3, ArrowUpRight } from 'lucide-react';
+import { Play, Pencil, Trash2, Plus, FolderHeart, Copy, Bookmark, Download, Upload, CloudCheck, CloudAlert, RefreshCw, MoreVertical, Search, X, Sparkles, Clock3, Layers3, ArrowUpRight, Share2 } from 'lucide-react';
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
 import Button from './ui/Button';
@@ -11,7 +11,6 @@ interface MyLessonsProps {
   onEditLesson: (lesson: Lesson) => void;
   onDeleteLesson: (id: string) => void;
   onCreateNewLesson: () => void;
-  onSaveTemplate: (lesson: Lesson) => void;
   onCopyShareLink: (lesson: Lesson) => void;
   onBackHome: () => void;
   onExportBundle: () => void;
@@ -28,7 +27,6 @@ export default function MyLessons({
   onEditLesson,
   onDeleteLesson,
   onCreateNewLesson,
-  onSaveTemplate,
   onCopyShareLink,
   onBackHome,
   onExportBundle,
@@ -176,7 +174,7 @@ export default function MyLessons({
                 <div className="text-on-surface font-bold mb-1">{lesson.name || 'שיעור ללא שם'}</div>
                 <div className="text-xs text-on-surface-variant mb-4">{lesson.levelLabel || 'מותאם אישית'} · {lesson.totalDuration || 0} דק׳</div>
                 <div className="flex gap-2 flex-wrap">
-                  <Button onClick={() => onEditLesson(lesson)} variant="primary" size="sm">השתמשי כתבנית</Button>
+                  <Button onClick={() => onEditLesson(lesson)} variant="primary" size="sm">שימוש בתבנית</Button>
                   <Button onClick={() => onCopyShareLink(lesson)} variant="surface" size="sm"><Copy className="w-3.5 h-3.5" />שיתוף</Button>
                 </div>
               </div>
@@ -266,14 +264,14 @@ export default function MyLessons({
                   </span>
                 </div>
 
-                {lesson.description && (
+                {describeLessonIfMeaningful(lesson) && (
                   <p className="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-2">
-                    {lesson.description}
+                    {describeLessonIfMeaningful(lesson)}
                   </p>
                 )}
 
                 {/* Meta as one compact chip row (replaces the old 3-line list) */}
-                <div className="flex flex-wrap gap-1.5 mb-5">
+                <div className="flex flex-wrap gap-1.5 mb-4">
                   <span className="text-[11px] px-2.5 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20">{lesson.levelLabel}</span>
                   {lesson.targetFocus && (
                     <span className="text-[11px] px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant border border-outline/20">{lesson.targetFocus}</span>
@@ -283,12 +281,16 @@ export default function MyLessons({
                   </span>
                 </div>
 
-                <div className="rounded-2xl border border-outline/30 bg-surface-container-high p-4 mb-5">
-                  <div className="text-xs tracking-[0.18em] text-secondary font-bold mb-2">סיכום מהיר</div>
-                  <div className="text-sm text-on-surface-variant leading-relaxed">
-                    {lesson.description || 'מערך מוכן להוראה, עריכה או שיתוף. אפשר להמשיך ממנו לשיעור הבא בלי להתחיל מאפס.'}
+                {/* Real per-lesson info: how the minutes split across categories */}
+                {categoryBreakdown(lesson).length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {categoryBreakdown(lesson).map(([category, minutes]) => (
+                      <span key={category} className="text-[11px] px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant">
+                        {category} · {minutes} דק׳
+                      </span>
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Action Footer */}
@@ -312,44 +314,21 @@ export default function MyLessons({
                     <Button
                       onClick={() => onCopyShareLink(lesson)}
                       variant="surface"
-                      size="sm"
+                      size="icon-sm"
                       aria-label={`שיתוף ${lesson.name}`}
+                      title="שיתוף השיעור"
                     >
-                      <Copy className="w-3.5 h-3.5" />
-                      שיתוף
+                      <Share2 className="w-3.5 h-3.5" />
                     </Button>
-
-                    {/* Per-card overflow menu: template + delete (kept away from frequent actions) */}
-                    <div className="relative">
-                      <Button
-                        onClick={() => setOpenMenu(openMenu === lesson.id ? null : lesson.id)}
-                        variant="surface"
-                        size="icon-sm"
-                        aria-label="פעולות נוספות"
-                        title="פעולות נוספות"
-                      >
-                        <MoreVertical className="w-3.5 h-3.5" />
-                      </Button>
-                      {openMenu === lesson.id && (
-                        <div className="absolute left-0 bottom-full mb-2 z-40 min-w-[190px] rounded-lg border border-outline/30 bg-surface-container-high shadow-2xl py-1.5">
-                          <button
-                            onClick={() => { closeMenu(); onSaveTemplate(lesson); }}
-                            className="w-full text-right px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container flex items-center gap-2.5"
-                          >
-                            <Bookmark className="w-4 h-4 text-secondary/80" />
-                            שמירה כתבנית
-                          </button>
-                          <div className="my-1 h-px bg-outline/20" />
-                          <button
-                            onClick={() => { closeMenu(); setPendingDeleteLesson(lesson); }}
-                            className="w-full text-right px-4 py-2.5 text-sm text-rose-400 hover:bg-rose-500/10 flex items-center gap-2.5"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            מחיקת שיעור
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    <Button
+                      onClick={() => setPendingDeleteLesson(lesson)}
+                      variant="danger"
+                      size="icon-sm"
+                      aria-label={`מחיקת ${lesson.name}`}
+                      title="מחיקת שיעור"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 )}
               </div>
@@ -364,7 +343,7 @@ export default function MyLessons({
             <div className="text-xs tracking-[0.2em] text-rose-300 font-bold mb-3">מחיקת שיעור</div>
             <h3 className="serif-text text-2xl text-on-surface font-bold mb-3">למחוק את "{pendingDeleteLesson.name}"?</h3>
             <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
-              המחיקה תסיר את המערך מספריית השיעורים שלך. אם זה שיעור שתרצי למחזר בעתיד, עדיף קודם לשמור אותו כתבנית.
+              המחיקה תסיר את המערך מספריית השיעורים לצמיתות. שיעור שנמחק לא ניתן לשחזור.
             </p>
             <div className="flex flex-wrap justify-end gap-3">
               <Button type="button" variant="surface" size="md" onClick={() => setPendingDeleteLesson(null)}>
@@ -389,4 +368,27 @@ export default function MyLessons({
       )}
     </div>
   );
+}
+
+// Descriptions the builder auto-fills are identical across lessons — showing
+// them on every card just repeats the same sentence. Only surface text a
+// person actually wrote.
+const GENERIC_DESCRIPTIONS = new Set([
+  'שיעור שנבנה אוטומטית לפי זמן, רמה, מכשיר וזרימת שיעור מומלצת.',
+  'אין תיאור לשיעור זה.',
+]);
+
+function describeLessonIfMeaningful(lesson: Lesson): string | null {
+  const text = lesson.description?.trim();
+  if (!text || GENERIC_DESCRIPTIONS.has(text)) return null;
+  return text;
+}
+
+function categoryBreakdown(lesson: Lesson): Array<[string, number]> {
+  const minutesByCategory: Record<string, number> = {};
+  for (const item of lesson.exercises || []) {
+    const key = item.exercise.categoryLabel || item.exercise.category || 'כללי';
+    minutesByCategory[key] = (minutesByCategory[key] || 0) + item.customDuration;
+  }
+  return Object.entries(minutesByCategory).slice(0, 4);
 }
