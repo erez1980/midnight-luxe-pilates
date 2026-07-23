@@ -478,7 +478,7 @@ export default function App() {
             onClick={() => navigateTo('home', { editingLesson: null })}
             className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
           >
-            <LogoMark className="w-9 h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105" />
+            <LogoMark theme={theme} className="w-9 h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105" />
             <h2 className="serif-text text-base sm:text-xl font-bold tracking-wide text-[#c9a227] select-none">פילאטיס ותנועה</h2>
           </button>
 
@@ -1093,7 +1093,7 @@ export default function App() {
             onClick={() => { navigateTo('home'); }}
             className="flex items-center gap-2.5 cursor-pointer"
           >
-            <LogoMark className="w-8 h-8" />
+            <LogoMark theme={theme} className="w-8 h-8" />
             <span className="serif-text font-bold tracking-widest text-[#c9a227] text-sm">פילאטיס ותנועה</span>
           </div>
 
