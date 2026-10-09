@@ -357,7 +357,7 @@ export default function MyLessons({
                   onDeleteLesson(pendingDeleteLesson.id);
                   setPendingDeleteLesson(null);
                 }}
-                className="!bg-rose-500 hover:!bg-rose-400 !text-white"
+                className="!bg-error hover:brightness-95 !text-on-error"
               >
                 <Trash2 className="w-4 h-4" />
                 מחקי שיעור

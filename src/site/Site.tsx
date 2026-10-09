@@ -24,7 +24,7 @@ const EMBLEM_DARK = `${ASSET}brand/emblem-dark.webp`;
 
 // One primary "book a class" action, picked from whatever contact details
 // exist: WhatsApp beats phone beats email.
-function primaryContact() {
+function primaryContact(subject = 'תיאום שיעור פילאטיס') {
   if (CONTACT.whatsapp) {
     return {
       href: `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(CONTACT.whatsappGreeting)}`,
@@ -33,11 +33,13 @@ function primaryContact() {
   }
   if (CONTACT.phone) return { href: `tel:${CONTACT.phone.replace(/[^\d+]/g, '')}`, external: false };
   return {
-    href: `mailto:${CONTACT.email}?subject=${encodeURIComponent('תיאום שיעור פילאטיס')}`,
+    href: `mailto:${CONTACT.email}?subject=${encodeURIComponent(subject)}`,
     external: false,
   };
 }
 const BOOK = primaryContact();
+const SCHEDULE = primaryContact('בקשת מערכת שעות ומיקום לשיעורי פילאטיס');
+const CONTACT_LABEL = CONTACT.whatsapp ? 'לשיחה בווטסאפ' : CONTACT.phone ? 'לשיחה ותיאום' : 'לשליחת פנייה במייל';
 const bookLinkProps = BOOK.external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
 // ---------- small building blocks ----------
@@ -78,9 +80,6 @@ function Reveal({
   delay?: number;
   className?: string;
   as?: 'div' | 'li' | 'article';
-  // The project has no @types/react, so JSX doesn't know about `key` on
-  // function components; declare it so mapped <Reveal key=…> type-checks.
-  key?: React.Key;
 }) {
   const ref = useReveal<HTMLElement>();
   return (
@@ -151,7 +150,7 @@ function FacebookIcon({ className = 'w-5 h-5' }: { className?: string }) {
 
 // Photo inside an arch; until a real photo exists, the brand emblem on a soft
 // gradient stands in so the layout already reads as finished.
-function ArchPhoto({ src, alt, tone = 'light', className = '' }: { src: string | null; alt: string; tone?: 'light' | 'dark'; className?: string }) {
+function ArchPhoto({ src, alt, tone = 'light', className = '', priority = false }: { src: string | null; alt: string; tone?: 'light' | 'dark'; className?: string; priority?: boolean }) {
   return (
     <div
       className={`arch relative overflow-hidden ${
@@ -161,7 +160,7 @@ function ArchPhoto({ src, alt, tone = 'light', className = '' }: { src: string |
       } ${className}`}
     >
       {src ? (
-        <img src={`${ASSET}${src}`} alt={alt} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+        <img src={`${ASSET}${src}`} alt={alt} className="absolute inset-0 h-full w-full object-cover" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : 'auto'} />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center p-[14%]">
           <img
@@ -181,6 +180,8 @@ function ArchPhoto({ src, alt, tone = 'light', className = '' }: { src: string |
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -190,14 +191,36 @@ function Header() {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    const background = Array.from(document.querySelectorAll<HTMLElement>('main, footer, [data-mobile-book-bar]'));
+    const previous = background.map((element) => element.inert);
+    background.forEach((element) => { element.inert = true; });
+    document.body.style.overflow = 'hidden';
+    const items = () => Array.from(headerRef.current?.querySelectorAll<HTMLElement>('a[href], button') || []).filter((element) => element.getClientRects().length > 0);
+    headerRef.current?.querySelector<HTMLElement>('#mobile-menu a')?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); setOpen(false); }
+      if (event.key === 'Tab') {
+        const focusable = items(); const first = focusable[0]; const last = focusable.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    const media = window.matchMedia('(min-width: 1024px)');
+    const onResize = () => { if (media.matches) setOpen(false); };
+    media.addEventListener('change', onResize);
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return () => {
+      background.forEach((element, index) => { element.inert = previous[index]; });
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey); media.removeEventListener('change', onResize);
+      menuButtonRef.current?.focus();
+    };
   }, [open]);
 
   return (
-    <header
+    <header ref={headerRef}
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-soft ${
         scrolled || open ? 'border-b border-line/80 bg-ivory/85 backdrop-blur-xl' : 'border-b border-transparent'
       }`}
@@ -222,18 +245,18 @@ function Header() {
             className="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage"
           >
             <Smartphone className="h-4 w-4" aria-hidden="true" />
-            לאפליקציה
+            {APP_PROMO.navigationLabel}
           </a>
           <a
             href={BOOK.href}
             {...bookLinkProps}
             className="rounded-full bg-sage px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-sage-deep"
           >
-            לתיאום שיעור
+            {CONTACT_LABEL}
           </a>
         </div>
 
-        <button
+        <button ref={menuButtonRef}
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="-me-2 flex h-11 w-11 items-center justify-center rounded-full text-ink lg:hidden"
@@ -260,13 +283,13 @@ function Header() {
             ))}
           </nav>
           <div className="mt-8 flex flex-col gap-3">
-            <BookButton className="w-full">לתיאום שיעור ניסיון</BookButton>
+            <BookButton className="w-full">{CONTACT_LABEL}</BookButton>
             <a
               href={APP_URL}
               className="inline-flex items-center justify-center gap-2 rounded-full border border-line px-7 py-3.5 text-muted"
             >
               <Smartphone className="h-4 w-4" aria-hidden="true" />
-              כניסה לאפליקציה
+              {APP_PROMO.navigationLabel}
             </a>
           </div>
         </div>
@@ -305,7 +328,7 @@ function Hero() {
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
               <BookButton>
                 {CONTACT.whatsapp && <WhatsAppIcon />}
-                לתיאום שיעור ניסיון
+                {CONTACT_LABEL}
               </BookButton>
               <a
                 href="#classes"
@@ -346,7 +369,7 @@ function Hero() {
               vectorEffect="non-scaling-stroke"
             />
           </svg>
-          <ArchPhoto src={PHOTOS.hero} alt={`${BRAND.owner} — ${BRAND.name}`} className="aspect-[440/560] w-full shadow-[0_40px_80px_-40px_rgba(46,49,40,0.35)]" />
+          <ArchPhoto priority src={PHOTOS.hero} alt={`${BRAND.owner} — ${BRAND.name}`} className="aspect-[440/560] w-full shadow-[0_40px_80px_-40px_rgba(46,49,40,0.35)]" />
           <div className="absolute -bottom-6 right-4 rounded-2xl border border-line bg-ivory/95 px-5 py-4 shadow-[0_20px_40px_-24px_rgba(46,49,40,0.4)] backdrop-blur md:right-[-2rem]">
             <p className="flex items-center gap-2 text-sm font-medium text-ink">
               <Award className="h-4 w-4 text-gold-deep" aria-hidden="true" />
@@ -555,12 +578,16 @@ function Locations() {
                 </span>
                 <h2 className="mt-6 font-display text-3xl font-light md:text-5xl">{LOCATIONS.title}</h2>
                 <p className="mt-4 text-lg leading-relaxed text-muted">{LOCATIONS.text}</p>
-                <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/50 bg-white/70 px-4 py-2 text-sm text-gold-deep">
+                {LOCATIONS.areas.length > 0 && <p className="mt-4 font-medium">אזורי פעילות: {LOCATIONS.areas.join(' · ')}</p>}
+                {LOCATIONS.studios.length > 0 && <ul className="mt-4 space-y-2">{LOCATIONS.studios.map((studio) => <li key={studio.name}>{studio.name} · {studio.address}{studio.url && <a href={studio.url} target="_blank" rel="noopener noreferrer" className="ms-3 underline">פרטי הסטודיו</a>}</li>)}</ul>}
+                {LOCATIONS.comingSoon && <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/50 bg-white/70 px-4 py-2 text-sm text-gold-deep">
                   <span className="h-2 w-2 rounded-full bg-gold breathe" aria-hidden="true" />
                   {LOCATIONS.comingSoon}
-                </p>
+                </p>}
               </div>
-              <BookButton>למערכת השעות</BookButton>
+              <a href={LOCATIONS.scheduleUrl || SCHEDULE.href} {...(LOCATIONS.scheduleUrl ? { target: '_blank', rel: 'noopener noreferrer' } : bookLinkProps)} className="inline-flex items-center justify-center rounded-full bg-sage px-7 py-3.5 text-white hover:bg-sage-deep focus-visible:outline-2">
+                {LOCATIONS.scheduleUrl ? 'למערכת השעות' : 'לבקשת מערכת שעות ומיקום'}
+              </a>
             </div>
           </div>
         </Reveal>
@@ -673,7 +700,7 @@ function Contact() {
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <BookButton tone="gold">
                 {CONTACT.whatsapp ? <WhatsAppIcon /> : <Mail className="h-5 w-5" aria-hidden="true" />}
-                {CONTACT.whatsapp ? 'לשיחה בווטסאפ' : 'לשליחת הודעה'}
+                {CONTACT_LABEL}
               </BookButton>
               {CONTACT.phone && (
                 <a
@@ -754,7 +781,7 @@ function Footer() {
             </a>
           ))}
           <a href={APP_URL} className="hover:text-ink">
-            האפליקציה
+            {APP_PROMO.navigationLabel}
           </a>
         </nav>
         <div className="flex flex-col gap-2 text-sm text-muted md:items-end">
@@ -781,21 +808,19 @@ function MobileBookBar() {
   useEffect(() => {
     const onScroll = () => {
       const nearBottom = window.innerHeight + window.scrollY > document.body.scrollHeight - 600;
-      setShow(window.scrollY > window.innerHeight * 0.8 && !nearBottom);
+      const heroButton = document.querySelector('#top a');
+      const pastHeroButton = heroButton ? heroButton.getBoundingClientRect().bottom < 72 : false;
+      setShow(pastHeroButton && !nearBottom);
     };
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll);
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
   }, []);
+  if (!show) return null;
   return (
-    <div
-      className={`fixed inset-x-4 bottom-4 z-40 transition-all duration-500 ease-soft md:hidden ${
-        show ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-24 opacity-0'
-      }`}
-    >
-      <BookButton className="w-full shadow-[0_18px_40px_-14px_rgba(27,31,25,0.6)]">
-        {CONTACT.whatsapp && <WhatsAppIcon />}
-        לתיאום שיעור ניסיון
-      </BookButton>
+    <div data-mobile-book-bar className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 md:hidden">
+      <BookButton className="w-full shadow-lg">{CONTACT_LABEL}</BookButton>
     </div>
   );
 }

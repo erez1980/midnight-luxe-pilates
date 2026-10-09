@@ -320,7 +320,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
                 cx="96"
                 cy="96"
                 r="92"
-                stroke="#7f9271"
+                stroke="var(--color-sage)"
                 strokeWidth="4"
                 fill="transparent"
                 strokeDasharray="578"
@@ -434,8 +434,8 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
               <div className="text-xs text-on-surface-variant mb-3">{nextLessonExercise.exercise.englishName} · {nextLessonExercise.exercise.apparatusLabel}</div>
 
               {apparatusChange && (
-                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-on-surface flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                <div className="rounded-xl border border-gold/40 bg-gold-soft/40 px-3 py-2 text-sm text-on-surface flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-gold-deep shrink-0" />
                   מעבר ציוד בתרגיל הבא: {apparatusChange} — כדאי להכין מראש
                 </div>
               )}

@@ -331,7 +331,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-2rem)] bg-emerald-600 text-white font-bold px-6 py-3 shadow-2xl flex items-center gap-2"
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-2rem)] bg-sage text-white font-bold px-6 py-3 shadow-2xl flex items-center gap-2"
           >
             <Sparkles className="w-5 h-5" />
             השיעור נשמר בהצלחה בספרייה שלך!
@@ -415,7 +415,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             </div>
 
             {errors.length > 0 && (
-              <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 text-xs space-y-1 rounded-sm">
+              <div className="bg-error-container border border-error/30 text-rose-400 p-4 text-xs space-y-1 rounded-sm">
                 {errors.map((err, i) => (
                   <p key={i}>• {err}</p>
                 ))}
@@ -613,7 +613,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                             <button
                               type="button"
                               onClick={() => handleRemoveExercise(el.exercise.id)}
-                              className="p-1.5 text-rose-400/70 hover:text-rose-400 rounded-md transition-colors"
+                              className="p-1.5 text-rose-400/70 hover:text-error rounded-md transition-colors"
                               title="הסר תרגיל"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -723,11 +723,11 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 <div className="text-sm text-on-surface font-bold mb-2">בדיקות מהירות</div>
                 <div className="space-y-2">
                   {builderWarnings.length > 0 ? builderWarnings.map((warning) => (
-                    <div key={warning} className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+                    <div key={warning} className="rounded-xl border border-gold/40 bg-gold-soft/40 px-3 py-2 text-xs text-amber-100">
                       {warning}
                     </div>
                   )) : (
-                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
+                    <div className="rounded-xl border border-sage/20 bg-sage-soft px-3 py-2 text-xs text-sage-deep">
                       המבנה נראה מאוזן ומוכן להמשך ליטוש.
                     </div>
                   )}
@@ -875,7 +875,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                     onClick={() => handleAddExercise(exercise)}
                     className={`text-right rounded-2xl border p-4 transition-all ${
                       isAdded
-                        ? 'border-emerald-500/30 bg-emerald-500/10'
+                        ? 'border-sage/30 bg-sage-soft'
                         : 'border-outline/20 bg-background hover:border-secondary/30 hover:bg-surface-container'
                     }`}
                   >
@@ -898,7 +898,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                         <span key={idx} className="rounded-md bg-surface-container-high px-2 py-1 text-[10px] text-on-surface-variant">{muscle}</span>
                       ))}
                     </div>
-                    <div className={`text-xs font-bold ${isAdded ? 'text-emerald-300' : 'text-secondary'}`}>
+                    <div className={`text-xs font-bold ${isAdded ? 'text-sage-deep' : 'text-secondary'}`}>
                       {isAdded ? 'נוסף לשיעור' : 'הוספה לשיעור'}
                     </div>
                   </button>

@@ -43,3 +43,9 @@ VITE_SUPABASE_ANON_KEY=...
 ## הגדרת Supabase
 
 ראו `SUPABASE_SETUP.md`.
+
+## זהות עיצובית
+
+`src/brand.css` מגדיר את אותם צבעים ופונטים לאתר הראשי ולאפליקציה: שנהב, מרווה וזהב, Heebo לטקסט ו־Frank Ruhl Libre לכותרות. האפליקציה מוצגת במצב בהיר ללא תלות בהעדפות המערכת.
+
+[רשימת התוכן לרתם](docs/retem-content-request.md).

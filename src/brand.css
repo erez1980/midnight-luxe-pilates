@@ -1,0 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..700&family=Heebo:wght@300..700&display=swap");
+
+/* Shared studio identity for the marketing site and application. */
+@theme {
+  --font-serif: "Frank Ruhl Libre", "David Libre", Georgia, serif;
+  --font-display: "Frank Ruhl Libre", "David Libre", Georgia, serif;
+  --font-sans: "Heebo", "Assistant", system-ui, sans-serif;
+
+  --color-ivory: #faf8f3;
+  --color-sand: #f2ede2;
+  --color-line: #e4ddcd;
+  --color-ink: #2e3128;
+  --color-muted: #6b6f62;
+  --color-sage: #5f7154;
+  --color-sage-deep: #4c5c42;
+  --color-sage-soft: #eaeee2;
+  --color-sage-light: #a8bc9c;
+  --color-gold: #c9a227;
+  --color-gold-soft: #e8d9a8;
+  --color-gold-deep: #7d651c;
+  --color-teal: #2f5560;
+  --color-night: #1b1f19;
+  --color-night-2: #242820;
+  --color-night-line: #3a3f32;
+  --color-cream: #ece7da;
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}

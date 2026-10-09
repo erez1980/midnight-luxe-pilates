@@ -167,7 +167,7 @@ export default function ProfileSetup({ open, userId, userName, initialDetails, o
               </label>
 
               {error && (
-                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-400">
+                <div className="rounded-xl border border-error/30 bg-error-container px-4 py-3 text-xs text-rose-400">
                   {error}
                 </div>
               )}
