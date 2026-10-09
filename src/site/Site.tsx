@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, Award, Check, MapPin, Menu, Phone, Mail, Plus, Smartphone, X } from 'lucide-react';
+import { ArrowUpLeft, Award, Check, MapPin, Menu, Phone, Mail, Plus, Settings2, Smartphone, Wind, X } from 'lucide-react';
 import {
   ABOUT,
   APP_PROMO,
@@ -420,6 +420,14 @@ function About() {
   );
 }
 
+// Mat work is bodyweight and breath-led; apparatus work is spring-resisted
+// machinery — the icons name what each class actually is, not its position
+// in a list (there are only two, and neither comes "before" the other).
+const CLASS_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  mat: Wind,
+  apparatus: Settings2,
+};
+
 function Classes() {
   return (
     <section id="classes" className="bg-sand py-24 md:py-36">
@@ -439,35 +447,40 @@ function Classes() {
         </div>
 
         <div className="mt-16 grid gap-6 md:grid-cols-2">
-          {CLASSES.map((c, i) => (
-            <Reveal as="article" key={c.id} delay={i * 140}>
-              <div className="group flex h-full flex-col rounded-[28px] border border-line bg-ivory p-8 transition-all duration-700 ease-soft hover:-translate-y-1.5 hover:border-gold/60 hover:shadow-[0_30px_60px_-36px_rgba(46,49,40,0.45)] md:p-12">
-                <div className="flex items-start justify-between">
-                  <span className="font-display text-6xl font-light text-gold/80 md:text-7xl">{c.kicker}</span>
-                  <span className="mt-3 h-px w-16 bg-line transition-all duration-700 ease-soft group-hover:w-24 group-hover:bg-gold" aria-hidden="true" />
+          {CLASSES.map((c, i) => {
+            const Icon = CLASS_ICON[c.id];
+            return (
+              <Reveal as="article" key={c.id} delay={i * 140}>
+                <div className="group flex h-full flex-col rounded-[28px] border border-line bg-ivory p-8 transition-all duration-700 ease-soft hover:-translate-y-1.5 hover:border-gold/60 hover:shadow-[0_30px_60px_-36px_rgba(46,49,40,0.45)] md:p-12">
+                  <div className="flex items-start justify-between">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full border border-gold/40 text-gold-deep md:h-16 md:w-16">
+                      <Icon className="h-6 w-6 md:h-7 md:w-7" aria-hidden="true" />
+                    </span>
+                    <span className="mt-3 h-px w-16 bg-line transition-all duration-700 ease-soft group-hover:w-24 group-hover:bg-gold" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-8 font-display text-3xl text-ink md:text-4xl">{c.title}</h3>
+                  <p className="mt-4 text-lg leading-relaxed text-muted">{c.text}</p>
+                  <ul className="mt-8 space-y-3 border-t border-line pt-6">
+                    {c.points.map((point) => (
+                      <li key={point} className="flex items-center gap-3 text-ink">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-soft text-sage">
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        </span>
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3 className="mt-8 font-display text-3xl text-ink md:text-4xl">{c.title}</h3>
-                <p className="mt-4 text-lg leading-relaxed text-muted">{c.text}</p>
-                <ul className="mt-8 space-y-3 border-t border-line pt-6">
-                  {c.points.map((point) => (
-                    <li key={point} className="flex items-center gap-3 text-ink">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-soft text-sage">
-                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                      </span>
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            );
+          })}
         </div>
 
         <div className="mt-20 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <Reveal>
             <h3 className="font-display text-3xl font-light leading-snug md:text-4xl">
               למי זה מתאים?
-              <span className="mt-2 block text-sage">כמעט לכל אחת ואחד.</span>
+              <span className="mt-2 block">כמעט לכל אחת ואחד.</span>
             </h3>
           </Reveal>
           <ul className="grid gap-x-10 gap-y-4 sm:grid-cols-2">
@@ -501,7 +514,7 @@ function Method() {
           <Reveal delay={100}>
             <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">
               שישה עקרונות.
-              <span className="block text-gold">גוף אחד.</span>
+              <span className="block">גוף אחד.</span>
             </h2>
           </Reveal>
           <Reveal delay={180}>
@@ -754,7 +767,7 @@ function Footer() {
             </a>
           </div>
           <p>
-            © {new Date().getFullYear()} {BRAND.name} · {BRAND.owner}
+            © {new Date().getFullYear()} {BRAND.name}. באהבה, {BRAND.owner}.
           </p>
         </div>
       </div>
