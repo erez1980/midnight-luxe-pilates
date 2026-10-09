@@ -20,7 +20,7 @@ export function LogoMark({
   return (
     <img
       src={ICON_BY_THEME[theme]}
-      alt="פילאטיס ותנועה"
+      alt="פילאטיס בתנועה"
       className={`${className} object-contain select-none`}
       draggable={false}
     />
@@ -43,7 +43,7 @@ export function LogoLockup({
       <LogoMark theme={theme} className={markClassName} />
       {/* Flat gold, matching the wordmark color in the source artwork. */}
       <span className={`serif-text font-bold tracking-wide text-[#c9a227] select-none ${textClassName}`}>
-        פילאטיס ותנועה
+        פילאטיס בתנועה
       </span>
     </div>
   );

@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..700&family=Heebo:wght@300..600&display=swap');
+@import "tailwindcss";
+
+/*
+  Marketing site palette — the app's ivory + sage, with the logo's gold and
+  teal as accents and its charcoal-moss for the dark "breath" sections.
+  Gold is decorative only (lines, numerals, large display text): at small
+  sizes on ivory it fails contrast, so small accent text uses gold-deep.
+*/
+@theme {
+  --font-display: "Frank Ruhl Libre", "David Libre", Georgia, serif;
+  --font-sans: "Heebo", "Assistant", system-ui, sans-serif;
+
+  --color-ivory: #faf8f3;
+  --color-sand: #f2ede2;
+  --color-line: #e4ddcd;
+  --color-ink: #2e3128;
+  --color-muted: #6b6f62;
+  --color-sage: #5f7154;
+  --color-sage-deep: #4c5c42;
+  --color-sage-soft: #eaeee2;
+  --color-sage-light: #a8bc9c;
+  --color-gold: #c9a227;
+  --color-gold-soft: #e8d9a8;
+  --color-gold-deep: #7d651c;
+  --color-teal: #2f5560;
+  --color-night: #1b1f19;
+  --color-night-2: #242820;
+  --color-night-line: #3a3f32;
+  --color-cream: #ece7da;
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: light;
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-ivory);
+  color: var(--color-ink);
+  direction: rtl;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-gold-soft);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Arch frame — the classic studio-window silhouette used for photos. */
+.arch {
+  border-radius: 999px 999px 28px 28px;
+}
+
+/* Scroll reveal: elements float up the first time they enter the viewport. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 1s var(--ease-soft), transform 1s var(--ease-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.12); opacity: 0.9; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}
+@keyframes draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+.breathe { animation: breathe 10s ease-in-out infinite; }
+.float { animation: float 7s ease-in-out infinite; }
+.marquee { animation: marquee 38s linear infinite; }
+.draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 2.6s var(--ease-soft) 0.3s forwards;
+}
+
+/* FAQ accordion built on <details> — native keyboard + screen reader support. */
+.faq summary { list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq[open] .faq-icon { transform: rotate(45deg); }
+.faq-icon { transition: transform 0.4s var(--ease-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .breathe, .float, .marquee { animation: none; }
+  .draw { animation: none; stroke-dashoffset: 0; }
+}

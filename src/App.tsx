@@ -40,7 +40,11 @@ export default function App() {
   // Feature flag: pricing is hidden until a real payment decision + processor
   // are in place. Flip to true to bring the section back - the markup is kept.
   const SHOW_PRICING = false;
-  const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms'>('home');
+  const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms'>(() => {
+    // The marketing site's footer deep-links here with ?page=privacy|terms.
+    const page = new URLSearchParams(window.location.search).get('page');
+    return page === 'privacy' || page === 'terms' ? page : 'home';
+  });
   const [themeMode, setThemeMode] = useState<'system' | 'light' | 'dark'>(() => {
     try {
       const saved = localStorage.getItem('pilates-theme-mode');
@@ -479,7 +483,7 @@ export default function App() {
             className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
           >
             <LogoMark theme={theme} className="w-9 h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105" />
-            <h2 className="serif-text text-base sm:text-xl font-bold tracking-wide text-[#c9a227] select-none">פילאטיס ותנועה</h2>
+            <h2 className="serif-text text-base sm:text-xl font-bold tracking-wide text-[#c9a227] select-none">פילאטיס בתנועה</h2>
           </button>
 
           {/* Desktop Navigation */}
@@ -684,7 +688,7 @@ export default function App() {
                     className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-secondary/30 bg-surface-container/80 backdrop-blur-sm"
                   >
                     <span className="uppercase tracking-[0.3em] text-secondary text-xs md:text-sm font-semibold">
-                      פילאטיס ותנועה
+                      פילאטיס בתנועה
                     </span>
                   </motion.div>
 
@@ -1094,14 +1098,17 @@ export default function App() {
             className="flex items-center gap-2.5 cursor-pointer"
           >
             <LogoMark theme={theme} className="w-8 h-8" />
-            <span className="serif-text font-bold tracking-widest text-[#c9a227] text-sm">פילאטיס ותנועה</span>
+            <span className="serif-text font-bold tracking-widest text-[#c9a227] text-sm">פילאטיס בתנועה</span>
           </div>
 
           <p className="text-on-surface-variant text-sm text-center">
-            © 2026 פילאטיס ותנועה. מרחב העבודה של מדריכות ומדריכי פילאטיס.
+            © 2026 פילאטיס בתנועה. מרחב העבודה של מדריכות ומדריכי פילאטיס.
           </p>
 
           <div className="flex items-center gap-5 text-sm">
+            <a href="../" className="text-on-surface-variant hover:text-secondary transition-colors">
+              לאתר הסטודיו
+            </a>
             <button onClick={() => navigateTo('privacy')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               מדיניות פרטיות
             </button>
