@@ -2,7 +2,7 @@
 // for repeat visits. Network-first for navigations (so deploys show up
 // immediately), cache-first for static assets (hashed filenames make them
 // immutable anyway).
-const CACHE = 'pilates-app-v2';
+const CACHE = 'pilates-app-v3';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -12,7 +12,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))
+      Promise.all(keys.filter((key) => key.startsWith('pilates-') && key !== CACHE).map((key) => caches.delete(key)))
     ).then(() => self.clients.claim())
   );
 });
@@ -25,11 +25,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put('./', copy));
+          if (response.ok) { const copy = response.clone(); event.waitUntil(caches.open(CACHE).then((cache) => cache.put('./', copy))); }
           return response;
         })
-        .catch(() => caches.match('./'))
+        .catch(async () => (await caches.match('./')) || new Response('אין חיבור לאינטרנט. אפשר לנסות שוב כשיש חיבור.', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }))
     );
     return;
   }

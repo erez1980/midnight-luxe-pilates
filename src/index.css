@@ -1,146 +1,89 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Manrope:wght@200..800&display=swap');
+@import "./brand.css";
 @import "tailwindcss";
 
-@theme {
-  --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Manrope", sans-serif;
-
-  /* Dark theme: calm charcoal-moss instead of navy, sage instead of gold. */
-  --color-on-tertiary: #2b2413;
-  --color-outline-variant: #3a3f32;
-  --color-surface-tint: #b9cca9;
-  --color-surface-container-low: #1f241a;
-  --color-surface-bright: #333a2c;
-  --color-inverse-surface: #ece7da;
-  --color-surface-container-lowest: #14170f;
-  --color-inverse-primary: #5f7154;
-  --color-tertiary-fixed: #e8dcc0;
-  --color-primary-fixed: #d7e2c9;
-  --color-on-background: #ece7da;
-  --color-primary-fixed-dim: #b9cca9;
-  --color-on-error-container: #ffdad6;
-  --color-tertiary-fixed-dim: #c9b98e;
-  --color-on-surface-variant: #a5a898;
-  --color-error-container: #93000a;
-  --color-background: #1b1f19;
-  --color-on-surface: #ece7da;
-  --color-on-tertiary-fixed-variant: #5c5340;
-  --color-error: #ffb4ab;
-  --color-on-secondary-fixed-variant: #3f4d38;
-  --color-surface-dim: #1b1f19;
-  --color-primary-container: #3a4632;
-  --color-on-error: #690005;
-  --color-on-tertiary-container: #e8dcc0;
-  --color-surface-variant: #2c3126;
-  --color-tertiary: #c9b98e;
-  --color-on-secondary-fixed: #1c2417;
-  --color-on-secondary: #1c2417;
-  --color-on-primary-container: #d7e2c9;
-  --color-on-primary-fixed-variant: #47563d;
-  --color-on-tertiary-fixed: #2b2413;
-  --color-surface-container-highest: #343a2d;
-  --color-on-secondary-container: #d7e2c9;
-  --color-surface-container-high: #2c3126;
-  --color-surface-container: #242820;
-  --color-on-primary: #24301f;
-  --color-surface: #1b1f19;
-  --color-primary: #b9cca9;
-  --color-secondary: #9ab189;
-  --color-secondary-fixed: #c3d2b3;
-  --color-on-primary-fixed: #1c2417;
-  --color-tertiary-container: #443c26;
-  --color-secondary-container: #3a4632;
-  --color-outline: #5c6152;
-  --color-inverse-on-surface: #2c3126;
-  --color-secondary-fixed-dim: #9ab189;
-}
-
-@utility brand-gradient {
-  background: linear-gradient(135deg, #9ab189 0%, #5f7154 50%, #c3d2b3 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-@utility hero-overlay {
-  background: linear-gradient(to top, color-mix(in srgb, var(--color-background) 96%, transparent) 0%, color-mix(in srgb, var(--color-background) 55%, transparent) 60%, color-mix(in srgb, var(--color-background) 78%, transparent) 100%);
-}
-
-:root {
-  color-scheme: dark;
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  /* Light theme: warm ivory studio palette — sage as the one accent. */
-  --color-on-tertiary: #ffffff;
-  --color-outline-variant: #e4ddcd;
-  --color-surface-tint: #7f9271;
-  --color-surface-container-low: #fbf9f4;
+/* Map existing app controls to the exact shared studio palette. */
+@theme inline {
+  --color-on-tertiary: var(--color-ink);
+  --color-outline-variant: var(--color-line);
+  --color-surface-tint: var(--color-sage);
+  --color-surface-container-low: var(--color-ivory);
   --color-surface-bright: #ffffff;
-  --color-inverse-surface: #33362d;
+  --color-inverse-surface: var(--color-night);
   --color-surface-container-lowest: #ffffff;
-  --color-inverse-primary: #b9cca9;
-  --color-tertiary-fixed: #f1e9d8;
-  --color-primary-fixed: #eaeee2;
-  --color-on-background: #33362d;
-  --color-primary-fixed-dim: #d3ddc4;
+  --color-inverse-primary: var(--color-sage-light);
+  --color-tertiary-fixed: var(--color-gold-soft);
+  --color-primary-fixed: var(--color-sage-soft);
+  --color-on-background: var(--color-ink);
+  --color-primary-fixed-dim: var(--color-sage-light);
   --color-on-error-container: #7f1d1d;
-  --color-tertiary-fixed-dim: #cdbfa0;
-  --color-on-surface-variant: #74786b;
+  --color-tertiary-fixed-dim: var(--color-gold-soft);
+  --color-on-surface-variant: var(--color-muted);
   --color-error-container: #fee2e2;
-  --color-background: #faf8f3;
-  --color-on-surface: #33362d;
-  --color-on-tertiary-fixed-variant: #5c5340;
-  --color-error: #dc2626;
-  --color-on-secondary-fixed-variant: #4c5c42;
-  --color-surface-dim: #f1ece0;
-  --color-primary-container: #eaeee2;
+  --color-background: var(--color-ivory);
+  --color-on-surface: var(--color-ink);
+  --color-on-tertiary-fixed-variant: var(--color-gold-deep);
+  --color-error: #b91c1c;
+  --color-on-secondary-fixed-variant: var(--color-sage-deep);
+  --color-surface-dim: var(--color-sand);
+  --color-primary-container: var(--color-sage-soft);
   --color-on-error: #ffffff;
-  --color-on-tertiary-container: #4a4331;
-  --color-surface-variant: #f4efe4;
-  --color-tertiary: #8a7f66;
-  --color-on-secondary-fixed: #24301f;
-  --color-on-secondary: #24301f;
-  --color-on-primary-container: #3f4d38;
-  --color-on-primary-fixed-variant: #5f7154;
-  --color-on-tertiary-fixed: #33362d;
-  --color-surface-container-highest: #ece4d4;
-  --color-on-secondary-container: #3f4d38;
-  --color-surface-container-high: #f4efe4;
-  --color-surface-container: #ffffff;
+  --color-on-tertiary-container: var(--color-gold-deep);
+  --color-surface-variant: var(--color-sand);
+  --color-tertiary: var(--color-gold-deep);
+  --color-on-secondary-fixed: var(--color-sage-deep);
+  --color-on-secondary: #ffffff;
+  --color-on-primary-container: var(--color-sage-deep);
+  --color-on-primary-fixed-variant: var(--color-sage-deep);
+  --color-on-tertiary-fixed: var(--color-ink);
+  --color-surface-container-highest: var(--color-sand);
+  --color-on-secondary-container: var(--color-sage-deep);
+  --color-surface-container-high: var(--color-sand);
+  --color-surface-container: var(--color-ivory);
   --color-on-primary: #ffffff;
-  --color-surface: #faf8f3;
-  --color-primary: #5f7154;
-  --color-secondary: #7f9271;
-  --color-secondary-fixed: #a8bc9c;
-  --color-on-primary-fixed: #33362d;
-  --color-tertiary-container: #f1e9d8;
-  --color-secondary-container: #eaeee2;
-  --color-outline: #c9c0a8;
-  --color-inverse-on-surface: #faf8f3;
-  --color-secondary-fixed-dim: #7f9271;
+  --color-surface: var(--color-ivory);
+  --color-primary: var(--color-sage);
+  --color-secondary: var(--color-sage);
+  --color-secondary-fixed: var(--color-sage-deep);
+  --color-on-primary-fixed: var(--color-ink);
+  --color-tertiary-container: var(--color-gold-soft);
+  --color-secondary-container: var(--color-sage-soft);
+  --color-outline: var(--color-line);
+  --color-inverse-on-surface: var(--color-cream);
+  --color-secondary-fixed-dim: var(--color-sage-light);
+  --radius-xl: 1.75rem;
+  --radius-2xl: 1.75rem;
+  --radius-3xl: 2rem;
+}
+
+:root { color-scheme: light; }
+
+@utility brand-gradient { color: var(--color-sage); }
+@utility hero-overlay {
+  background: linear-gradient(to top, color-mix(in srgb, var(--color-background) 96%, transparent), color-mix(in srgb, var(--color-background) 55%, transparent) 60%, color-mix(in srgb, var(--color-background) 78%, transparent));
 }
 
 body {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--color-background);
   color: var(--color-on-background);
   direction: rtl;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .serif-text {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif);
 }
 
 /*
   Radius scale — use these two tokens only.
-  Controls / buttons -> --radius-control (8px). Cards / panels -> --radius-card (16px).
+  Controls / buttons -> pill silhouette. Cards / panels -> studio 28px corners.
   Avoid mixing rounded-sm / xl / 2xl / 3xl on the same surface type.
 */
 :root {
-  --radius-control: 0.5rem;
-  --radius-card: 1rem;
+  --radius-control: 9999px;
+  --radius-card: 1.75rem;
 }
 
 /*
@@ -211,3 +154,11 @@ body {
   }
 }
 
+
+:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
+body { margin: 0; }
+[dir="rtl"] { letter-spacing: normal; }
+[dir="rtl"] [class*="tracking-"]:not(.latin-caps) { letter-spacing: normal; }
+
+::selection { background: var(--color-gold-soft); color: var(--color-ink); }
+.serif-text { font-weight: 400; }

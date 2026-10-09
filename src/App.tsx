@@ -14,8 +14,6 @@ import {
   Mail,
   Sliders,
   ChevronLeft,
-  Sun,
-  Moon,
   Download
 } from 'lucide-react';
 import { Lesson } from './types';
@@ -45,17 +43,7 @@ export default function App() {
     const page = new URLSearchParams(window.location.search).get('page');
     return page === 'privacy' || page === 'terms' ? page : 'home';
   });
-  const [themeMode, setThemeMode] = useState<'system' | 'light' | 'dark'>(() => {
-    try {
-      const saved = localStorage.getItem('pilates-theme-mode');
-      return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'system';
-    } catch {
-      return 'system';
-    }
-  });
-  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
-    window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-  );
+  const theme = 'light' as const;
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [activeSessionLesson, setActiveSessionLesson] = useState<Lesson | null>(null);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
@@ -222,28 +210,6 @@ export default function App() {
   }, []);
 
   const isAuthenticated = Boolean(authProfile);
-
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-color-scheme: light)');
-    const handler = (event: MediaQueryListEvent) => {
-      if (themeMode === 'system') setTheme(event.matches ? 'light' : 'dark');
-    };
-    setTheme(themeMode === 'system' ? (media.matches ? 'light' : 'dark') : themeMode);
-    media.addEventListener?.('change', handler);
-    return () => media.removeEventListener?.('change', handler);
-  }, [themeMode]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('pilates-theme-mode', themeMode);
-    } catch {
-      // ignore storage issues for theme preference
-    }
-  }, [themeMode]);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
 
   useEffect(() => {
     const initialState = {
@@ -471,10 +437,10 @@ export default function App() {
     // overflow-clip (not overflow-x-hidden): hiding only one axis forces the
     // other to compute to `auto`, turning this div into a scroll container and
     // breaking any `position: sticky` inside it.
-    <div className="min-h-screen bg-background text-on-background flex flex-col relative overflow-clip selection:bg-secondary selection:text-on-secondary transition-colors duration-300">
+    <div className="min-h-screen bg-background text-on-background flex flex-col relative overflow-clip selection:bg-gold-soft selection:text-ink transition-colors duration-300">
       
       {/* Header Section */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-background/85 backdrop-blur-md border-b border-outline/20 px-4 sm:px-6 md:px-20 py-3 md:py-4 transition-all duration-300">
+      <header className="fixed top-0 left-0 w-full z-50 bg-background/85 backdrop-blur-md border-b border-line px-4 sm:px-6 md:px-20 py-3 md:py-4 transition-all duration-300">
         <div className="max-w-[1280px] mx-auto flex items-center justify-between gap-3">
           
           {/* Logo & Brand */}
@@ -483,7 +449,7 @@ export default function App() {
             className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
           >
             <LogoMark theme={theme} className="w-9 h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105" />
-            <h2 className="serif-text text-base sm:text-xl font-bold tracking-wide text-[#c9a227] select-none">פילאטיס בתנועה</h2>
+            <h2 className="serif-text text-base sm:text-xl font-bold tracking-wide text-ink select-none">פילאטיס בתנועה</h2>
           </button>
 
           {/* Desktop Navigation */}
@@ -523,7 +489,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => goToProtected('lessons')}
-                  className="w-10 h-10 rounded-full border border-outline/30 bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all overflow-hidden bg-surface-container"
+                  className="w-10 h-10 rounded-full border border-line bg-cover bg-center shadow-md cursor-pointer hover:border-secondary transition-all overflow-hidden bg-surface-container"
                   title={authProfile.name}
                 >
                   {authProfile.avatarUrl ? (
@@ -585,15 +551,7 @@ export default function App() {
               </>
             )}
 
-            <Button
-              onClick={() => setThemeMode((current) => current === 'light' ? 'dark' : 'light')}
-              variant="surface"
-              size="icon"
-              aria-label={theme === 'light' ? 'מעבר למצב כהה' : 'מעבר למצב בהיר'}
-              title={theme === 'light' ? 'מעבר למצב כהה' : 'מעבר למצב בהיר'}
-            >
-              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            </Button>
+
 
           </div>
 
@@ -602,7 +560,7 @@ export default function App() {
 
       {/* Mobile Bottom Navigation — replaces the burger drawer with an
           app-like, always-visible bar. Hidden on lg where the top nav exists. */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-background/90 backdrop-blur-md border-t border-outline/20 pb-[env(safe-area-inset-bottom)]">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-background/90 backdrop-blur-md border-t border-line pb-[env(safe-area-inset-bottom)]">
         <div className="grid grid-cols-4">
           {([
             { key: 'home', label: 'בית', icon: Compass, action: () => navigateTo('home', { editingLesson: null }) },
@@ -763,7 +721,7 @@ export default function App() {
                   transition={{ duration: 1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
                   className="grid gap-4"
                 >
-                  <div className="rounded-3xl border border-outline/20 bg-surface-container/90 backdrop-blur-md p-6 md:p-7 shadow-2xl">
+                  <div className="rounded-3xl border border-line bg-surface-container/90 backdrop-blur-md p-6 md:p-7 shadow-2xl">
                     <div className="text-xs uppercase tracking-[0.25em] text-secondary mb-3">למה זה שווה את הזמן</div>
                     <h3 className="serif-text text-2xl text-on-surface font-bold mb-4">פחות זמן תכנון. יותר מקצועיות מול הלקוחות.</h3>
                     <div className="space-y-4 text-sm text-on-surface-variant">
@@ -774,15 +732,15 @@ export default function App() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5 lift">
+                    <div className="rounded-2xl border border-line bg-surface-container-high p-5 lift">
                       <div className="text-3xl font-black text-secondary mb-2">3 דק'</div>
                       <div className="text-sm text-on-surface">לבניית שלד שיעור מקצועי</div>
                     </div>
-                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5 lift">
+                    <div className="rounded-2xl border border-line bg-surface-container-high p-5 lift">
                       <div className="text-3xl font-black text-secondary mb-2">1 מקום</div>
                       <div className="text-sm text-on-surface">לתרגילים, מערכים ושיתוף</div>
                     </div>
-                    <div className="rounded-2xl border border-outline/20 bg-surface-container-high p-5 lift">
+                    <div className="rounded-2xl border border-line bg-surface-container-high p-5 lift">
                       <div className="text-3xl font-black text-secondary mb-2">255</div>
                       <div className="text-sm text-on-surface">תרגילים מקצועיים במאגר</div>
                     </div>
@@ -821,11 +779,11 @@ export default function App() {
                   <Reveal delay={0}>
                     <div
                       onClick={() => setActiveScreen('library')}
-                      className="group h-full p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
+                      className="group h-full p-8 border border-line bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
                     >
                       <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
-                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
+                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-line group-hover:border-secondary transition-colors text-secondary">
                         <BookOpen className="w-7 h-7" />
                       </div>
 
@@ -845,11 +803,11 @@ export default function App() {
                   <Reveal delay={0.12}>
                     <div
                       onClick={() => goToProtected('builder')}
-                      className="group h-full p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
+                      className="group h-full p-8 border border-line bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
                     >
                       <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
-                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
+                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-line group-hover:border-secondary transition-colors text-secondary">
                         <Sliders className="w-7 h-7" />
                       </div>
 
@@ -869,11 +827,11 @@ export default function App() {
                   <Reveal delay={0.24}>
                     <div
                       onClick={() => goToProtected('lessons')}
-                      className="group h-full p-8 border border-outline/20 bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
+                      className="group h-full p-8 border border-line bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
                     >
                       <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
-                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-outline/20 group-hover:border-secondary transition-colors text-secondary">
+                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-line group-hover:border-secondary transition-colors text-secondary">
                         <FolderHeart className="w-7 h-7" />
                       </div>
 
@@ -925,7 +883,7 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                  <div className="rounded-3xl border border-outline/30 bg-surface-container p-8">
+                  <div className="rounded-3xl border border-line bg-surface-container p-8">
                     <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">מסלול התחלה</div>
                     <div className="text-on-surface text-3xl font-black mb-2">₪79<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
                     <p className="text-sm text-on-surface-variant mb-6">למי שעובד באופן עצמאי ורוצה builder, ספריית שיעורים ותבניות.</p>
@@ -951,7 +909,7 @@ export default function App() {
                     <Button size="md" variant="primary" onClick={() => goToProtected('builder')} className="w-full">זה המסלול המומלץ</Button>
                   </div>
 
-                  <div className="rounded-3xl border border-outline/30 bg-surface-container p-8">
+                  <div className="rounded-3xl border border-line bg-surface-container p-8">
                     <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">לסטודיו</div>
                     <div className="text-on-surface text-3xl font-black mb-2">מותאם אישית</div>
                     <p className="text-sm text-on-surface-variant mb-6">לסטודיו עם כמה מדריכות ומדריכים, ספריית תוכן משותפת ו־workflow צוותי.</p>
@@ -1012,7 +970,7 @@ export default function App() {
         <Suspense
         fallback={
           <div className="max-w-[1280px] mx-auto px-6 md:px-20 py-24">
-            <div className="rounded-3xl border border-outline/30 bg-surface-container p-8 text-center text-on-surface-variant">
+            <div className="rounded-3xl border border-line bg-surface-container p-8 text-center text-on-surface-variant">
               טוען את סביבת העבודה...
             </div>
           </div>
@@ -1090,7 +1048,7 @@ export default function App() {
       {/* Footer Section */}
       {/* pb accounts for the fixed mobile bottom nav so footer links (privacy/
           terms) aren't hidden underneath it. */}
-      <footer className="pt-10 pb-28 lg:py-10 bg-surface-container-lowest border-t border-outline/20 px-6 md:px-20 mt-auto">
+      <footer className="pt-10 pb-28 lg:py-10 bg-surface-container-lowest border-t border-line px-6 md:px-20 mt-auto">
         <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
 
           <div
@@ -1098,7 +1056,7 @@ export default function App() {
             className="flex items-center gap-2.5 cursor-pointer"
           >
             <LogoMark theme={theme} className="w-8 h-8" />
-            <span className="serif-text font-bold tracking-widest text-[#c9a227] text-sm">פילאטיס בתנועה</span>
+            <span className="serif-text font-bold tracking-widest text-ink text-sm">פילאטיס בתנועה</span>
           </div>
 
           <p className="text-on-surface-variant text-sm text-center">
@@ -1173,15 +1131,15 @@ function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
           </div>
 
           <div className="grid sm:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-outline/30 bg-surface-container p-4">
+            <div className="rounded-2xl border border-line bg-surface-container p-4">
               <div className="text-on-surface font-bold mb-2">בניית שיעור חכמה</div>
               <div className="text-sm text-on-surface-variant">בניית שיעורים לפי מטרה, רמה, משך וציוד.</div>
             </div>
-            <div className="rounded-2xl border border-outline/30 bg-surface-container p-4">
+            <div className="rounded-2xl border border-line bg-surface-container p-4">
               <div className="text-on-surface font-bold mb-2">תבניות</div>
               <div className="text-sm text-on-surface-variant">שכפול והתאמה של מערכים בלי להתחיל כל פעם מאפס.</div>
             </div>
-            <div className="rounded-2xl border border-outline/30 bg-surface-container p-4">
+            <div className="rounded-2xl border border-line bg-surface-container p-4">
               <div className="text-on-surface font-bold mb-2">סנכרון לענן</div>
               <div className="text-sm text-on-surface-variant">ספריית שיעורים מסונכרנת ונגישה מכל מכשיר.</div>
             </div>
