@@ -1,4 +1,6 @@
-import { Lesson } from '../types';
+import type { Lesson } from '../types';
+import { escapeHtml } from './printHtml';
+import { parseLesson } from './lessonValidation';
 
 export function lessonToWhatsappText(lesson: Lesson) {
   const lines = [
@@ -19,20 +21,25 @@ export function lessonToWhatsappText(lesson: Lesson) {
 }
 
 // Opens WhatsApp (app on mobile, web on desktop) with the lesson text ready to
-// send — no clipboard dance. Returns false only if the window was blocked.
+// send. A noopener window handle cannot reliably indicate popup blocking.
 export function shareLessonToWhatsapp(lesson: Lesson) {
-  const url = `https://wa.me/?text=${encodeURIComponent(lessonToWhatsappText(lesson))}`;
-  const win = window.open(url, '_blank', 'noopener,noreferrer');
-  return Boolean(win);
+  const link = document.createElement('a');
+  link.href = `https://wa.me/?text=${encodeURIComponent(lessonToWhatsappText(lesson))}`;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 }
 
-function buildPrintHtml(lesson: Lesson) {
+export function buildPrintHtml(lesson: Lesson) {
+  lesson = parseLesson(lesson);
   return `
     <!doctype html>
     <html lang="he" dir="rtl">
       <head>
         <meta charset="UTF-8" />
-        <title>${lesson.name}</title>
+        <title>${escapeHtml(lesson.name)}</title>
         <style>
           body { font-family: Arial, sans-serif; background: #fff; color: #33362d; padding: 32px; line-height: 1.6; }
           h1 { margin: 0 0 8px; font-size: 28px; font-family: Georgia, serif; color: #5f7154; }
@@ -45,24 +52,24 @@ function buildPrintHtml(lesson: Lesson) {
         </style>
       </head>
       <body>
-        <h1>${lesson.name}</h1>
+        <h1>${escapeHtml(lesson.name)}</h1>
         <div class="meta">
-          <div><strong>רמה:</strong> ${lesson.levelLabel}</div>
-          <div><strong>פוקוס:</strong> ${lesson.targetFocus}</div>
-          <div><strong>משך:</strong> ${lesson.totalDuration} דקות</div>
-          ${lesson.description ? `<div><strong>תיאור:</strong> ${lesson.description}</div>` : ''}
+          <div><strong>רמה:</strong> ${escapeHtml(lesson.levelLabel)}</div>
+          <div><strong>פוקוס:</strong> ${escapeHtml(lesson.targetFocus)}</div>
+          <div><strong>משך:</strong> ${escapeHtml(lesson.totalDuration)} דקות</div>
+          ${lesson.description ? `<div><strong>תיאור:</strong> ${escapeHtml(lesson.description)}</div>` : ''}
         </div>
         ${lesson.exercises.map((item, index) => `
           <div class="card">
-            <div><span class="index">${index + 1}</span><strong>${item.exercise.name}</strong> <span style="color:#8a8d7c">(${item.exercise.englishName})</span></div>
+            <div><span class="index">${index + 1}</span><strong>${escapeHtml(item.exercise.name)}</strong> <span style="color:#8a8d7c">(${escapeHtml(item.exercise.englishName)})</span></div>
             <div class="tags">
-              <span>${item.exercise.apparatusLabel}</span>
-              <span>${item.exercise.difficultyLabel}</span>
-              ${item.exercise.categoryLabel ? `<span>${item.exercise.categoryLabel}</span>` : ''}
-              <span>${item.customDuration} דקות</span>
+              <span>${escapeHtml(item.exercise.apparatusLabel)}</span>
+              <span>${escapeHtml(item.exercise.difficultyLabel)}</span>
+              ${item.exercise.categoryLabel ? `<span>${escapeHtml(item.exercise.categoryLabel)}</span>` : ''}
+              <span>${escapeHtml(item.customDuration)} דקות</span>
             </div>
-            <div>${item.exercise.benefits}</div>
-            ${item.notes ? `<div class="notes"><strong>דגש:</strong> ${item.notes}</div>` : ''}
+            <div>${escapeHtml(item.exercise.benefits)}</div>
+            ${item.notes ? `<div class="notes"><strong>דגש:</strong> ${escapeHtml(item.notes)}</div>` : ''}
           </div>
         `).join('')}
       </body>
@@ -75,6 +82,8 @@ function buildPrintHtml(lesson: Lesson) {
 // export button look broken. The browser's print dialog includes "Save as PDF".
 export function openLessonPrint(lesson: Lesson) {
   const iframe = document.createElement('iframe');
+  iframe.setAttribute('sandbox', 'allow-same-origin allow-modals');
+  iframe.setAttribute('title', 'תצוגת הדפסה של השיעור');
   iframe.style.position = 'fixed';
   iframe.style.width = '0';
   iframe.style.height = '0';

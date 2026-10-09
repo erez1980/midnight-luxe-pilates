@@ -6,26 +6,36 @@ import { INITIAL_EXERCISES } from '../data';
 import { openLessonPrint, shareLessonToWhatsapp } from '../utils/lessonExport';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
+import Dialog from './ui/Dialog';
+import { buildAutoLesson } from '../utils/autoBuild';
+import { readDraft, writeDraft, removeDraft } from '../utils/drafts';
 
 interface LessonBuilderProps {
-  onSaveLesson: (lesson: Lesson) => void;
+  onSaveLesson: (lesson: Lesson) => boolean;
+  storageScope: string;
   existingLessonToEdit?: Lesson | null;
 }
 
-export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = null }: LessonBuilderProps) {
+export default function LessonBuilder({ onSaveLesson, storageScope, existingLessonToEdit = null }: LessonBuilderProps) {
+  const [restored] = useState(() => readDraft(storageScope, existingLessonToEdit?.id));
+  const [draftPaused, setDraftPaused] = useState(restored.error);
+  const [draftStatus, setDraftStatus] = useState(restored.error ? 'לא ניתן לקרוא את הטיוטה הקודמת. היא לא נדרסה.' : restored.draft ? 'שוחזרה טיוטה מהמכשיר.' : 'טיוטה נשמרת במכשיר.');
+  const [preview, setPreview] = useState<ReturnType<typeof buildAutoLesson> | null>(null);
+  const [discardDraftOpen, setDiscardDraftOpen] = useState(false);
+  const savedRef = useRef(false);
   // Lesson metadata state
-  const [lessonName, setLessonName] = useState(existingLessonToEdit?.name || '');
-  const [description, setDescription] = useState(existingLessonToEdit?.description || '');
-  const [level, setLevel] = useState<Lesson['level']>(existingLessonToEdit?.level || 'intermediate');
-  const [targetFocus, setTargetFocus] = useState(existingLessonToEdit?.targetFocus || 'חיזוק כללי ויציבה');
-  const [exercises, setExercises] = useState<LessonExercise[]>(existingLessonToEdit?.exercises || []);
+  const [lessonName, setLessonName] = useState(restored.draft?.lessonName ?? existingLessonToEdit?.name ?? '');
+  const [description, setDescription] = useState(restored.draft?.description ?? existingLessonToEdit?.description ?? '');
+  const [level, setLevel] = useState<Lesson['level']>(restored.draft?.level ?? existingLessonToEdit?.level ?? 'intermediate');
+  const [targetFocus, setTargetFocus] = useState(restored.draft?.targetFocus ?? existingLessonToEdit?.targetFocus ?? 'חיזוק כללי ויציבה');
+  const [exercises, setExercises] = useState<LessonExercise[]>(restored.draft?.exercises ?? existingLessonToEdit?.exercises ?? []);
   const [errors, setErrors] = useState<string[]>([]);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [builderSearchQuery, setBuilderSearchQuery] = useState('');
   const [builderApparatus, setBuilderApparatus] = useState<string>('all');
   const [builderDifficulty, setBuilderDifficulty] = useState<string>('all');
   const [builderCategory, setBuilderCategory] = useState<string>('all');
-  const [autoBuildDuration, setAutoBuildDuration] = useState<number>(45);
+  const [autoBuildDuration, setAutoBuildDuration] = useState<number>(restored.draft?.autoBuildDuration ?? 45);
   const [activeStep, setActiveStep] = useState<'setup' | 'generate' | 'refine' | 'finish'>('setup');
   const [showBuilderFilters, setShowBuilderFilters] = useState(false);
   const setupRef = useRef<HTMLDivElement | null>(null);
@@ -67,7 +77,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const handleUpdateDuration = (id: string, amount: number) => {
     setExercises(exercises.map(e => {
       if (e.exercise.id === id) {
-        const newDuration = Math.max(1, e.customDuration + amount);
+        const newDuration = Math.min(180, Math.max(1, e.customDuration + amount));
         return { ...e, customDuration: newDuration };
       }
       return e;
@@ -105,14 +115,22 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   };
 
   useEffect(() => {
-    const draftKey = existingLessonToEdit ? `pilates_lesson_draft_${existingLessonToEdit.id}` : 'pilates_lesson_builder_draft';
-    const draft = { lessonName, description, level, targetFocus, exercises, autoBuildDuration };
+    if (draftPaused || savedRef.current) return;
     try {
-      localStorage.setItem(draftKey, JSON.stringify(draft));
-    } catch {
-      // Keep the builder usable even when storage is blocked/full.
-    }
-  }, [lessonName, description, level, targetFocus, exercises, autoBuildDuration, existingLessonToEdit]);
+      writeDraft(storageScope, existingLessonToEdit?.id, { lessonName, description, level, targetFocus, exercises, autoBuildDuration });
+      setDraftStatus(restored.draft ? 'שוחזרה טיוטה. השינויים נשמרו במכשיר.' : 'הטיוטה נשמרה במכשיר.');
+    } catch { setDraftStatus('שמירת הטיוטה נכשלה. יש לפנות מקום במכשיר לפני יציאה מהמסך.'); }
+  }, [lessonName, description, level, targetFocus, exercises, autoBuildDuration, storageScope, existingLessonToEdit?.id, draftPaused]);
+
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      if (!savedRef.current && (draftPaused || draftStatus.includes('נכשלה')) && (lessonName || exercises.length)) {
+        event.preventDefault(); event.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', beforeUnload);
+    return () => window.removeEventListener('beforeunload', beforeUnload);
+  }, [draftPaused, draftStatus, lessonName, exercises.length]);
 
   const buildCurrentLessonPayload = (): Lesson => ({
     id: existingLessonToEdit?.id || `custom_lesson_${Date.now()}`,
@@ -128,67 +146,28 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   });
 
   const autoBuildLesson = () => {
-    const acceptedLevels = level === 'mixed' ? ['beginner', 'intermediate'] : [level];
-    const preferredApparatus = builderApparatus === 'all' ? null : builderApparatus;
-    const blocks = [
-      ['warmup', Math.max(5, Math.round(autoBuildDuration * 0.16))],
-      ['mobility', Math.max(4, Math.round(autoBuildDuration * 0.14))],
-      ['core', Math.max(10, Math.round(autoBuildDuration * 0.24))],
-      ['glutes', Math.max(8, Math.round(autoBuildDuration * 0.2))],
-      ['balance', Math.max(6, Math.round(autoBuildDuration * 0.14))],
-      ['cooldown', Math.max(4, Math.round(autoBuildDuration * 0.12))]
-    ] as const;
-
-    const used = new Set<string>();
-    const generated: LessonExercise[] = [];
-
-    blocks.forEach(([category, targetMinutes]) => {
-      let remaining = targetMinutes;
-      const pool = INITIAL_EXERCISES.filter((exercise) => {
-        const matchesCategory = exercise.category === category;
-        const matchesLevel = level === 'mixed' || acceptedLevels.includes(exercise.difficulty);
-        const matchesApparatus = !preferredApparatus || exercise.apparatus === preferredApparatus;
-        return matchesCategory && matchesLevel && matchesApparatus && !used.has(exercise.id);
-      });
-
-      for (const exercise of pool) {
-        if (remaining <= 0) break;
-        used.add(exercise.id);
-        const customDuration = Math.min(Math.max(2, exercise.durationMinutes), remaining);
-        generated.push({
-          exercise,
-          customDuration,
-          notes: category === 'cooldown' ? 'לסיים עם נשימה, הארכה והורדת עומס' : ''
-        });
-        remaining -= customDuration;
-      }
-    });
-
-    if (generated.length) {
-      setExercises(generated);
-      if (!lessonName.trim()) setLessonName(`שיעור אוטומטי ${autoBuildDuration} דקות`);
-      // Description intentionally left for the user — an auto-filled generic
-      // sentence just repeats itself on every lesson card.
-      setActiveStep('refine');
-    }
+    try { setPreview(buildAutoLesson(INITIAL_EXERCISES, autoBuildDuration, level, builderApparatus)); }
+    catch (error) { setErrors([error instanceof Error ? error.message : 'לא ניתן לבנות את השיעור']); }
+  };
+  const applyPreview = () => {
+    if (!preview?.exercises.length) return;
+    setExercises(preview.exercises);
+    if (!lessonName.trim()) setLessonName(`שיעור ${preview.duration} דקות`);
+    setPreview(null); setActiveStep('refine');
   };
 
   const handlePrintLesson = () => {
     if (exercises.length === 0) return;
     const ok = openLessonPrint(buildCurrentLessonPayload());
     if (!ok) {
-      window.alert('חלון ההדפסה נחסם בדפדפן. יש לאפשר popups ולנסות שוב.');
+      setErrors(['לא ניתן לפתוח את תצוגת ההדפסה. אפשר לנסות שוב בדפדפן אחר.']);
     }
   };
 
   // Opens WhatsApp directly with the lesson text ready to send — a real share,
   // not a copy-to-clipboard that leaves the user to figure out the next step.
   const handleShareWhatsapp = () => {
-    if (exercises.length === 0) return;
-    const ok = shareLessonToWhatsapp(buildCurrentLessonPayload());
-    if (!ok) {
-      window.alert('פתיחת WhatsApp נחסמה בדפדפן. יש לאפשר חלונות קופצים לאתר ולנסות שוב.');
-    }
+    if (exercises.length) shareLessonToWhatsapp(buildCurrentLessonPayload());
   };
 
   // Save full lesson
@@ -215,7 +194,12 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
       name: lessonName,
     };
 
-    onSaveLesson(savedLesson);
+    if (!onSaveLesson(savedLesson)) {
+      setErrors(['השיעור לא נשמר. יש לבדוק את האחסון ולנסות שוב.']);
+      return;
+    }
+    savedRef.current = true;
+    try { removeDraft(storageScope, existingLessonToEdit?.id); } catch { /* The saved lesson is durable even if cleanup fails. */ }
     setShowSuccessToast(true);
     setTimeout(() => setShowSuccessToast(false), 3000);
     setActiveStep('finish');
@@ -311,7 +295,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   ] as const;
 
   const categorySummary = exercises.reduce<Record<string, number>>((acc, item) => {
-    const key = item.exercise.categoryLabel || item.exercise.category;
+    const key = item.exercise.categoryLabel || item.exercise.category || 'אחר';
     acc[key] = (acc[key] || 0) + item.customDuration;
     return acc;
   }, {});
@@ -324,6 +308,28 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
   return (
     <div className="w-full">
+      <div className="mb-5 rounded-xl border border-outline/30 bg-surface-container p-4">
+        <p role="status" className="text-sm text-on-surface-variant">{draftStatus}</p>
+        <Button type="button" variant="ghost" size="sm" className="mt-2" onClick={() => setDiscardDraftOpen(true)}>מחיקת הטיוטה והתחלה מחדש</Button>
+      </div>
+      <Dialog open={discardDraftOpen} onClose={() => setDiscardDraftOpen(false)} label="מחיקת טיוטה">
+        <h2 className="text-xl font-bold mb-3">למחוק את הטיוטה מהמכשיר?</h2>
+        <p className="text-on-surface-variant mb-5">השינויים שלא נשמרו לשיעור יימחקו. שיעור שכבר שמור בספרייה לא יימחק.</p>
+        <div className="flex gap-3"><Button type="button" variant="surface" onClick={() => setDiscardDraftOpen(false)}>ביטול</Button><Button type="button" onClick={() => {
+          try { removeDraft(storageScope, existingLessonToEdit?.id); } catch { setDraftStatus('מחיקת הטיוטה נכשלה.'); return; }
+          setLessonName(existingLessonToEdit?.name || ''); setDescription(existingLessonToEdit?.description || '');
+          setLevel(existingLessonToEdit?.level || 'intermediate'); setTargetFocus(existingLessonToEdit?.targetFocus || 'חיזוק כללי ויציבה');
+          setExercises(existingLessonToEdit?.exercises || []); setAutoBuildDuration(45); setDraftPaused(false); setDiscardDraftOpen(false);
+        }}>מחיקת הטיוטה</Button></div>
+      </Dialog>
+      <Dialog open={Boolean(preview)} onClose={() => setPreview(null)} label="תצוגה מקדימה של מערך אוטומטי">
+        <h2 className="text-xl font-bold mb-3">המערך המוצע: {preview?.duration} דקות</h2>
+        <p className="mb-3 text-on-surface-variant">{preview?.exercises.length} תרגילים לפי הרמה והמכשיר שנבחרו. המערך הנוכחי יוחלף רק אחרי אישור.</p>
+        {Boolean(preview?.missing.length) && <p role="status" className="mb-4 text-error">אין מספיק תרגילים מתאימים לכל שלבי השיעור. נבנו {preview?.duration} מתוך {preview?.requestedDuration} דקות. יש להשלים את המערך ידנית או לשנות מסננים.</p>}
+        <ol className="mb-5 list-decimal ps-5 space-y-2 text-sm">{preview?.exercises.map((item) => <li key={item.exercise.id}>{item.exercise.name} — {item.customDuration} דקות</li>)}</ol>
+        <div className="flex flex-wrap gap-3"><Button type="button" variant="surface" onClick={() => setPreview(null)}>חזרה ללא שינוי</Button><Button type="button" disabled={!preview?.exercises.length} onClick={applyPreview}>אישור והחלפת המערך</Button></div>
+      </Dialog>
+
       {/* Toast */}
       <AnimatePresence>
         {showSuccessToast && (
@@ -348,7 +354,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             {existingLessonToEdit ? 'עריכת מערך שיעור' : 'בניית שיעור בצורה מקצועית וברורה'}
           </h2>
           <p className="text-on-surface-variant text-lg max-w-3xl leading-relaxed">
-            בוחרים מטרה, רמה ומשך, יוצרים שלד חכם בלחיצה אחת, ואז מדייקים את ה-flow עד שיש שיעור שמוכן ללמד, לשמור ולשתף.
+            בוחרים מטרה, רמה ומשך, יוצרים שלד חכם בלחיצה אחת, ואז מדייקים את הרצף עד שיש שיעור שמוכן ללמד, לשמור ולשתף.
           </p>
         </div>
 
@@ -415,7 +421,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             </div>
 
             {errors.length > 0 && (
-              <div className="bg-error-container border border-error/30 text-rose-400 p-4 text-xs space-y-1 rounded-sm">
+              <div role="alert" className="bg-error-container border border-error/30 text-error p-4 text-xs space-y-1 rounded-sm">
                 {errors.map((err, i) => (
                   <p key={i}>• {err}</p>
                 ))}
@@ -424,7 +430,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-secondary uppercase mb-2">שם השיעור *</label>
+                <label htmlFor="lesson-name" className="block text-xs font-bold text-secondary uppercase mb-2">שם השיעור *</label>
                 <input
                   id="lesson-name"
                   type="text"
@@ -436,7 +442,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-secondary uppercase mb-2">מיקוד השיעור (Target Focus)</label>
+                <label htmlFor="lesson-focus" className="block text-xs font-bold text-secondary uppercase mb-2">מיקוד השיעור</label>
                 <input
                   id="lesson-focus"
                   type="text"
@@ -450,7 +456,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-secondary uppercase mb-2">דרגת קושי מומלצת</label>
+                <label htmlFor="lesson-level" className="block text-xs font-bold text-secondary uppercase mb-2">דרגת קושי מומלצת</label>
                 <select
                   id="lesson-level"
                   value={level}
@@ -460,12 +466,12 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                   <option value="beginner">מתחילים</option>
                   <option value="intermediate">בינוני</option>
                   <option value="advanced">מתקדם</option>
-                  <option value="mixed">רמות מעורבות (Mixed Levels)</option>
+                  <option value="mixed">רמות מעורבות — מתחילים ובינוני</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-secondary uppercase mb-2">תיאור קצר</label>
+                <label htmlFor="lesson-desc" className="block text-xs font-bold text-secondary uppercase mb-2">תיאור קצר</label>
                 <input
                   id="lesson-desc"
                   type="text"
@@ -497,8 +503,9 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             </div>
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
               <div>
-                <label className="block text-xs font-bold text-secondary uppercase mb-2">משך שיעור אוטומטי</label>
+                <label htmlFor="auto-duration" className="block text-xs font-bold text-secondary uppercase mb-2">משך שיעור אוטומטי</label>
                 <input
+                  id="auto-duration"
                   type="range"
                   min={20}
                   max={90}
@@ -575,7 +582,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                             <button
                               type="button"
                               onClick={() => handleUpdateDuration(el.exercise.id, -1)}
-                              className="h-7 w-7 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                              className="h-11 w-11 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
                               title="פחות דקה"
                             >
                               −
@@ -584,7 +591,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                             <button
                               type="button"
                               onClick={() => handleUpdateDuration(el.exercise.id, 1)}
-                              className="h-7 w-7 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                              className="h-11 w-11 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
                               title="עוד דקה"
                             >
                               +
@@ -596,7 +603,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                               type="button"
                               onClick={() => handleMoveUp(index)}
                               disabled={index === 0}
-                              className={`p-1.5 text-on-surface-variant hover:text-secondary rounded-md transition-colors ${index === 0 ? 'opacity-20 cursor-not-allowed' : ''}`}
+                              className={`h-11 w-11 flex items-center justify-center text-on-surface-variant hover:text-secondary rounded-md transition-colors ${index === 0 ? 'opacity-20 cursor-not-allowed' : ''}`}
                               title="העבר למעלה"
                             >
                               <ArrowUp className="w-3.5 h-3.5" />
@@ -605,7 +612,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                               type="button"
                               onClick={() => handleMoveDown(index)}
                               disabled={index === exercises.length - 1}
-                              className={`p-1.5 text-on-surface-variant hover:text-secondary rounded-md transition-colors ${index === exercises.length - 1 ? 'opacity-20 cursor-not-allowed' : ''}`}
+                              className={`h-11 w-11 flex items-center justify-center text-on-surface-variant hover:text-secondary rounded-md transition-colors ${index === exercises.length - 1 ? 'opacity-20 cursor-not-allowed' : ''}`}
                               title="העבר למטה"
                             >
                               <ArrowDown className="w-3.5 h-3.5" />
@@ -613,7 +620,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                             <button
                               type="button"
                               onClick={() => handleRemoveExercise(el.exercise.id)}
-                              className="p-1.5 text-rose-400/70 hover:text-error rounded-md transition-colors"
+                              className="h-11 w-11 flex items-center justify-center text-error hover:text-error rounded-md transition-colors"
                               title="הסר תרגיל"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -624,6 +631,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
                       <input
                         type="text"
+                        aria-label={`דגש הדרכה לתרגיל ${el.exercise.name}`}
                         placeholder="דגש הדרכה לתרגיל הזה..."
                         value={el.notes || ''}
                         onChange={(e) => handleUpdateNotes(el.exercise.id, e.target.value)}
@@ -723,7 +731,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 <div className="text-sm text-on-surface font-bold mb-2">בדיקות מהירות</div>
                 <div className="space-y-2">
                   {builderWarnings.length > 0 ? builderWarnings.map((warning) => (
-                    <div key={warning} className="rounded-xl border border-gold/40 bg-gold-soft/40 px-3 py-2 text-xs text-amber-100">
+                    <div key={warning} className="rounded-xl border border-gold/40 bg-gold-soft/40 px-3 py-2 text-xs text-on-surface">
                       {warning}
                     </div>
                   )) : (
@@ -753,7 +761,8 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="חיפוש לפי שם תרגיל, English או קבוצת שריר..."
+                  aria-label="חיפוש תרגילים לבניית שיעור"
+                  placeholder="חיפוש לפי שם תרגיל, שם באנגלית או קבוצת שריר..."
                   value={builderSearchQuery}
                   onChange={(e) => setBuilderSearchQuery(e.target.value)}
                   className="w-full rounded-xl border border-outline/30 bg-background pr-11 pl-10 py-3 text-sm text-on-surface focus:outline-none focus:border-secondary transition-colors"

@@ -1,8 +1,9 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { Play, Pencil, Trash2, Plus, FolderHeart, Copy, Bookmark, Download, Upload, CloudCheck, CloudAlert, RefreshCw, MoreVertical, Search, X, Sparkles, Clock3, Layers3, ArrowUpRight, Share2 } from 'lucide-react';
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
 import Button from './ui/Button';
+import Dialog from './ui/Dialog';
 
 interface MyLessonsProps {
   lessons: Lesson[];
@@ -12,6 +13,8 @@ interface MyLessonsProps {
   onDeleteLesson: (id: string) => void;
   onCreateNewLesson: () => void;
   onCopyShareLink: (lesson: Lesson) => void;
+  onRevokeShareLinks: (lesson: Lesson) => Promise<void>;
+  onAddExamples: () => void;
   onBackHome: () => void;
   onExportBundle: () => void;
   onImportBundle: (file: File) => void;
@@ -28,6 +31,8 @@ export default function MyLessons({
   onDeleteLesson,
   onCreateNewLesson,
   onCopyShareLink,
+  onRevokeShareLinks,
+  onAddExamples,
   onBackHome,
   onExportBundle,
   onImportBundle,
@@ -36,6 +41,9 @@ export default function MyLessons({
   const importInputRef = useRef<HTMLInputElement>(null);
   // One open menu at a time: 'page' for the header overflow menu, or a lesson id.
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [pendingRevoke, setPendingRevoke] = useState<Lesson | null>(null);
+  const [revoking, setRevoking] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [query, setQuery] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('recent');
   const [pendingDeleteLesson, setPendingDeleteLesson] = useState<Lesson | null>(null);
@@ -43,8 +51,8 @@ export default function MyLessons({
   const cloudStatusDisplay = {
     idle: null,
     syncing: { icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />, text: 'מסנכרן לענן...', className: 'text-on-surface-variant' },
-    synced: { icon: <CloudCheck className="w-3.5 h-3.5" />, text: 'מגובה בענן', className: 'text-emerald-400' },
-    error: { icon: <CloudAlert className="w-3.5 h-3.5" />, text: 'סנכרון נכשל - מגובה מקומית בלבד', className: 'text-rose-400' }
+    synced: { icon: <CloudCheck className="w-3.5 h-3.5" />, text: 'מגובה בענן', className: 'text-secondary' },
+    error: { icon: <CloudAlert className="w-3.5 h-3.5" />, text: 'סנכרון נכשל - מגובה מקומית בלבד', className: 'text-error' }
   }[cloudStatus || 'idle'];
 
   const visibleLessons = useMemo(() => {
@@ -63,6 +71,12 @@ export default function MyLessons({
   }, [lessons, query, sortMode]);
 
   const closeMenu = () => setOpenMenu(null);
+  useEffect(() => {
+    if (!openMenu) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') { setOpenMenu(null); menuButtonRef.current?.focus(); } };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [openMenu]);
 
   return (
     <div className="w-full">
@@ -95,6 +109,9 @@ export default function MyLessons({
             {/* Page-level overflow menu: backup actions live here now */}
             <div className="relative">
               <Button
+                ref={menuButtonRef}
+                aria-expanded={openMenu === 'page'}
+                aria-controls="backup-actions"
                 onClick={() => setOpenMenu(openMenu === 'page' ? null : 'page')}
                 variant="surface"
                 size="icon"
@@ -104,7 +121,7 @@ export default function MyLessons({
                 <MoreVertical className="w-4 h-4" />
               </Button>
               {openMenu === 'page' && (
-                <div className="absolute left-0 top-full mt-2 z-40 min-w-[200px] rounded-lg border border-outline/30 bg-surface-container-high shadow-2xl py-1.5">
+                <div id="backup-actions" className="absolute left-0 top-full mt-2 z-40 min-w-[200px] rounded-lg border border-outline/30 bg-surface-container-high shadow-2xl py-1.5">
                   <button
                     onClick={() => { closeMenu(); onExportBundle(); }}
                     className="w-full text-right px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container flex items-center gap-2.5"
@@ -175,7 +192,7 @@ export default function MyLessons({
                 <div className="text-xs text-on-surface-variant mb-4">{lesson.levelLabel || 'מותאם אישית'} · {lesson.totalDuration || 0} דק׳</div>
                 <div className="flex gap-2 flex-wrap">
                   <Button onClick={() => onEditLesson(lesson)} variant="primary" size="sm">שימוש בתבנית</Button>
-                  <Button onClick={() => onCopyShareLink(lesson)} variant="surface" size="sm"><Copy className="w-3.5 h-3.5" />שיתוף</Button>
+                  <Button onClick={() => onCopyShareLink(lesson)} variant="surface" size="sm"><Copy className="w-3.5 h-3.5" />שיתוף</Button><Button variant="ghost" size="sm" onClick={() => setPendingRevoke(lesson)}>ביטול קישורי שיתוף</Button>
                 </div>
               </div>
             ))}
@@ -192,6 +209,7 @@ export default function MyLessons({
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              aria-label="חיפוש בשיעורים"
               placeholder="חיפוש בשיעורים..."
               className="w-full h-11 pr-10 pl-10 rounded-2xl bg-background border border-outline/30 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-secondary/60 transition-colors"
             />
@@ -226,9 +244,7 @@ export default function MyLessons({
           <p className="text-on-surface-variant mb-8 max-w-md text-sm leading-relaxed">
             עדיין אין כאן מערכי שיעור מותאמים אישית. הכפתור למטה יוצר את הזרימה האישית הראשונה שלך.
           </p>
-          <Button onClick={onCreateNewLesson} variant="outline" size="md">
-            בניית שיעור פילאטיס ראשון
-          </Button>
+          <div className="flex flex-wrap justify-center gap-3"><Button onClick={onCreateNewLesson} variant="outline" size="md">בניית שיעור ראשון</Button><Button onClick={onAddExamples} variant="surface" size="md">הוספת שיעורים לדוגמה</Button></div>
         </div>
       ) : visibleLessons.length === 0 ? (
         <div className="py-16 text-center text-on-surface-variant">
@@ -332,16 +348,15 @@ export default function MyLessons({
                   </div>
                 )}
               </div>
+              <Button variant="ghost" size="sm" className="mx-4 mb-3" onClick={() => setPendingRevoke(lesson)}>ביטול קישורי שיתוף</Button>
             </motion.div>
           ))}
         </div>
       )}
 
-      {pendingDeleteLesson && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
-          <div className="w-full max-w-md rounded-3xl border border-rose-500/20 bg-surface-container-high p-6 shadow-2xl">
-            <div className="text-xs tracking-[0.2em] text-rose-300 font-bold mb-3">מחיקת שיעור</div>
-            <h3 className="serif-text text-2xl text-on-surface font-bold mb-3">למחוק את "{pendingDeleteLesson.name}"?</h3>
+      <Dialog open={Boolean(pendingDeleteLesson)} onClose={() => setPendingDeleteLesson(null)} label="מחיקת שיעור">
+            <div className="text-xs tracking-[0.2em] text-error font-bold mb-3">מחיקת שיעור</div>
+            <h3 className="serif-text text-2xl text-on-surface font-bold mb-3">למחוק את "{pendingDeleteLesson?.name}"?</h3>
             <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
               המחיקה תסיר את המערך מספריית השיעורים לצמיתות. שיעור שנמחק לא ניתן לשחזור.
             </p>
@@ -354,7 +369,7 @@ export default function MyLessons({
                 variant="primary"
                 size="md"
                 onClick={() => {
-                  onDeleteLesson(pendingDeleteLesson.id);
+                  if (pendingDeleteLesson) onDeleteLesson(pendingDeleteLesson.id);
                   setPendingDeleteLesson(null);
                 }}
                 className="!bg-error hover:brightness-95 !text-on-error"
@@ -363,9 +378,13 @@ export default function MyLessons({
                 מחקי שיעור
               </Button>
             </div>
-          </div>
-        </div>
-      )}
+      </Dialog>
+      <Dialog open={Boolean(pendingRevoke)} onClose={() => { if (!revoking) setPendingRevoke(null); }} label="ביטול קישורי שיתוף">
+        <h2 className="text-xl font-bold mb-3">לבטל את קישורי השיתוף של {pendingRevoke?.name}?</h2>
+        <p className="mb-5 text-on-surface-variant">קישורים שנוצרו בחשבון הזה יפסיקו לעבוד. עותקים שכבר נשמרו אצל נמענים אינם נמחקים. קישורים ישנים ללא בעלות וקישורים שמכילים את השיעור עצמו אינם ניתנים לביטול כאן.</p>
+        <div className="flex gap-3"><Button variant="surface" disabled={revoking} onClick={() => setPendingRevoke(null)}>ביטול</Button><Button disabled={revoking} onClick={async () => { if (!pendingRevoke) return; setRevoking(true); try { await onRevokeShareLinks(pendingRevoke); setPendingRevoke(null); } finally { setRevoking(false); } }}>{revoking ? 'מבטל...' : 'ביטול הקישורים'}</Button></div>
+      </Dialog>
+
     </div>
   );
 }

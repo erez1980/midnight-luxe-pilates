@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
 import {
   Play,
   Search,
@@ -17,14 +17,14 @@ import {
   Download
 } from 'lucide-react';
 import { Lesson } from './types';
-import { INITIAL_LESSONS } from './data';
+import { INITIAL_LESSONS, INITIAL_EXERCISES } from './data';
 const ExerciseLibrary = lazy(() => import('./components/ExerciseLibrary'));
 const LessonBuilder = lazy(() => import('./components/LessonBuilder'));
 const MyLessons = lazy(() => import('./components/MyLessons'));
 const CoachingSession = lazy(() => import('./components/CoachingSession'));
 import { PrivacyPolicy, TermsOfUse } from './components/LegalPages';
-import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
-import { pullCloudLessons, pushCloudLessons, createSharedLesson, fetchSharedLesson } from './utils/cloudSync';
+import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, exportRawWorkspace, importLessonsBundle, readSharedLessonFromUrl, readLegacyBundle, hasLegacyBundle } from './utils/storage';
+import { createSharedLesson, fetchSharedLesson, revokeSharedLessons } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
 import { AuthProfile, getAuthProfile, listenToAuthChanges, signInWithGoogle, signOut } from './utils/auth';
 import { ProfileDetails, fetchProfileDetails, upsertProfile } from './utils/profile';
@@ -33,25 +33,33 @@ import ProfileSetup from './components/ProfileSetup';
 import { LogoMark } from './components/Logo';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './components/ui/Button';
+import Dialog from './components/ui/Dialog';
+import { useWorkspace } from './hooks/useWorkspace';
 
 export default function App() {
-  // Feature flag: pricing is hidden until a real payment decision + processor
-  // are in place. Flip to true to bring the section back - the markup is kept.
-  const SHOW_PRICING = false;
   const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms'>(() => {
     // The marketing site's footer deep-links here with ?page=privacy|terms.
     const page = new URLSearchParams(window.location.search).get('page');
     return page === 'privacy' || page === 'terms' ? page : 'home';
   });
   const theme = 'light' as const;
-  const [lessons, setLessons] = useState<Lesson[]>([]);
   const [activeSessionLesson, setActiveSessionLesson] = useState<Lesson | null>(null);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
-  const [templates, setTemplates] = useState<Lesson[]>([]);
   const [authProfile, setAuthProfile] = useState<AuthProfile | null>(null);
-  const [cloudStatus, setCloudStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
-  const [hydrated, setHydrated] = useState(false);
   const [uiNotice, setUiNotice] = useState('');
+  const [authReady, setAuthReady] = useState(!supabaseEnabled);
+  const workspace = useWorkspace(authProfile?.id ?? null, authReady, setUiNotice);
+  const { lessons, templates, setLessons, setTemplates, cloudStatus } = workspace;
+  const [legacyOpen, setLegacyOpen] = useState(false);
+  const [importBundle, setImportBundle] = useState<{ lessons: Lesson[]; templates: Lesson[] } | null>(null);
+  const [conflictChoice, setConflictChoice] = useState<'local' | 'remote' | null>(null);
+  const accountRef = useRef<string | null>(null);
+  accountRef.current = authProfile?.id ?? null;
+  const [legacyAvailable, setLegacyAvailable] = useState(() => { try { return hasLegacyBundle(); } catch { return false; } });
+  useEffect(() => {
+    try { setLegacyAvailable(hasLegacyBundle() && !localStorage.getItem(`pilates:legacy-imported:v3:${workspace.scope}`)); }
+    catch { setLegacyAvailable(false); }
+  }, [workspace.scope]);
   // Customer-management state (billing readiness Phase 1): profile details
   // collected by the one-time setup form, and the user's subscription row.
   const [profileDetails, setProfileDetails] = useState<ProfileDetails | null>(null);
@@ -116,24 +124,6 @@ export default function App() {
     }
   };
 
-  // Load lessons from localStorage on mount, fall back to initial ones
-  useEffect(() => {
-    try {
-      const storedLessons = readLessons();
-      setLessons(storedLessons.length ? storedLessons : INITIAL_LESSONS);
-      if (!storedLessons.length) writeLessons(INITIAL_LESSONS);
-      setTemplates(readTemplates());
-    } catch (e) {
-      console.warn('Failed to read from localStorage', e);
-      setLessons(INITIAL_LESSONS);
-    } finally {
-      // Only after local state has a real value do we allow cloud sync to run -
-      // otherwise an auto-push could fire with an empty array before localStorage
-      // has loaded and wipe out a real cloud backup.
-      setHydrated(true);
-    }
-  }, []);
-
   // Resolve a shared lesson from the URL, if there is one. Tries the short
   // server-stored link first (?s=<id>), then falls back to the legacy
   // base64-in-URL link (?sharedLesson=<data>) for links created before this
@@ -141,73 +131,71 @@ export default function App() {
   // including guests who aren't logged in, since a shared lesson is meant to
   // be viewable without an account.
   useEffect(() => {
+    let disposed = false;
     (async () => {
-      const url = new URL(window.location.href);
-      const shortId = url.searchParams.get('s');
-      let sharedLesson: Lesson | null = null;
-
-      if (shortId) {
-        sharedLesson = await fetchSharedLesson(shortId);
-        if (!sharedLesson) setUiNotice('קישור השיתוף לא נמצא או פג תוקף.');
-      } else {
-        sharedLesson = readSharedLessonFromUrl();
-      }
-
-      if (sharedLesson) {
-        const nextSharedLesson = { ...sharedLesson, id: `shared_${Date.now()}` };
-        setEditingLesson(nextSharedLesson);
-        setActiveScreen('builder');
-        window.history.replaceState({ screen: 'builder', lessonId: null, editingLessonId: nextSharedLesson.id }, '');
+      try {
+        const url = new URL(window.location.href);
+        const shortId = url.searchParams.get('s');
+        const sharedLesson = shortId ? await fetchSharedLesson(shortId) : readSharedLessonFromUrl();
+        if (disposed) return;
+        if (shortId && !sharedLesson) setUiNotice('קישור השיתוף לא נמצא, בוטל או פג תוקף.');
+        if (sharedLesson) {
+          const next = { ...sharedLesson, id: `shared_${crypto.randomUUID()}` };
+          setEditingLesson(next); setActiveScreen('builder');
+          window.history.replaceState({ screen: 'builder', editingLessonId: next.id }, '');
+        }
+      } catch (error) {
+        if (!disposed) setUiNotice(error instanceof Error ? error.message : 'קישור השיתוף אינו תקין.');
       }
     })();
-  }, []);
-
-  // Runs after every confirmed sign-in: enrolls the user on the free plan
-  // (no-op if they already have a subscription row), loads their saved
-  // profile details, and opens the one-time setup form if it was never
-  // completed. Details fetch failing (or Supabase disabled) skips the form —
-  // it must never appear when saving would be impossible.
-  const bootstrapCustomer = async (profile: AuthProfile) => {
-    if (!supabaseEnabled) return;
-    ensureSubscription(profile.id);
-    fetchSubscription(profile.id).then(setSubscription);
-    const details = await fetchProfileDetails(profile.id);
-    setProfileDetails(details);
-    if (details && !details.onboardingCompletedAt) {
-      setProfileSetupOpen(true);
-    }
-  };
-
-  useEffect(() => {
-    getAuthProfile().then((profile) => {
-      setAuthProfile(profile);
-      if (profile) upsertProfile(profile).then(() => bootstrapCustomer(profile));
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { disposed = true; };
   }, []);
 
   useEffect(() => {
+    let disposed = false;
+    let authEventReceived = false;
     const subscription = listenToAuthChanges((profile, event) => {
-      // Only update on events that actually change who's signed in. Supabase
-      // also fires transient events (token refresh, etc.) - if one arrives
-      // with a momentarily-empty session, blindly overwriting authProfile
-      // with null silently "logs out" the UI for a render cycle, which broke
-      // buttons that re-check auth at click time.
-      if (event === 'SIGNED_OUT') {
-        setAuthProfile(null);
-        return;
-      }
-      if (profile) {
-        setAuthProfile(profile);
-      }
-      if (event === 'SIGNED_IN' && profile) {
-        setUiNotice('ההתחברות עם Google הצליחה. מסנכרנים שיעורים...');
-        upsertProfile(profile).then(() => bootstrapCustomer(profile));
-        mergeCloudOnLogin();
-      }
+      if (disposed) return;
+      if (!profile && event !== 'SIGNED_OUT' && event !== 'INITIAL_SESSION') return;
+      authEventReceived = true;
+      setAuthProfile(profile);
+      setAuthReady(true);
+      if (event === 'SIGNED_IN') setUiNotice('ההתחברות הצליחה. טוענים את השיעורים שלך.');
     });
-    return () => subscription.unsubscribe();
+    getAuthProfile().then((profile) => {
+      if (!disposed && !authEventReceived) { setAuthProfile(profile); setAuthReady(true); }
+    }).catch(() => {
+      if (!disposed && !authEventReceived) { setAuthReady(true); setUiNotice('טעינת החשבון נכשלה. אפשר לנסות להתחבר שוב.'); }
+    });
+    return () => { disposed = true; subscription.unsubscribe(); };
   }, []);
+
+  useEffect(() => {
+    const profile = authProfile;
+    setProfileDetails(null);
+    setProfileSetupOpen(false);
+    setSubscription(FREE_SUBSCRIPTION);
+    if (!profile) return;
+    let disposed = false;
+    (async () => {
+      await upsertProfile(profile);
+      await ensureSubscription(profile.id);
+      const [details, subscription] = await Promise.all([fetchProfileDetails(profile.id), fetchSubscription(profile.id)]);
+      if (!disposed && accountRef.current === profile.id) { setProfileDetails(details); setSubscription(subscription); }
+      // Optional business details are opened from account settings, after use.
+    })().catch(() => { if (!disposed) setUiNotice('פרטי החשבון לא נטענו. אפשר להמשיך לבנות שיעור.'); });
+    return () => { disposed = true; };
+  }, [authProfile?.id]);
+
+  const previousAccount = useRef<string | null>(null);
+  useEffect(() => {
+    if (previousAccount.current && previousAccount.current !== authProfile?.id) {
+      setEditingLesson(null); setActiveSessionLesson(null); setActiveScreen('home');
+      setLegacyOpen(false); setImportBundle(null); setConflictChoice(null);
+      window.history.replaceState({ screen: 'home' }, '');
+    }
+    previousAccount.current = authProfile?.id ?? null;
+  }, [authProfile?.id]);
 
   const isAuthenticated = Boolean(authProfile);
 
@@ -250,65 +238,25 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [lessons]);
 
-  useEffect(() => {
-    if (!uiNotice) return;
-    const timer = window.setTimeout(() => setUiNotice(''), 4500);
-    return () => window.clearTimeout(timer);
-  }, [uiNotice]);
-
   const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
     if (!isAuthenticated) {
       navigateTo(screen === 'session' ? 'builder' : screen, { lesson: null });
-      setUiNotice('יש להתחבר עם Google כדי לפתוח את סביבת העבודה המלאה: builder, ספריית שיעורים, תבניות וסנכרון.');
+      setUiNotice('יש להתחבר עם Google כדי לבנות ולשמור שיעורים בחשבון שלך.');
       return;
     }
     navigateTo(screen);
   };
 
-  // Called right after a Google sign-in. Pulls whatever is already saved in the
-  // cloud for this account and merges it with whatever is currently in the
-  // browser (e.g. lessons a guest built before logging in), so nothing is lost
-  // in either direction. Cloud copies win on id collisions; local-only items are
-  // kept. The merged result is written back to both localStorage and the cloud.
-  const mergeCloudOnLogin = async () => {
-    setCloudStatus('syncing');
-    try {
-      const pulled = await pullCloudLessons();
-      const mergeById = (localItems: Lesson[], cloudItems: Lesson[]) => {
-        const cloudIds = new Set(cloudItems.map((l) => l.id));
-        const localOnly = localItems.filter((l) => !cloudIds.has(l.id));
-        return [...cloudItems, ...localOnly];
-      };
-
-      setLessons((currentLessons) => {
-        const merged = mergeById(currentLessons, pulled.lessons);
-        writeLessons(merged);
-        return merged;
-      });
-      setTemplates((currentTemplates) => {
-        const merged = mergeById(currentTemplates, pulled.templates);
-        writeTemplates(merged);
-        return merged;
-      });
-      setCloudStatus('synced');
-    } catch (e) {
-      console.warn('Cloud merge on login failed', e);
-      setCloudStatus('error');
-      setUiNotice('הסנכרון עם הענן נכשל. השיעורים המקומיים עדיין שמורים אצלך.');
-    }
-  };
-
   const handleGoogleLogin = async () => {
     const result = await signInWithGoogle();
     if (!result.ok) {
-      setUiNotice(result.reason === 'disabled' ? 'Google דורש חיבור Supabase ו-Google OAuth. כרגע האתר במצב אורח מוגבל.' : `Google login failed: ${result.reason}`);
+      setUiNotice(result.reason === 'disabled' ? 'ההתחברות אינה זמינה כרגע. מאגר התרגילים פתוח לצפייה.' : 'ההתחברות נכשלה. אפשר לנסות שוב.');
     }
   };
 
   const handleLogout = async () => {
-    await signOut();
+    try { await signOut(); } catch { setUiNotice('ההתנתקות נכשלה. יש לנסות שוב.'); return; }
     setAuthProfile(null);
-    setCloudStatus('idle');
     setProfileDetails(null);
     setProfileSetupOpen(false);
     setSubscription(FREE_SUBSCRIPTION);
@@ -316,56 +264,26 @@ export default function App() {
     setUiNotice('ההתנתקות הושלמה.');
   };
 
-  // Save lessons to localStorage on updates
-  const saveLessonsToStorage = (updatedLessons: Lesson[]) => {
-    setLessons(updatedLessons);
-    try {
-      writeLessons(updatedLessons);
-    } catch (e) {
-      console.warn('Failed to write to localStorage', e);
-      setUiNotice('שמירת השיעור נכשלה במכשיר הזה (ייתכן שאין מספיק מקום אחסון). מומלץ לגבות לקובץ.');
-    }
-  };
-
-  // Push to Supabase whenever the authenticated user's lessons/templates change.
-  // Guarded by `hydrated` so this never fires with an empty array before the
-  // initial localStorage read completes (that would wipe a real cloud backup).
-  useEffect(() => {
-    if (!hydrated || !isAuthenticated || !supabaseEnabled) return;
-    let cancelled = false;
-    setCloudStatus('syncing');
-    pushCloudLessons(lessons, templates).then((result) => {
-      if (cancelled) return;
-      if (result.ok) {
-        setCloudStatus('synced');
-      } else {
-        setCloudStatus('error');
-        if (result.reason !== 'disabled') {
-          setUiNotice(`הגיבוי לענן נכשל: ${result.reason}. השיעור עדיין שמור במכשיר הזה.`);
-        }
-      }
-    });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lessons, templates, hydrated, isAuthenticated]);
+  const saveLessonsToStorage = (updatedLessons: Lesson[]) => setLessons(updatedLessons);
 
   const handleExportBundle = () => {
+    if (workspace.blocked) {
+      try { exportRawWorkspace(workspace.scope); setUiNotice('הורד עותק גולמי לשחזור הנתונים. זה אינו קובץ ייבוא רגיל.'); } catch { setUiNotice('הדפדפן חסם גם קריאת גיבוי. יש לאפשר אחסון ולנסות שוב.'); }
+      return;
+    }
     exportLessonsBundle(lessons, templates);
     setUiNotice('קובץ הגיבוי הורד בהצלחה.');
   };
 
   const handleImportBundle = async (file: File) => {
-    try {
-      const imported = await importLessonsBundle(file);
-      if (imported.lessons?.length) saveLessonsToStorage(imported.lessons);
-      if (imported.templates?.length) {
-        setTemplates(imported.templates);
-        writeTemplates(imported.templates);
-      }
-      setUiNotice('הגיבוי יובא בהצלחה.');
-    } catch {
-      setUiNotice('קובץ הגיבוי לא תקין.');
-    }
+    try { setImportBundle(await importLessonsBundle(file)); }
+    catch (error) { setUiNotice(error instanceof Error ? error.message : 'קובץ הגיבוי אינו תקין.'); }
+  };
+  const addBundleCopies = (bundle: { lessons: Lesson[]; templates: Lesson[] }) => {
+    const copies = (items: Lesson[]) => items.map((lesson) => ({ ...lesson, id: `imported_${crypto.randomUUID()}`, isCustom: true }));
+    const ok = workspace.setCollections([...lessons, ...copies(bundle.lessons)], [...templates, ...copies(bundle.templates)]);
+    if (ok) setUiNotice('השיעורים והתבניות נוספו כעותקים. הנתונים הקיימים נשמרו.');
+    return ok;
   };
 
   const handleCopyShareLink = async (lesson: Lesson) => {
@@ -373,8 +291,17 @@ export default function App() {
     // services). Only falls back to the old base64-in-URL link if Supabase
     // isn't configured or the save fails - that old link can be very long for
     // lessons with many exercises, but it's better than no link at all.
-    const sharedId = await createSharedLesson(lesson);
-    const url = sharedId ? buildShortShareUrl(sharedId) : buildShareUrl(lesson);
+    const owner = accountRef.current;
+    let url: string;
+    let sharedId: string | null;
+    try {
+      sharedId = await createSharedLesson(lesson);
+      if (accountRef.current !== owner) return;
+      url = sharedId ? buildShortShareUrl(sharedId) : buildShareUrl(lesson);
+    } catch (error) {
+      setUiNotice(error instanceof Error ? error.message : 'השיתוף נכשל. אפשר לנסות שוב.');
+      return;
+    }
 
     // The OS share sheet (WhatsApp / mail / messages) is the useful path on
     // phones; clipboard copy is the desktop fallback.
@@ -389,7 +316,7 @@ export default function App() {
     }
     try {
       await navigator.clipboard.writeText(url);
-      setUiNotice(sharedId ? 'קישור השיתוף הועתק.' : 'קישור השיתוף הועתק (גרסה ארוכה - Cloud לא היה זמין).');
+      setUiNotice(sharedId ? 'קישור השיתוף הועתק. הוא זמין ל־30 יום.' : 'קישור השיתוף הועתק. הקישור מכיל עותק של השיעור ואינו ניתן לביטול.');
     } catch {
       setUiNotice(`העתקת הקישור נכשלה. אפשר להעתיק ידנית: ${url}`);
     }
@@ -404,13 +331,13 @@ export default function App() {
     } else {
       updated = [savedLesson, ...lessons];
     }
-    saveLessonsToStorage(updated);
+    if (!saveLessonsToStorage(updated)) return false;
     setEditingLesson(null);
     
     // Transition to saved playlist screen with delay so user sees success toast
-    setTimeout(() => {
-      navigateTo('lessons');
-    }, 1000);
+    navigateTo('lessons');
+    setUiNotice('השיעור נשמר במכשיר. מצב הסנכרון מופיע בספרייה.');
+    return true;
   };
 
   // Delete Lesson handler
@@ -605,366 +532,69 @@ export default function App() {
           onSaved={() => {
             setProfileSetupOpen(false);
             setUiNotice('הפרטים נשמרו, תודה!');
-            fetchProfileDetails(authProfile.id).then(setProfileDetails);
+            const owner = authProfile.id;
+            fetchProfileDetails(owner).then((details) => { if (accountRef.current === owner) setProfileDetails(details); });
           }}
         />
       )}
+
+      {isAuthenticated && (legacyAvailable || cloudStatus === 'error' || workspace.conflicts.length > 0) && (
+        <aside className="mx-auto mt-28 w-[calc(100%-2rem)] max-w-5xl rounded-2xl border border-line bg-surface-container p-4" aria-label="גיבוי וסנכרון">
+          {legacyAvailable && <div className="mb-3"><p className="text-sm mb-2">נמצאו שיעורים מהגרסה הקודמת במכשיר. הם לא הועברו לחשבון באופן אוטומטי.</p><Button variant="surface" onClick={() => setLegacyOpen(true)}>בחירת הנתונים להעברה</Button></div>}
+          {cloudStatus === 'error' && <div><p role="status" className="text-sm mb-3">{workspace.conflicts.length ? 'נמצאו שינויים שונים במכשיר ובענן. שתי הגרסאות נשמרות עד לבחירה שלך.' : 'הסנכרון לא הושלם. אפשר לנסות שוב או להוריד גיבוי.'}</p>
+            <div className="flex flex-wrap gap-2"><Button variant="surface" onClick={workspace.retrySync}>ניסיון סנכרון נוסף</Button><Button variant="surface" onClick={handleExportBundle}>הורדת גיבוי מקומי</Button>
+              {workspace.conflicts.length > 0 && <><Button variant="outline" onClick={() => setConflictChoice('local')}>להשתמש בגרסאות המקומיות</Button><Button variant="outline" onClick={() => setConflictChoice('remote')}>להשתמש בגרסאות הענן</Button></>}
+            </div></div>}
+        </aside>
+      )}
+      <Dialog open={legacyOpen} onClose={() => setLegacyOpen(false)} label="העברת נתונים מהגרסה הקודמת">
+        <h2 className="text-xl font-bold mb-3">להוסיף את השיעורים הישנים לחשבון הנוכחי?</h2>
+        <p className="mb-5 text-on-surface-variant">יש לוודא שהנתונים שייכים לך. במחשב משותף הם עשויים להיות של משתמש אחר. הנתונים יתווספו כעותקים; המקור יישאר במכשיר.</p>
+        <div className="flex flex-wrap gap-3"><Button variant="surface" onClick={() => setLegacyOpen(false)}>ביטול</Button><Button onClick={() => { try { if (addBundleCopies(readLegacyBundle())) { try { localStorage.setItem(`pilates:legacy-imported:v3:${workspace.scope}`, 'true'); } catch { /* Data itself was already persisted. */ } setLegacyAvailable(false); setLegacyOpen(false); } } catch { setUiNotice('הנתונים הישנים אינם תקינים. לא בוצעה העברה.'); } }}>כן, הנתונים שלי — להוסיף עותקים</Button></div>
+      </Dialog>
+      <Dialog open={Boolean(importBundle)} onClose={() => setImportBundle(null)} label="ייבוא גיבוי">
+        <h2 className="text-xl font-bold mb-3">להוסיף את הגיבוי לספרייה?</h2>
+        <p className="mb-5 text-on-surface-variant">{importBundle?.lessons.length || 0} שיעורים ו־{importBundle?.templates.length || 0} תבניות יתווספו כעותקים. השיעורים הקיימים יישארו.</p>
+        <div className="flex gap-3"><Button variant="surface" onClick={() => setImportBundle(null)}>ביטול</Button><Button onClick={() => { if (importBundle && addBundleCopies(importBundle)) setImportBundle(null); }}>הוספת עותקים</Button></div>
+      </Dialog>
+      <Dialog open={Boolean(conflictChoice)} onClose={() => setConflictChoice(null)} label="בחירת גרסה לסנכרון">
+        <h2 className="text-xl font-bold mb-3">{conflictChoice === 'local' ? 'להחליף את גרסאות הענן בגרסאות מהמכשיר?' : 'להחליף את הגרסאות שבמכשיר בגרסאות הענן?'}</h2>
+        <p className="mb-5 text-on-surface-variant">הבחירה חלה על {workspace.conflicts.length} פריטים בהתנגשות. מומלץ להוריד גיבוי מקומי לפני המשך.</p>
+        <div className="flex flex-wrap gap-3"><Button variant="surface" onClick={handleExportBundle}>הורדת גיבוי</Button><Button variant="surface" onClick={() => setConflictChoice(null)}>ביטול</Button><Button onClick={() => { workspace.resolveConflicts(conflictChoice === 'local'); setConflictChoice(null); }}>אישור הבחירה</Button></div>
+      </Dialog>
 
       {/* MAIN SCREEN ROUTING */}
       <main className="flex-grow pt-28 pb-28 lg:pb-16">
         {uiNotice && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20 mb-4">
-            <div className="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3 text-sm text-on-surface flex items-center justify-between gap-3">
+            <div role="status" aria-live="polite" className="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3 text-sm text-on-surface flex items-center justify-between gap-3 break-all">
               <span>{uiNotice}</span>
               <button onClick={() => setUiNotice('')} className="text-secondary hover:text-on-surface">סגירה</button>
             </div>
           </div>
         )}
         
-        {/* Screen: HOME / Landing page (Identical mock replica with interactive triggers) */}
         {activeScreen === 'home' && (
-          <div className="space-y-0">
-            
-            {/* Hero Section */}
-            <section className="relative min-h-[92vh] flex items-center overflow-hidden -mt-28">
-              <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat hero-zoom"
-                style={{
-                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXAl95YHGH-F5kaLMkqTA2daHzOPPxSWIjprKasVFV01N8WYnOJtlN-QYeor3aB_es0L7bnVl-wEs-KVDtdPVmeSB3r4LDir4QfKITEwX9HSWi098cE6tsYIpQP2F6y32FNOYKiFiJwCJaMCPmWIsTKSjQ_DwXlellyOgcMfD97uXssrdFghEIf_aFZHCatZIchk_QZUCsNDilfet9-rMsH0qR8dwja8ia5-yPU2WOvU1XhRhq1ddPovidpJtwvzUp7QQR6drYsEtjU')"
-                }}
-              />
-              <div className="absolute inset-0 hero-overlay" />
-              <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-secondary/15 rounded-full blur-[130px] pointer-events-none breathe" />
-              <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-tertiary/20 rounded-full blur-[110px] pointer-events-none breathe-slow" />
-
-              <div className="relative z-10 max-w-[1280px] mx-auto w-full px-6 md:px-20 pt-32 md:pt-36 pb-16 md:pb-20 grid lg:grid-cols-[1.2fr_0.8fr] gap-8 md:gap-10 items-center">
-                <div className="max-w-[760px]">
-                  <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                    className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-secondary/30 bg-surface-container/80 backdrop-blur-sm"
-                  >
-                    <span className="uppercase tracking-[0.3em] text-secondary text-xs md:text-sm font-semibold">
-                      פילאטיס בתנועה
-                    </span>
-                  </motion.div>
-
-                  <motion.h1
-                    initial={{ opacity: 0, y: 26 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-                    className="serif-text text-4xl md:text-7xl lg:text-8xl font-black text-on-surface leading-tight mb-6 md:mb-8"
-                  >
-                    שיעורי פילאטיס
-                    <span className="brand-gradient block">מקצועיים תוך דקות</span>
-                  </motion.h1>
-
-                  <motion.p
-                    initial={{ opacity: 0, y: 22 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-base md:text-2xl text-on-surface max-w-[700px] mb-5 md:mb-6 leading-relaxed"
-                  >
-                    כלי עבודה למדריכות ומדריכי פילאטיס: בניית שיעורים מהירה, מערכים מסודרים, והוראה עם יותר ביטחון ופחות בלגן.
-                  </motion.p>
-
-                  <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-sm md:text-lg text-on-surface-variant max-w-[680px] mb-8 md:mb-10 leading-relaxed"
-                  >
-                    מאגר של 255 תרגילים, builder חכם, ספריית שיעורים, שיתוף מהיר ומצב הדרכה חי — הכל במקום אחד.
-                  </motion.p>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 w-full sm:w-auto"
-                  >
-                    <Button
-                      size="lg"
-                      variant="primary"
-                      onClick={() => goToProtected('builder')}
-                      className="min-w-[240px] w-full sm:w-auto group"
-                    >
-                      להתחיל לבנות שיעור
-                      <ChevronLeft className="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" />
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={() => navigateTo('library')}
-                      className="min-w-[220px] w-full sm:w-auto border-outline/40 text-on-surface hover:bg-surface-container-high hover:border-outline"
-                    >
-                      לצפייה במאגר התרגילים
-                    </Button>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 0.62 }}
-                    className="flex flex-wrap gap-6 text-sm text-on-surface"
-                  >
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> בניית שיעור לפי מטרה, רמה ומשך</div>
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> ספריית שיעורים פרטית</div>
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> שיתוף, הדפסה ו־teach mode</div>
-                  </motion.div>
-                </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 32 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                  className="grid gap-4"
-                >
-                  <div className="rounded-3xl border border-line bg-surface-container/90 backdrop-blur-md p-6 md:p-7 shadow-2xl">
-                    <div className="text-xs uppercase tracking-[0.25em] text-secondary mb-3">למה זה שווה את הזמן</div>
-                    <h3 className="serif-text text-2xl text-on-surface font-bold mb-4">פחות זמן תכנון. יותר מקצועיות מול הלקוחות.</h3>
-                    <div className="space-y-4 text-sm text-on-surface-variant">
-                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>שיעור חדש נבנה תוך דקות במקום להתחיל כל פעם מדף ריק.</p></div>
-                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>תבניות ומערכים נשמרים לשימוש חוזר לפי רמות, ציוד וקבוצות.</p></div>
-                      <div className="flex items-start gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-secondary" /><p>מגיעים לשיעור עם flow ברור, דגשי הדרכה ושיתוף מיידי כשצריך.</p></div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="rounded-2xl border border-line bg-surface-container-high p-5 lift">
-                      <div className="text-3xl font-black text-secondary mb-2">3 דק'</div>
-                      <div className="text-sm text-on-surface">לבניית שלד שיעור מקצועי</div>
-                    </div>
-                    <div className="rounded-2xl border border-line bg-surface-container-high p-5 lift">
-                      <div className="text-3xl font-black text-secondary mb-2">1 מקום</div>
-                      <div className="text-sm text-on-surface">לתרגילים, מערכים ושיתוף</div>
-                    </div>
-                    <div className="rounded-2xl border border-line bg-surface-container-high p-5 lift">
-                      <div className="text-3xl font-black text-secondary mb-2">255</div>
-                      <div className="text-sm text-on-surface">תרגילים מקצועיים במאגר</div>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
-                <div className="w-[1px] h-14 bg-gradient-to-b from-secondary/0 via-secondary to-secondary/0 animate-pulse" />
-              </div>
-            </section>
-
-            {/* Features Module Section */}
-            <section className="py-24 bg-surface px-6 md:px-20 relative">
-              <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-5">
-                <div className="absolute -top-1/4 -right-1/4 w-1/2 h-1/2 bg-secondary rounded-full blur-[150px]" />
-              </div>
-
-              <div className="max-w-[1280px] mx-auto">
-                <Reveal>
-                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-                    <div className="max-w-[760px]">
-                      <h2 className="serif-text text-4xl md:text-5xl font-bold text-on-surface mb-6">מה מקבלים כאן באמת</h2>
-                      <p className="text-on-surface-variant text-lg leading-relaxed">
-                        לא עוד קטלוג תרגילים. סביבת עבודה מלאה לבנייה, שמירה, התאמה והעברה של שיעורי פילאטיס ברמה מקצועית.
-                      </p>
-                    </div>
-                    <div className="w-24 h-[2px] bg-secondary hidden md:block" />
-                  </div>
-                </Reveal>
-
-                {/* Features Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-                  {/* Feature 1: Exercise Database */}
-                  <Reveal delay={0}>
-                    <div
-                      onClick={() => setActiveScreen('library')}
-                      className="group h-full p-8 border border-line bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
-                    >
-                      <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-
-                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-line group-hover:border-secondary transition-colors text-secondary">
-                        <BookOpen className="w-7 h-7" />
-                      </div>
-
-                      <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">מאגר תרגילים</h3>
-                      <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
-                        חיפוש מהיר בתרגילים לפי רמה, ציוד ומטרה - כדי להתחיל כל שיעור עם בסיס חכם ולא מאלתור.
-                      </p>
-
-                      <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
-                        לגלות את המאגר
-                        <ChevronLeft className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </Reveal>
-
-                  {/* Feature 2: Lesson Builder */}
-                  <Reveal delay={0.12}>
-                    <div
-                      onClick={() => goToProtected('builder')}
-                      className="group h-full p-8 border border-line bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
-                    >
-                      <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-
-                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-line group-hover:border-secondary transition-colors text-secondary">
-                        <Sliders className="w-7 h-7" />
-                      </div>
-
-                      <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">בניית שיעור</h3>
-                      <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
-                        תכנון שיעור זורם ומקצועי בדקות ספורות בעזרת ממשק בנייה חכם ואינטואיטיבי.
-                      </p>
-
-                      <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
-                        להתחיל לבנות
-                        <ChevronLeft className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </Reveal>
-
-                  {/* Feature 3: My Lessons */}
-                  <Reveal delay={0.24}>
-                    <div
-                      onClick={() => goToProtected('lessons')}
-                      className="group h-full p-8 border border-line bg-surface-container-high hover:border-secondary/30 lift hover:shadow-xl relative overflow-hidden cursor-pointer rounded-3xl"
-                    >
-                      <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-secondary/0 via-secondary/40 to-secondary/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-
-                      <div className="mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-background border border-line group-hover:border-secondary transition-colors text-secondary">
-                        <FolderHeart className="w-7 h-7" />
-                      </div>
-
-                      <h3 className="serif-text text-2xl font-bold text-on-surface mb-4">השיעורים שלי</h3>
-                      <p className="text-on-surface-variant leading-relaxed mb-8 text-sm">
-                        ספריית מערכים פרטית לשכפול, התאמה ושימוש חוזר - כדי שכל שיעור חדש יתחיל חצי מוכן.
-                      </p>
-
-                      <span className="text-secondary text-xs font-bold tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all">
-                        לספרייה שלי
-                        <ChevronLeft className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </Reveal>
-
-                </div>
-              </div>
-            </section>
-
-            {/* Parallax Quote Split Image Section */}
-            <div className="w-full h-[400px] relative overflow-hidden">
-              {/* bg-fixed only from md up — mobile Safari/Chrome don't support
-                  fixed backgrounds and render a broken, oversized image. */}
-              <div
-                className="absolute inset-0 md:bg-fixed bg-center bg-cover"
-                style={{
-                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD6dNJiCrMADWX-EfAYPTzxMFTn8lgZAVN0UeaBy-bUrJVTOMmZPsoKWeTbpi-QJ3Ymuy1QHeQROS-BWFhvdPYpLbkyJEl0JT_Ilko4409ILnfCigRAvtGjHTkXxad3bMOPfKs54I-Cmo33BT5CyG8XhFQVjOpjN3b3YZfoTp48Q0mM9QDAdPrROijdtYhN3aSYqaZLtWA1kUfa2WNGz9rgIQ1Lqhv5SWPposQIltcxriQ5V9eRslUAORKnRAfCpFzkEwLsonCTwK8')"
-                }}
-              />
-              <div className="absolute inset-0 bg-background/60" />
-              <div className="absolute inset-0 flex items-center justify-center px-6">
-                <Reveal>
-                  <h3 className="serif-text text-2xl md:text-5xl text-on-surface font-black text-center tracking-wide italic leading-normal max-w-4xl">
-                    "כשמערך השיעור ברור, גם ההוראה נראית אחרת."
-                  </h3>
-                </Reveal>
-              </div>
+          <section className="mx-auto max-w-5xl px-5 py-10 sm:py-16" aria-labelledby="workspace-title">
+            <p className="text-sm text-secondary mb-3">כלי עבודה למדריכות ולמדריכי פילאטיס</p>
+            <h1 id="workspace-title" className="serif-text text-4xl sm:text-5xl text-on-surface">{authProfile ? `נעים לראות אותך, ${authProfile.name || 'מדריך/ה'}` : 'השיעור הבא מתחיל כאן'}</h1>
+            <p className="mt-5 max-w-2xl text-on-surface-variant leading-relaxed">חיפוש תרגילים, בניית מערך לפי זמן ורמה, ושעון הדרכה לשיעור — במקום אחד.</p>
+            <div className="my-8 flex flex-wrap gap-3">
+              <Button onClick={() => goToProtected('builder')} size="lg">בניית שיעור חדש</Button>
+              <Button onClick={() => navigateTo('library')} variant="outline" size="lg">למאגר התרגילים</Button>
+              {authProfile && <Button onClick={() => navigateTo('lessons')} variant="surface" size="lg">השיעורים שלי ({lessons.length})</Button>}
             </div>
-
-            {/* Pricing / Subscription framing - hidden until payments are real (SHOW_PRICING) */}
-            {SHOW_PRICING && (
-            <section className="py-24 bg-surface px-6 md:px-20">
-              <div className="max-w-[1280px] mx-auto">
-                <div className="max-w-[760px] mb-14">
-                  <h2 className="serif-text text-4xl md:text-5xl font-bold text-on-surface mb-6">מודל מנוי שמתאים למדריכות ומדריכי פילאטיס</h2>
-                  <p className="text-on-surface-variant text-lg leading-relaxed">
-                    המוצר הזה בנוי להיות כלי עבודה קבוע, לא שימוש חד-פעמי. לכן המסגור הנכון הוא מנוי חודשי שמחזיר את עצמו בזמן תכנון, סדר מקצועי ושימוש חוזר חכם במערכים.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                  <div className="rounded-3xl border border-line bg-surface-container p-8">
-                    <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">מסלול התחלה</div>
-                    <div className="text-on-surface text-3xl font-black mb-2">₪79<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
-                    <p className="text-sm text-on-surface-variant mb-6">למי שעובד באופן עצמאי ורוצה builder, ספריית שיעורים ותבניות.</p>
-                    <div className="space-y-3 text-sm text-on-surface-variant mb-8">
-                      <div>• בניית שיעורים ללא הגבלה</div>
-                      <div>• שמירת מערכים ותבניות</div>
-                      <div>• שיתוף, PDF ו־teach mode</div>
-                    </div>
-                    <Button size="md" variant="outline" onClick={() => goToProtected('builder')} className="w-full">מתאים להתחלה</Button>
-                  </div>
-
-                  <div className="rounded-3xl border border-secondary/30 bg-secondary/10 p-8 shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-4 left-4 rounded-full bg-secondary text-on-secondary text-[11px] font-bold px-3 py-1">מומלץ</div>
-                    <div className="text-xs tracking-[0.2em] text-secondary mb-3">מסלול מקצועי</div>
-                    <div className="text-on-surface text-4xl font-black mb-2">₪149<span className="text-sm font-medium text-on-surface-variant"> / חודש</span></div>
-                    <p className="text-sm text-on-surface-variant mb-6">למי שמלמד באופן קבוע ורוצה שהמערכת תהיה סביבת העבודה המרכזית.</p>
-                    <div className="space-y-3 text-sm text-on-surface-variant mb-8">
-                      <div>• כל מה שבמסלול ההתחלה</div>
-                      <div>• סנכרון מלא לענן</div>
-                      <div>• ייצוא ממותג ושיתופים מתקדמים</div>
-                      <div>• חבילות תבניות וזרימות פרימיום</div>
-                    </div>
-                    <Button size="md" variant="primary" onClick={() => goToProtected('builder')} className="w-full">זה המסלול המומלץ</Button>
-                  </div>
-
-                  <div className="rounded-3xl border border-line bg-surface-container p-8">
-                    <div className="text-xs tracking-[0.2em] text-on-surface-variant mb-3">לסטודיו</div>
-                    <div className="text-on-surface text-3xl font-black mb-2">מותאם אישית</div>
-                    <p className="text-sm text-on-surface-variant mb-6">לסטודיו עם כמה מדריכות ומדריכים, ספריית תוכן משותפת ו־workflow צוותי.</p>
-                    <div className="space-y-3 text-sm text-on-surface-variant mb-8">
-                      <div>• ריבוי משתמשים</div>
-                      <div>• ספריית סטודיו משותפת</div>
-                      <div>• onboarding והטמעה</div>
-                    </div>
-                    <Button size="md" variant="outline" onClick={() => setUiNotice('מסלול סטודיו עדיין לא מחובר לטופס מכירה. אפשר להתחיל כרגע עם המסלול המקצועי.')} className="w-full">לבדיקת התאמה</Button>
-                  </div>
-                </div>
-              </div>
-            </section>
-            )}
-
-            {/* Final Call to Action with Live Counter Stats */}
-            <section className="py-24 relative overflow-hidden bg-background">
-              <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-secondary/10 rounded-full blur-[130px] pointer-events-none breathe" />
-              <div className="max-w-[800px] mx-auto px-6 text-center relative">
-                <Reveal>
-                  <h2 className="serif-text text-4xl md:text-6xl font-bold text-on-surface mb-6">מוכנים לבנות את השיעור הבא?</h2>
-                  <p className="text-on-surface-variant text-lg md:text-xl mb-12 font-light">
-                    מתחילים מהמאגר הפתוח, מרכיבים מערך אישי ב-builder, ומלמדים אותו במצב הדרכה חי — הכל במקום אחד.
-                  </p>
-                </Reveal>
-
-                <Reveal delay={0.15}>
-                  <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14">
-                    <div className="flex flex-col items-center">
-                      <span className="text-secondary text-5xl font-black mb-2">חיסכון</span>
-                      <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">בזמן תכנון</span>
-                    </div>
-
-                    <div className="w-[1px] h-12 bg-outline/30 hidden md:block" />
-
-                    <div className="flex flex-col items-center">
-                      <span className="text-secondary text-5xl font-black mb-2">סדר</span>
-                      <span className="text-on-surface-variant text-xs uppercase tracking-widest font-semibold">במערכים ובתבניות</span>
-                    </div>
-
-                    <div className="w-[1px] h-12 bg-outline/30 hidden md:block" />
-
-                    <Button
-                      size="lg"
-                      variant="primary"
-                      onClick={() => goToProtected('builder')}
-                    >
-                      להתחיל לבנות
-                    </Button>
-                  </div>
-                </Reveal>
-              </div>
-            </section>
-
-          </div>
+            {!authProfile && <p className="text-sm text-on-surface-variant">המאגר פתוח לצפייה. לשמירת שיעורים וסנכרון בין מכשירים יש להתחבר עם Google.</p>}
+            <p className="text-sm text-on-surface-variant mb-8">{INITIAL_EXERCISES.length} תרגילים במאגר · מזרן ומכשירים · הדרכה בעברית</p>
+            {authProfile && lessons.length > 0 && <div className="grid gap-4 sm:grid-cols-3">{lessons.slice(0, 3).map((lesson) => (
+              <article key={lesson.id} className="rounded-2xl border border-line bg-surface-container p-5">
+                <h2 className="font-bold text-lg">{lesson.name}</h2>
+                <p className="my-3 text-sm text-on-surface-variant">{lesson.totalDuration} דקות · {lesson.levelLabel}</p>
+                <Button variant="surface" onClick={() => handleEditLesson(lesson)}>פתיחת מערך</Button>
+              </article>
+            ))}</div>}
+            <a href="../" className="mt-10 inline-block text-secondary underline underline-offset-4">לאתר של פילאטיס בתנועה</a>
+          </section>
         )}
 
         <Suspense
@@ -986,13 +616,15 @@ export default function App() {
         {/* Screen: LESSON BUILDER WORKSPACE */}
         {activeScreen === 'builder' && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
-            {isAuthenticated || editingLesson?.id.startsWith('shared_') ? (
-              <LessonBuilder 
+            {workspace.loaded && (isAuthenticated || editingLesson?.id.startsWith('shared_')) ? (
+              <LessonBuilder
+                key={`${workspace.scope}:${editingLesson?.id || 'new'}`}
+                storageScope={workspace.scope}
                 onSaveLesson={handleSaveLesson}
                 existingLessonToEdit={editingLesson}
               />
             ) : (
-              <LockedWorkspace onGoogleLogin={handleGoogleLogin} />
+              isAuthenticated ? <p role="status" className="py-10">טוענים את סביבת העבודה. אם הגיבוי המקומי אינו תקין, הנתונים המקוריים נשארים במכשיר.</p> : <LockedWorkspace onGoogleLogin={handleGoogleLogin} />
             )}
           </div>
         )}
@@ -1000,7 +632,7 @@ export default function App() {
         {/* Screen: MY SAVED WORKOUTS */}
         {activeScreen === 'lessons' && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
-            {isAuthenticated ? (
+            {isAuthenticated && workspace.loaded ? (
               <MyLessons 
                 lessons={lessons}
                 templates={templates}
@@ -1009,13 +641,15 @@ export default function App() {
                 onDeleteLesson={handleDeleteLesson}
                 onCreateNewLesson={() => { setEditingLesson(null); goToProtected('builder'); }}
                 onCopyShareLink={handleCopyShareLink}
+                onRevokeShareLinks={async (lesson) => { try { await revokeSharedLessons(lesson.id); setUiNotice('קישורי השיתוף של השיעור בוטלו. עותקים שכבר נשמרו אצל נמענים אינם נמחקים.'); } catch (error) { setUiNotice(error instanceof Error ? error.message : 'ביטול הקישורים נכשל.'); } }}
+                onAddExamples={() => addBundleCopies({ lessons: INITIAL_LESSONS, templates: [] })}
                 onBackHome={() => navigateTo('home')}
                 onExportBundle={handleExportBundle}
                 onImportBundle={handleImportBundle}
                 cloudStatus={supabaseEnabled ? cloudStatus : null}
               />
             ) : (
-              <LockedWorkspace onGoogleLogin={handleGoogleLogin} />
+              isAuthenticated ? <p role="status" className="py-10">טוענים את סביבת העבודה. אם הגיבוי המקומי אינו תקין, הנתונים המקוריים נשארים במכשיר.</p> : <LockedWorkspace onGoogleLogin={handleGoogleLogin} />
             )}
           </div>
         )}
@@ -1023,7 +657,8 @@ export default function App() {
         {/* Screen: REALTIME ACTIVE COACHING SESSION */}
         {activeScreen === 'session' && activeSessionLesson && (
           <div className="max-w-[1280px] mx-auto px-6 md:px-20">
-            <CoachingSession 
+            <CoachingSession
+              key={`${workspace.scope}:${activeSessionLesson.id}`}
               lesson={activeSessionLesson}
               onFinishSession={() => navigateTo('lessons', { lesson: null })}
             />
@@ -1056,7 +691,7 @@ export default function App() {
             className="flex items-center gap-2.5 cursor-pointer"
           >
             <LogoMark theme={theme} className="w-8 h-8" />
-            <span className="serif-text font-bold tracking-widest text-ink text-sm">פילאטיס בתנועה</span>
+            <span className="serif-text font-bold tracking-widest text-secondary text-sm">פילאטיס בתנועה</span>
           </div>
 
           <p className="text-on-surface-variant text-sm text-center">
@@ -1115,7 +750,7 @@ function LockedWorkspace({ onGoogleLogin }: { onGoogleLogin: () => void }) {
             </div>
             <h2 className="serif-text text-3xl md:text-4xl font-bold text-on-surface mb-4">האזור הזה נפתח אחרי התחברות</h2>
             <p className="text-on-surface-variant leading-relaxed mb-6">
-              מאגר התרגילים פתוח לצפייה חופשית. ה-builder, ספריית השיעורים, התבניות והסנכרון לענן נפתחים אחרי התחברות — למי שמנהל כאן את סביבת העבודה.
+              מאגר התרגילים פתוח לצפייה חופשית. בונה השיעורים, ספריית השיעורים, התבניות והסנכרון לענן נפתחים אחרי התחברות — למי שמנהל כאן את סביבת העבודה.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button onClick={onGoogleLogin} size="md" variant="primary" className="w-full sm:w-auto">

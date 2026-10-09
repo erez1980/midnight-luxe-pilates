@@ -70,7 +70,7 @@ export async function saveProfileDetails(
 ): Promise<{ ok: boolean }> {
   if (!supabaseEnabled || !supabase) return { ok: false };
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
     .update({
       phone: details.phone.trim() || null,
@@ -80,10 +80,10 @@ export async function saveProfileDetails(
       marketing_opt_in: details.marketingOptIn,
       onboarding_completed_at: new Date().toISOString(),
     })
-    .eq('id', userId);
+    .eq('id', userId).select('id').maybeSingle();
 
-  if (error) {
-    console.warn('saveProfileDetails failed', error.message);
+  if (error || !data) {
+    console.warn('saveProfileDetails failed', error?.message || 'Profile row missing');
     return { ok: false };
   }
   return { ok: true };

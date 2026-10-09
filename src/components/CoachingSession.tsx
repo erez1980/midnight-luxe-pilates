@@ -3,6 +3,8 @@ import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Volume2
 import { Lesson, LessonExercise } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
+import Dialog from './ui/Dialog';
+import { exerciseDeadline, remainingSeconds } from '../utils/timer';
 
 interface CoachingSessionProps {
   lesson: Lesson;
@@ -18,6 +20,11 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
   
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const deadlineRef = useRef<number | null>(null);
+  const timedIndexRef = useRef(-1);
+  const soundEnabledRef = useRef(isSoundEnabled);
+  soundEnabledRef.current = isSoundEnabled;
+  const audioRef = useRef<AudioContext | null>(null);
+  useEffect(() => () => { void audioRef.current?.close(); }, []);
   
   const currentLessonExercise = lesson.exercises[currentIndex];
   const nextLessonExercise = currentIndex < lesson.exercises.length - 1 ? lesson.exercises[currentIndex + 1] : null;
@@ -41,14 +48,19 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
       return;
     }
 
-    const secondsRemaining = timeLeft > 0 ? timeLeft : (currentLessonExercise?.customDuration ?? 0) * 60;
-    deadlineRef.current = Date.now() + secondsRemaining * 1000;
+    const changedExercise = timedIndexRef.current !== currentIndex;
+    timedIndexRef.current = currentIndex;
+    deadlineRef.current = changedExercise
+      ? exerciseDeadline(Date.now(), currentLessonExercise?.customDuration ?? 0)
+      : Date.now() + Math.max(0, timeLeft) * 1000;
 
     const tick = () => {
       if (deadlineRef.current === null) return;
-      const remaining = Math.max(0, Math.round((deadlineRef.current - Date.now()) / 1000));
+      const remaining = remainingSeconds(deadlineRef.current, Date.now());
       setTimeLeft(remaining);
       if (remaining === 0) {
+        if (timerRef.current) clearInterval(timerRef.current);
+        deadlineRef.current = null;
         playBeep();
         if (currentIndex < lesson.exercises.length - 1) {
           setCurrentIndex((prev) => prev + 1);
@@ -69,9 +81,10 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
 
   // Play browser beep using Web Audio API
   const playBeep = () => {
-    if (!isSoundEnabled) return;
+    if (!soundEnabledRef.current) return;
     try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioCtx = audioRef.current;
+      if (!audioCtx || audioCtx.state !== 'running') return;
       const oscillator = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
       
@@ -85,7 +98,8 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
       oscillator.start();
       setTimeout(() => {
         oscillator.stop();
-        audioCtx.close();
+        oscillator.disconnect();
+        gainNode.disconnect();
       }, 300);
     } catch (e) {
       console.warn('Audio playback failed', e);
@@ -93,7 +107,10 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
   };
 
   const handleTogglePlay = () => {
-    setIsPlaying(!isPlaying);
+    if (!isPlaying && soundEnabledRef.current) {
+      try { audioRef.current ??= new AudioContext(); void audioRef.current.resume().catch(() => {}); } catch { /* Visual timer remains available. */ }
+    }
+    setIsPlaying((playing) => !playing);
   };
 
   const handleReset = () => {
@@ -120,6 +137,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
   const handleNextPressed = () => {
     const isLast = currentIndex === lesson.exercises.length - 1;
     if (isLast) {
+      setIsPlaying(false);
       setShowFinishConfirm(true);
       return;
     }
@@ -455,9 +473,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
 
       </div>
 
-      {showFinishConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
-          <div className="w-full max-w-md rounded-3xl border border-secondary/20 bg-surface-container-high p-6 shadow-2xl">
+      <Dialog open={showFinishConfirm} onClose={() => setShowFinishConfirm(false)} label="סיום שיעור">
             <div className="text-xs tracking-[0.2em] text-secondary font-bold mb-3">סיום שיעור</div>
             <h3 className="serif-text text-2xl text-on-surface font-bold mb-3">לסיים את השיעור ולעבור לסיכום?</h3>
             <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
@@ -479,9 +495,7 @@ export default function CoachingSession({ lesson, onFinishSession }: CoachingSes
                 סיום שיעור
               </Button>
             </div>
-          </div>
-        </div>
-      )}
+      </Dialog>
     </div>
   );
 }
