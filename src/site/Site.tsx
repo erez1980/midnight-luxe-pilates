@@ -12,6 +12,7 @@ import {
   LOCATIONS,
   NAV_LINKS,
   PHOTOS,
+  PRICING,
   PRINCIPLES,
   PRINCIPLES_TICKER,
   TESTIMONIALS,
@@ -24,10 +25,10 @@ const EMBLEM_DARK = `${ASSET}brand/emblem-dark.webp`;
 
 // One primary "book a class" action, picked from whatever contact details
 // exist: WhatsApp beats phone beats email.
-function primaryContact(subject = 'תיאום שיעור פילאטיס') {
+function primaryContact(subject = 'תיאום שיעור פילאטיס', message = CONTACT.whatsappGreeting) {
   if (CONTACT.whatsapp) {
     return {
-      href: `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(CONTACT.whatsappGreeting)}`,
+      href: `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(message)}`,
       external: true,
     };
   }
@@ -38,7 +39,10 @@ function primaryContact(subject = 'תיאום שיעור פילאטיס') {
   };
 }
 const BOOK = primaryContact();
-const SCHEDULE = primaryContact('בקשת מערכת שעות ומיקום לשיעורי פילאטיס');
+const SCHEDULE = primaryContact(
+  'בקשת מערכת שעות ומיקום לשיעורי פילאטיס',
+  'היי רתם, הגעתי מהאתר ואשמח לקבל את המיקומים והשעות של השיעורים הקבוצתיים 🙂'
+);
 const CONTACT_LABEL = CONTACT.whatsapp ? 'לשיחה בווטסאפ' : CONTACT.phone ? 'לשיחה ותיאום' : 'לשליחת פנייה במייל';
 const bookLinkProps = BOOK.external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
@@ -520,6 +524,82 @@ function Classes() {
   );
 }
 
+function Pricing() {
+  return (
+    <section id="pricing" className="py-24 md:py-36">
+      <div className="mx-auto max-w-[1240px] px-5 md:px-8">
+        <div className="max-w-2xl">
+          <Reveal>
+            <Eyebrow>שיעורים ומחירים</Eyebrow>
+          </Reveal>
+          <Reveal delay={100}>
+            <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{PRICING.title}</h2>
+          </Reveal>
+          <Reveal delay={180}>
+            <p className="mt-6 text-lg leading-relaxed text-muted">{PRICING.intro}</p>
+          </Reveal>
+        </div>
+
+        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+          {PRICING.plans.map((plan, i) => {
+            const target = plan.cta === 'schedule' ? SCHEDULE : BOOK;
+            const linkProps = target.external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+            return (
+              <Reveal as="article" key={plan.id} delay={i * 120}>
+                <div
+                  className={`relative flex h-full flex-col rounded-[28px] border p-8 md:p-10 ${
+                    plan.featured
+                      ? 'border-gold/70 bg-night text-cream shadow-[0_30px_60px_-30px_rgba(27,31,25,0.6)]'
+                      : 'border-line bg-ivory text-ink'
+                  }`}
+                >
+                  {plan.featured && (
+                    <span className="absolute -top-3.5 right-8 rounded-full bg-gold px-4 py-1 text-xs font-medium text-night">
+                      מומלץ להתחלה
+                    </span>
+                  )}
+                  <h3 className="font-display text-2xl md:text-3xl">{plan.name}</h3>
+                  <p className="mt-6 flex items-baseline gap-3">
+                    <span className={`font-display text-5xl font-light ${plan.featured ? 'text-gold' : 'text-ink'}`}>{plan.price}</span>
+                    {plan.unit && <span className={plan.featured ? 'text-cream/70' : 'text-muted'}>{plan.unit}</span>}
+                  </p>
+                  <p className={`mt-5 leading-relaxed ${plan.featured ? 'text-cream/75' : 'text-muted'}`}>{plan.text}</p>
+                  <ul className={`mt-6 flex-1 space-y-3 border-t pt-6 ${plan.featured ? 'border-night-line' : 'border-line'}`}>
+                    {plan.points.map((point) => (
+                      <li key={point} className="flex items-start gap-3">
+                        <span
+                          className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                            plan.featured ? 'bg-gold/20 text-gold' : 'bg-sage-soft text-sage'
+                          }`}
+                        >
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        </span>
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href={target.href}
+                    {...linkProps}
+                    className={`mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-medium transition-colors ${
+                      plan.featured
+                        ? 'bg-gold text-night hover:bg-gold-soft'
+                        : 'border border-sage text-sage hover:bg-sage hover:text-white'
+                    }`}
+                  >
+                    {CONTACT.whatsapp && <WhatsAppIcon className="h-4 w-4" />}
+                    {plan.ctaLabel}
+                  </a>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Method() {
   return (
     <section id="method" className="relative overflow-hidden bg-night py-24 text-cream md:py-36">
@@ -713,6 +793,17 @@ function Contact() {
               )}
             </div>
           </Reveal>
+          {CONTACT.email && (CONTACT.whatsapp || CONTACT.phone) && (
+            <Reveal delay={350}>
+              <a
+                href={`mailto:${CONTACT.email}`}
+                className="mt-6 inline-flex items-center gap-2 text-cream/70 transition-colors hover:text-gold"
+              >
+                <Mail className="h-4 w-4" aria-hidden="true" />
+                <span dir="ltr">{CONTACT.email}</span>
+              </a>
+            </Reveal>
+          )}
           {socials.length > 0 && (
             <Reveal delay={400}>
               <div className="mt-10 flex justify-center gap-3">
@@ -840,6 +931,7 @@ export default function Site() {
         <Ticker />
         <About />
         <Classes />
+        <Pricing />
         <Method />
         <Locations />
         <Testimonials />
