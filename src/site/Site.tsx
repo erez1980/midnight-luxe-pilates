@@ -673,7 +673,7 @@ function Locations() {
                 <h2 className="mt-6 font-display text-3xl font-light md:text-5xl">{LOCATIONS.title}</h2>
                 <p className="mt-4 text-lg leading-relaxed text-muted">{LOCATIONS.text}</p>
                 {LOCATIONS.areas.length > 0 && <p className="mt-4 font-medium">אזורי פעילות: {LOCATIONS.areas.join(' · ')}</p>}
-                {LOCATIONS.studios.length > 0 && <ul className="mt-4 space-y-2">{LOCATIONS.studios.map((studio) => <li key={studio.name}>סטודיו ״{studio.name}״{studio.address && ` · ${studio.address}`}{studio.url && <a href={studio.url} target="_blank" rel="noopener noreferrer" className="ms-3 underline">פרטי הסטודיו</a>}</li>)}</ul>}
+                {LOCATIONS.studios.length > 0 && <ul className="mt-4 space-y-2">{LOCATIONS.studios.map((studio) => <li key={studio.name}>מלמדת בסטודיו ״{studio.name}״{studio.address && ` · ${studio.address}`}{studio.url && <a href={studio.url} target="_blank" rel="noopener noreferrer" className="ms-3 underline">פרטי הסטודיו</a>}</li>)}</ul>}
                 {LOCATIONS.comingSoon && <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/50 bg-white/70 px-4 py-2 text-sm text-gold-deep">
                   <span className="h-2 w-2 rounded-full bg-gold breathe" aria-hidden="true" />
                   {LOCATIONS.comingSoon}
@@ -898,6 +898,12 @@ function Footer() {
               תנאי שימוש
             </a>
           </div>
+          {CONTACT.instagram && (
+            <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-ink">
+              <InstagramIcon className="h-4 w-4" />
+              <span dir="ltr">@{CONTACT.instagram.replace(/\/+$/, '').split('/').pop()}</span>
+            </a>
+          )}
           <p>
             © {new Date().getFullYear()} {BRAND.name}. באהבה, {BRAND.owner}.
           </p>

@@ -14,7 +14,7 @@ export const CONTACT = {
   // Display format, e.g. '050-123-4567'. Empty = hidden.
   phone: '054-802-4606',
   email: 'rotem1980.shapira@gmail.com',
-  instagram: '',
+  instagram: 'https://www.instagram.com/rotem_shap/',
   facebook: '',
   preferredChannelLabel: 'וואטסאפ',
   whatsappGreeting: 'היי רתם, הגעתי מהאתר ואשמח לשמוע על שיעורי הפילאטיס 🙂',
@@ -123,7 +123,7 @@ export const PRICING: { title: string; intro: string; plans: Plan[] } = {
       price: '70 ₪',
       unit: 'לאדם',
       text: 'מתאמנים בשניים — עם חברה, בן או בת זוג — ועדיין עם תשומת לב אישית.',
-      points: ['שיעור לשני משתתפים', 'בתיאום מראש ישירות מול רתם'],
+      points: ['50 דקות', 'שיעור לשני משתתפים', 'בתיאום מראש ישירות מול רתם'],
       cta: 'book',
       ctaLabel: 'לתיאום שיעור זוגי',
     },
@@ -133,7 +133,7 @@ export const PRICING: { title: string; intro: string; plans: Plan[] } = {
       name: 'שיעור קבוצתי',
       price: 'לפי הסטודיו',
       unit: '',
-      text: 'שיעורים קבוצתיים בסטודיו ״לעוף על הגוף״. המחיר וההרשמה לפי הסטודיו.',
+      text: 'שיעורים קבוצתיים שאני מעבירה בסטודיו ״לעוף על הגוף״ בעין חרוד איחוד. המחיר וההרשמה לפי הסטודיו.',
       points: ['מזרן: עד 15 משתתפים', 'מכשירים: לפי מספר המכשירים בסטודיו', 'ההרשמה דרך מערכת השעות של הסטודיו'],
       cta: 'schedule',
       ctaLabel: 'לבירור שעות ומיקום',
@@ -164,7 +164,7 @@ export const LOCATIONS = {
   title: 'איפה מתאמנים?',
   text: 'ההרשמה לשיעורים הקבוצתיים היא דרך מערכת השעות של הסטודיו. שיעורים פרטיים וזוגיים מתואמים ישירות איתי.',
   areas: ['עמק יזרעאל והסביבה'],
-  studios: [{ name: 'לעוף על הגוף' }] as { name: string; address?: string; url?: string }[],
+  studios: [{ name: 'לעוף על הגוף', address: 'עין חרוד איחוד' }] as { name: string; address?: string; url?: string }[],
   scheduleUrl: '',
   comingSoon: '',
 };
@@ -199,7 +199,7 @@ export const FAQ = [
   },
   {
     q: 'איפה מתקיימים השיעורים?',
-    a: 'באזור עמק יזרעאל והסביבה. השיעורים הקבוצתיים מתקיימים בסטודיו ״לעוף על הגוף״. לפרטים על מיקום ושעות — שלחו לי הודעה.',
+    a: 'באזור עמק יזרעאל והסביבה. השיעורים הקבוצתיים שאני מעבירה מתקיימים בסטודיו ״לעוף על הגוף״ בעין חרוד איחוד. לפרטים על מיקום ושעות — שלחו לי הודעה.',
   },
   {
     q: 'מה מדיניות הביטול?',
@@ -215,6 +215,6 @@ export const APP_PROMO = {
   title: 'כלים לבניית מערכי שיעור',
   text: 'מאגר של מאות תרגילים, בניית מערכי שיעור ומצב הדרכה חי — כלי עבודה למדריכות ומדריכי פילאטיס.',
   cta: 'לכלי בניית השיעורים',
-  // Update only after Retem confirms whether this is a personal or public tool.
+  // Confirmed: the tool is meant for other instructors too, not only Rotem.
   navigationLabel: 'כלי בניית שיעורים',
 };
