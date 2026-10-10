@@ -1,4 +1,5 @@
 import { Lesson } from '../types';
+import { isConditionId } from './conditions';
 
 const LESSONS_KEY = 'pilates_lessons';
 const TEMPLATES_KEY = 'pilates_saved_templates';
@@ -19,7 +20,8 @@ function normalizeLesson(raw: any): Lesson {
     exercises,
     totalDuration,
     createdAt: String(raw?.createdAt || new Date().toISOString().split('T')[0]),
-    isCustom: Boolean(raw?.isCustom ?? true)
+    isCustom: Boolean(raw?.isCustom ?? true),
+    conditions: Array.isArray(raw?.conditions) ? raw.conditions.filter(isConditionId) : []
   };
 }
 

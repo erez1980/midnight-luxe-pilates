@@ -1,4 +1,8 @@
 import { Lesson } from '../types';
+import { conditionLabel, isConditionId } from './conditions';
+
+const conditionsText = (lesson: Lesson) =>
+  (lesson.conditions || []).filter(isConditionId).map(conditionLabel).join(', ');
 
 export function lessonToWhatsappText(lesson: Lesson) {
   const lines = [
@@ -6,6 +10,7 @@ export function lessonToWhatsappText(lesson: Lesson) {
     `רמה: ${lesson.levelLabel}`,
     `פוקוס: ${lesson.targetFocus}`,
     `משך כולל: ${lesson.totalDuration} דקות`,
+    conditionsText(lesson) ? `מותאם ל: ${conditionsText(lesson)}` : '',
     lesson.description ? `תיאור: ${lesson.description}` : '',
     '',
     '*מבנה השיעור:*',
@@ -50,6 +55,7 @@ function buildPrintHtml(lesson: Lesson) {
           <div><strong>רמה:</strong> ${lesson.levelLabel}</div>
           <div><strong>פוקוס:</strong> ${lesson.targetFocus}</div>
           <div><strong>משך:</strong> ${lesson.totalDuration} דקות</div>
+          ${conditionsText(lesson) ? `<div><strong>מותאם ל:</strong> ${conditionsText(lesson)}</div>` : ''}
           ${lesson.description ? `<div><strong>תיאור:</strong> ${lesson.description}</div>` : ''}
         </div>
         ${lesson.exercises.map((item, index) => `

@@ -34,4 +34,7 @@ export interface Lesson {
   totalDuration: number; // in minutes
   createdAt: string;
   isCustom?: boolean;
+  // Special conditions the lesson is planned for (see utils/conditions.ts),
+  // e.g. ['pregnancy', 'lower-back'].
+  conditions?: string[];
 }

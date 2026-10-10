@@ -5,18 +5,30 @@ import { INITIAL_EXERCISES } from '../data';
 import { getExerciseMedia } from '../utils/exerciseMedia';
 import StepSequence from './StepSequence';
 import { motion, AnimatePresence } from 'motion/react';
+import { CONDITIONS, ConditionId, assessExercise, assessForConditions, conditionLabel } from '../utils/conditions';
+import { ConditionDisclaimer, ConditionPicker, SuitabilityBadge } from './ConditionControls';
 
 interface ExerciseLibraryProps {
   onAddToLesson?: (exercise: Exercise) => void;
   addedExerciseIds?: string[];
   isSelectorMode?: boolean;
+  // Controlled from the lesson builder (the lesson's conditions); otherwise
+  // the library keeps its own selection.
+  conditions?: ConditionId[];
+  onConditionsChange?: (next: ConditionId[]) => void;
 }
 
 export default function ExerciseLibrary({ 
   onAddToLesson, 
   addedExerciseIds = [], 
-  isSelectorMode = false 
+  isSelectorMode = false,
+  conditions: controlledConditions,
+  onConditionsChange,
 }: ExerciseLibraryProps) {
+  const [localConditions, setLocalConditions] = useState<ConditionId[]>([]);
+  const conditions = controlledConditions ?? localConditions;
+  const setConditions = onConditionsChange ?? setLocalConditions;
+  const [hideAvoid, setHideAvoid] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApparatus, setSelectedApparatus] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
@@ -109,7 +121,9 @@ export default function ExerciseLibrary({
     const matchesDifficulty = selectedDifficulty === 'all' || ex.difficulty === selectedDifficulty;
     const matchesCategory = selectedCategory === 'all' || ex.category === selectedCategory;
 
-    return matchesSearch && matchesApparatus && matchesDifficulty && matchesCategory;
+    const matchesConditions = !conditions.length || !hideAvoid || assessForConditions(ex, conditions).status !== 'avoid';
+
+    return matchesSearch && matchesApparatus && matchesDifficulty && matchesCategory && matchesConditions;
   });
 
   return (
@@ -216,6 +230,16 @@ export default function ExerciseLibrary({
             </button>
           ))}
         </div>
+
+        <div className="mt-5 border-t border-outline/20 pt-5">
+          <ConditionPicker value={conditions} onChange={setConditions} compact={isSelectorMode} />
+          {conditions.length > 0 && (
+            <label className="mt-3 inline-flex cursor-pointer items-center gap-2 text-xs text-on-surface">
+              <input type="checkbox" checked={hideAvoid} onChange={(e) => setHideAvoid(e.target.checked)} className="accent-[var(--color-secondary)]" />
+              הסתרת תרגילים שמסומנים ״להימנע״
+            </label>
+          )}
+        </div>
       </div>
 
       {/* Results Count */}
@@ -241,6 +265,8 @@ export default function ExerciseLibrary({
         <AnimatePresence mode="popLayout">
           {filteredExercises.map((exercise) => {
             const isAdded = addedExerciseIds.includes(exercise.id);
+            const fit = conditions.length ? assessForConditions(exercise, conditions) : null;
+            const fitReason = fit?.perCondition.find((a) => a.status === fit.status && a.reasons.length);
             return (
               <motion.div
                 key={exercise.id}
@@ -263,6 +289,13 @@ export default function ExerciseLibrary({
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                  {fit && (
+                    <SuitabilityBadge
+                      status={fit.status}
+                      draft={fit.perCondition.some((a) => !a.approved)}
+                      className="absolute top-3 right-3 text-[11px] shadow-sm"
+                    />
+                  )}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="rounded-full bg-surface-container p-3 text-on-surface border border-outline/20">
                       <PlayCircle className="w-8 h-8" />
@@ -297,6 +330,11 @@ export default function ExerciseLibrary({
                     {exercise.name}
                   </h3>
                   <p className="text-xs text-on-surface-variant font-mono mb-4">{exercise.englishName}</p>
+                  {fit && fit.status !== 'suitable' && fitReason && (
+                    <p className="mb-4 text-xs leading-relaxed text-on-surface-variant">
+                      <strong className="text-on-surface">{conditionLabel(fitReason.id)}:</strong> {fitReason.reasons[0]}
+                    </p>
+                  )}
                   <div className="inline-flex items-center gap-1.5 text-xs text-secondary mb-4">
                     {getExerciseMedia(exercise).isDedicatedVideo ? <PlayCircle className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
                     {getExerciseMedia(exercise).mediaLabel}
@@ -493,6 +531,32 @@ export default function ExerciseLibrary({
                     {selectedExercise.breathing}
                   </p>
                 </div>
+                </div>
+
+                {/* Special conditions — every condition, selected ones first */}
+                <div className="mb-8 rounded-2xl border border-outline/20 bg-surface-container p-4 md:p-5">
+                  <h3 className="serif-text text-lg font-bold text-on-surface mb-3">התאמה למצבים מיוחדים</h3>
+                  <ul className="divide-y divide-outline/15">
+                    {[...CONDITIONS]
+                      .sort((a, b) => Number(conditions.includes(b.id)) - Number(conditions.includes(a.id)))
+                      .map((c) => {
+                        const a = assessExercise(selectedExercise, c.id);
+                        return (
+                          <li key={c.id} className="flex flex-col gap-1 py-2.5 sm:flex-row sm:items-start sm:gap-4">
+                            <div className="flex w-40 shrink-0 items-center gap-2">
+                              <span className={`text-sm ${conditions.includes(c.id) ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>{c.label}</span>
+                            </div>
+                            <SuitabilityBadge status={a.status} draft={!a.approved} className="self-start" />
+                            {a.reasons.length > 0 && (
+                              <span className="text-xs leading-relaxed text-on-surface-variant">{a.reasons.join(' · ')}</span>
+                            )}
+                          </li>
+                        );
+                      })}
+                  </ul>
+                  <div className="mt-3">
+                    <ConditionDisclaimer />
+                  </div>
                 </div>
 
                 {/* Instructions */}

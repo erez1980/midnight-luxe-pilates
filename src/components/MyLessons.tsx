@@ -3,6 +3,7 @@ import { Play, Pencil, Trash2, Plus, FolderHeart, Copy, Bookmark, Download, Uplo
 import { Lesson } from '../types';
 import { motion } from 'motion/react';
 import Button from './ui/Button';
+import { conditionLabel, isConditionId } from '../utils/conditions';
 
 interface MyLessonsProps {
   lessons: Lesson[];
@@ -279,6 +280,9 @@ export default function MyLessons({
                   <span className="text-[11px] px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant border border-outline/20">
                     {(lesson.exercises?.length || 0)} תרגילים · {lesson.totalDuration || 0} דק׳
                   </span>
+                  {(lesson.conditions || []).filter(isConditionId).map((c) => (
+                    <span key={c} className="text-[11px] px-2.5 py-1 rounded-full bg-gold-soft/60 text-gold-deep border border-gold/30">מותאם: {conditionLabel(c)}</span>
+                  ))}
                 </div>
 
                 {/* Real per-lesson info: how the minutes split across categories */}

@@ -6,6 +6,8 @@ import { INITIAL_EXERCISES } from '../data';
 import { openLessonPrint, shareLessonToWhatsapp } from '../utils/lessonExport';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
+import { ConditionId, assessForConditions, conditionLabel, isConditionId } from '../utils/conditions';
+import { ConditionPicker, SuitabilityBadge } from './ConditionControls';
 
 interface LessonBuilderProps {
   onSaveLesson: (lesson: Lesson) => void;
@@ -19,6 +21,10 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [level, setLevel] = useState<Lesson['level']>(existingLessonToEdit?.level || 'intermediate');
   const [targetFocus, setTargetFocus] = useState(existingLessonToEdit?.targetFocus || 'חיזוק כללי ויציבה');
   const [exercises, setExercises] = useState<LessonExercise[]>(existingLessonToEdit?.exercises || []);
+  // Who the lesson is planned for: drives badges, warnings and auto-build.
+  const [conditions, setConditions] = useState<ConditionId[]>(
+    (existingLessonToEdit?.conditions || []).filter(isConditionId)
+  );
   const [errors, setErrors] = useState<string[]>([]);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [builderSearchQuery, setBuilderSearchQuery] = useState('');
@@ -106,13 +112,13 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
   useEffect(() => {
     const draftKey = existingLessonToEdit ? `pilates_lesson_draft_${existingLessonToEdit.id}` : 'pilates_lesson_builder_draft';
-    const draft = { lessonName, description, level, targetFocus, exercises, autoBuildDuration };
+    const draft = { lessonName, description, level, targetFocus, exercises, autoBuildDuration, conditions };
     try {
       localStorage.setItem(draftKey, JSON.stringify(draft));
     } catch {
       // Keep the builder usable even when storage is blocked/full.
     }
-  }, [lessonName, description, level, targetFocus, exercises, autoBuildDuration, existingLessonToEdit]);
+  }, [lessonName, description, level, targetFocus, exercises, autoBuildDuration, conditions, existingLessonToEdit]);
 
   const buildCurrentLessonPayload = (): Lesson => ({
     id: existingLessonToEdit?.id || `custom_lesson_${Date.now()}`,
@@ -124,8 +130,16 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     exercises,
     totalDuration: exercises.reduce((acc, curr) => acc + curr.customDuration, 0),
     createdAt: new Date().toISOString().split('T')[0],
-    isCustom: true
+    isCustom: true,
+    conditions
   });
+
+  // First "needs modification" reason, pre-filled as a coaching note.
+  const modificationNote = (exercise: Exercise) => {
+    const fit = assessForConditions(exercise, conditions);
+    const hit = fit.perCondition.find((a) => a.status === 'modify' && a.reasons.length);
+    return hit ? `${conditionLabel(hit.id)}: ${hit.reasons[0]}` : '';
+  };
 
   const autoBuildLesson = () => {
     const acceptedLevels = level === 'mixed' ? ['beginner', 'intermediate'] : [level];
@@ -148,8 +162,17 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
         const matchesCategory = exercise.category === category;
         const matchesLevel = level === 'mixed' || acceptedLevels.includes(exercise.difficulty);
         const matchesApparatus = !preferredApparatus || exercise.apparatus === preferredApparatus;
-        return matchesCategory && matchesLevel && matchesApparatus && !used.has(exercise.id);
+        const allowed = !conditions.length || assessForConditions(exercise, conditions).status !== 'avoid';
+        return matchesCategory && matchesLevel && matchesApparatus && allowed && !used.has(exercise.id);
       });
+      // With special conditions, fully suitable exercises come before ones
+      // that need modification.
+      if (conditions.length) {
+        pool.sort((a, b) =>
+          Number(assessForConditions(a, conditions).status === 'modify') -
+          Number(assessForConditions(b, conditions).status === 'modify')
+        );
+      }
 
       for (const exercise of pool) {
         if (remaining <= 0) break;
@@ -158,7 +181,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
         generated.push({
           exercise,
           customDuration,
-          notes: category === 'cooldown' ? 'לסיים עם נשימה, הארכה והורדת עומס' : ''
+          notes: category === 'cooldown' ? 'לסיים עם נשימה, הארכה והורדת עומס' : (conditions.length ? modificationNote(exercise) : '')
         });
         remaining -= customDuration;
       }
@@ -262,9 +285,10 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
       const matchesApparatus = builderApparatus === 'all' || exercise.apparatus === builderApparatus;
       const matchesDifficulty = builderDifficulty === 'all' || exercise.difficulty === builderDifficulty;
       const matchesCategory = builderCategory === 'all' || exercise.category === builderCategory;
-      return matchesSearch && matchesApparatus && matchesDifficulty && matchesCategory;
+      const allowed = !conditions.length || assessForConditions(exercise, conditions).status !== 'avoid';
+      return matchesSearch && matchesApparatus && matchesDifficulty && matchesCategory && allowed;
     }).slice(0, 24);
-  }, [builderSearchQuery, builderApparatus, builderDifficulty, builderCategory]);
+  }, [builderSearchQuery, builderApparatus, builderDifficulty, builderCategory, conditions]);
 
   const activeBuilderFilterCount = [
     builderApparatus !== 'all',
@@ -316,7 +340,14 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     return acc;
   }, {});
 
+  const avoidInLesson = conditions.length
+    ? exercises.filter((item) => assessForConditions(item.exercise, conditions).status === 'avoid')
+    : [];
+
   const builderWarnings = [
+    avoidInLesson.length
+      ? `${avoidInLesson.length} תרגילים בשיעור מסומנים ״להימנע״ עבור ${conditions.map(conditionLabel).join(', ')}`
+      : null,
     !exercises.some((item) => item.exercise.category === 'warmup') ? 'חסר חימום ברור בתחילת השיעור' : null,
     !exercises.some((item) => item.exercise.category === 'cooldown') ? 'חסר שחרור או סיום רגוע' : null,
     totalCalculatedDuration > 0 && totalCalculatedDuration < 30 ? 'השיעור קצר יחסית - אולי כדאי להרחיב עוד בלוק אחד' : null
@@ -476,6 +507,13 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 />
               </div>
             </div>
+
+            <div className="border-t border-outline/20 pt-4">
+              <p className="mb-3 text-sm text-on-surface-variant">
+                יש בקבוצה מתאמנת בהריון, אחרי לידה או עם פציעה? בוחרים כאן — והשיעור יסמן מה מתאים, מה דורש התאמה וממה להימנע.
+              </p>
+              <ConditionPicker value={conditions} onChange={setConditions} />
+            </div>
           </div>
 
           <div ref={generateRef} className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 space-y-4 scroll-mt-28">
@@ -566,7 +604,20 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                               <span className="rounded-full bg-surface-container-high px-2 py-0.5 text-[10px] text-on-surface-variant">
                                 {el.exercise.difficultyLabel}
                               </span>
+                              {conditions.length > 0 && (() => {
+                                const fit = assessForConditions(el.exercise, conditions);
+                                return fit.status !== 'suitable' ? (
+                                  <SuitabilityBadge status={fit.status} draft={fit.perCondition.some((a) => !a.approved)} />
+                                ) : null;
+                              })()}
                             </div>
+                            {conditions.length > 0 && (() => {
+                              const fit = assessForConditions(el.exercise, conditions);
+                              const hit = fit.perCondition.find((a) => a.status === fit.status && a.status !== 'suitable' && a.reasons.length);
+                              return hit ? (
+                                <p className="mt-1 text-[11px] text-on-surface-variant">{conditionLabel(hit.id)}: {hit.reasons[0]}</p>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
 
@@ -745,6 +796,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
             </div>
             <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
               לחיצה על <strong>״הוספה לשיעור״</strong> משלבת תרגיל במערך. אפשר לחפש לפי שם, ולפתוח סינון לפי ציוד, רמה וקטגוריה.
+              {conditions.length > 0 && <> תרגילים שמסומנים ״להימנע״ עבור {conditions.map(conditionLabel).join(', ')} לא מוצגים כאן.</>}
             </p>
 
             <div className="mb-5 space-y-3 rounded-2xl border border-outline/20 bg-surface-container p-4">
@@ -884,8 +936,14 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                         <div className="text-on-surface font-bold text-sm md:text-base">{exercise.name}</div>
                         <div className="text-[11px] text-on-surface-variant font-mono">{exercise.englishName}</div>
                       </div>
-                      <span className="rounded-full bg-surface-container-high px-2 py-1 text-[10px] text-on-surface-variant whitespace-nowrap">
-                        {exercise.durationMinutes} דק׳
+                      <span className="flex flex-col items-end gap-1">
+                        <span className="rounded-full bg-surface-container-high px-2 py-1 text-[10px] text-on-surface-variant whitespace-nowrap">
+                          {exercise.durationMinutes} דק׳
+                        </span>
+                        {conditions.length > 0 && (() => {
+                          const fit = assessForConditions(exercise, conditions);
+                          return <SuitabilityBadge status={fit.status} draft={fit.perCondition.some((a) => !a.approved)} />;
+                        })()}
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-1.5 mb-3">
@@ -925,6 +983,8 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 isSelectorMode={true} 
                 onAddToLesson={handleAddExercise}
                 addedExerciseIds={activeExerciseIds}
+                conditions={conditions}
+                onConditionsChange={setConditions}
               />
             </div>
           </div>
