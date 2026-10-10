@@ -540,7 +540,7 @@ function Pricing() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+        <div className="mt-16 grid gap-6 md:grid-cols-2">
           {PRICING.plans.map((plan, i) => {
             const target = plan.cta === 'schedule' ? SCHEDULE : BOOK;
             const linkProps = target.external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
@@ -559,10 +559,24 @@ function Pricing() {
                     </span>
                   )}
                   <h3 className="font-display text-2xl md:text-3xl">{plan.name}</h3>
-                  <p className="mt-6 flex items-baseline gap-3">
-                    <span className={`font-display text-5xl font-light ${plan.featured ? 'text-gold' : 'text-ink'}`}>{plan.price}</span>
-                    {plan.unit && <span className={plan.featured ? 'text-cream/70' : 'text-muted'}>{plan.unit}</span>}
-                  </p>
+                  {plan.prices ? (
+                    <div className="mt-6">
+                      <dl className="space-y-2">
+                        {plan.prices.map((p) => (
+                          <div key={p.label} className="flex items-baseline justify-between gap-3">
+                            <dt className={plan.featured ? 'text-cream/75' : 'text-muted'}>{p.label}</dt>
+                            <dd className={`font-display text-4xl font-light ${plan.featured ? 'text-gold' : 'text-ink'}`}>{p.price}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      {plan.unit && <p className={`mt-2 text-sm ${plan.featured ? 'text-cream/60' : 'text-muted'}`}>{plan.unit}</p>}
+                    </div>
+                  ) : (
+                    <p className="mt-6 flex items-baseline gap-3">
+                      <span className={`font-display text-4xl font-light md:text-5xl ${plan.featured ? 'text-gold' : 'text-ink'}`}>{plan.price}</span>
+                      {plan.unit && <span className={plan.featured ? 'text-cream/70' : 'text-muted'}>{plan.unit}</span>}
+                    </p>
+                  )}
                   <p className={`mt-5 leading-relaxed ${plan.featured ? 'text-cream/75' : 'text-muted'}`}>{plan.text}</p>
                   <ul className={`mt-6 flex-1 space-y-3 border-t pt-6 ${plan.featured ? 'border-night-line' : 'border-line'}`}>
                     {plan.points.map((point) => (
@@ -659,7 +673,7 @@ function Locations() {
                 <h2 className="mt-6 font-display text-3xl font-light md:text-5xl">{LOCATIONS.title}</h2>
                 <p className="mt-4 text-lg leading-relaxed text-muted">{LOCATIONS.text}</p>
                 {LOCATIONS.areas.length > 0 && <p className="mt-4 font-medium">אזורי פעילות: {LOCATIONS.areas.join(' · ')}</p>}
-                {LOCATIONS.studios.length > 0 && <ul className="mt-4 space-y-2">{LOCATIONS.studios.map((studio) => <li key={studio.name}>{studio.name} · {studio.address}{studio.url && <a href={studio.url} target="_blank" rel="noopener noreferrer" className="ms-3 underline">פרטי הסטודיו</a>}</li>)}</ul>}
+                {LOCATIONS.studios.length > 0 && <ul className="mt-4 space-y-2">{LOCATIONS.studios.map((studio) => <li key={studio.name}>סטודיו ״{studio.name}״{studio.address && ` · ${studio.address}`}{studio.url && <a href={studio.url} target="_blank" rel="noopener noreferrer" className="ms-3 underline">פרטי הסטודיו</a>}</li>)}</ul>}
                 {LOCATIONS.comingSoon && <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/50 bg-white/70 px-4 py-2 text-sm text-gold-deep">
                   <span className="h-2 w-2 rounded-full bg-gold breathe" aria-hidden="true" />
                   {LOCATIONS.comingSoon}
