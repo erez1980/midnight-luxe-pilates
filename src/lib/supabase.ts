@@ -6,5 +6,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const supabaseEnabled = Boolean(supabaseUrl && supabaseAnonKey);
 
 export const supabase = supabaseEnabled
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      fetch: (input, init) => fetch(input, {
+        ...init,
+        signal: init?.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
+      }),
+    },
+  })
   : null;

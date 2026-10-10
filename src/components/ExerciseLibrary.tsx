@@ -5,6 +5,7 @@ import { INITIAL_EXERCISES } from '../data';
 import { getExerciseMedia } from '../utils/exerciseMedia';
 import StepSequence from './StepSequence';
 import { motion, AnimatePresence } from 'motion/react';
+import Dialog from './ui/Dialog';
 
 interface ExerciseLibraryProps {
   onAddToLesson?: (exercise: Exercise) => void;
@@ -22,53 +23,6 @@ export default function ExerciseLibrary({
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-
-  // Modal accessibility: Escape closes, background scroll is locked while open,
-  // focus moves into the dialog and returns to the trigger on close, and Tab is
-  // trapped inside the dialog.
-  const modalRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const lastFocusedRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (!selectedExercise) return;
-
-    lastFocusedRef.current = document.activeElement as HTMLElement | null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    closeButtonRef.current?.focus();
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.stopPropagation();
-        setSelectedExercise(null);
-        return;
-      }
-      if (event.key !== 'Tab' || !modalRef.current) return;
-
-      const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input, select, textarea, iframe, [tabindex]:not([tabindex="-1"])'
-      );
-      if (focusable.length === 0) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = previousOverflow;
-      lastFocusedRef.current?.focus();
-    };
-  }, [selectedExercise]);
 
   // Filters
   const apparatusOptions = [
@@ -371,34 +325,12 @@ export default function ExerciseLibrary({
         )}
       </div>
 
-      {/* Detail Modal Dialog */}
-      <AnimatePresence>
+      <Dialog open={Boolean(selectedExercise)} onClose={() => setSelectedExercise(null)} label={`פרטי תרגיל: ${selectedExercise?.name || ''}`} className="max-w-4xl p-0 bg-surface">
         {selectedExercise && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedExercise(null)}
-              className="absolute inset-0 bg-background/90 backdrop-blur-sm"
-            />
-
-            {/* Modal Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', duration: 0.4 }}
-              ref={modalRef}
-              role="dialog"
-              aria-modal="true"
-              aria-label={`פרטי תרגיל: ${selectedExercise.name}`}
-              className="relative w-full max-w-4xl bg-surface border border-secondary/30 shadow-2xl overflow-y-auto max-h-[90vh]"
-            >
+          <div className="relative">
               {/* Close button */}
               <button
-                ref={closeButtonRef}
+                autoFocus
                 onClick={() => setSelectedExercise(null)}
                 aria-label="סגירת חלון פרטי התרגיל"
                 className="absolute top-6 left-6 text-on-surface-variant hover:text-on-surface border border-outline/20 hover:border-outline p-2 transition-colors rounded-sm"
@@ -549,10 +481,9 @@ export default function ExerciseLibrary({
                   </div>
                 )}
               </div>
-            </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </Dialog>
     </div>
   );
 }

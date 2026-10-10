@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { X, UserRound } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
+import Dialog from './ui/Dialog';
 import { BusinessType, ProfileDetails, saveProfileDetails } from '../utils/profile';
 
 interface ProfileSetupProps {
@@ -50,7 +51,7 @@ export default function ProfileSetup({ open, userId, userName, initialDetails, o
       businessType,
       businessId,
       marketingOptIn,
-    });
+    }).catch(() => ({ ok: false }));
     setSaving(false);
     if (result.ok) {
       onSaved();
@@ -60,21 +61,7 @@ export default function ProfileSetup({ open, userId, userName, initialDetails, o
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-6"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl border border-outline/30 bg-surface-container-high p-6 sm:p-8 shadow-2xl"
-          >
+    <Dialog open={open} onClose={() => { if (!saving) onClose(); }} label="פרטי החשבון">
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
                 <div className="flex items-center gap-2 text-secondary mb-2">
@@ -91,6 +78,7 @@ export default function ProfileSetup({ open, userId, userName, initialDetails, o
               <button
                 type="button"
                 onClick={onClose}
+                disabled={saving}
                 className="shrink-0 p-2 text-on-surface-variant hover:text-on-surface transition-colors"
                 aria-label="סגירה"
               >
@@ -167,7 +155,7 @@ export default function ProfileSetup({ open, userId, userName, initialDetails, o
               </label>
 
               {error && (
-                <div className="rounded-xl border border-error/30 bg-error-container px-4 py-3 text-xs text-rose-400">
+                <div role="alert" className="rounded-xl border border-error/30 bg-error-container px-4 py-3 text-xs text-error">
                   {error}
                 </div>
               )}
@@ -181,9 +169,6 @@ export default function ProfileSetup({ open, userId, userName, initialDetails, o
                 </Button>
               </div>
             </form>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </Dialog>
   );
 }

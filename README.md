@@ -44,8 +44,16 @@ VITE_SUPABASE_ANON_KEY=...
 
 ראו `SUPABASE_SETUP.md`.
 
-## זהות עיצובית
+## עיצוב ובדיקות
 
-`src/brand.css` מגדיר את אותם צבעים ופונטים לאתר הראשי ולאפליקציה: שנהב, מרווה וזהב, Heebo לטקסט ו־Frank Ruhl Libre לכותרות. האפליקציה מוצגת במצב בהיר ללא תלות בהעדפות המערכת.
+`src/brand.css` מגדיר את הצבעים והפונטים המשותפים לאתר ולאפליקציה. האפליקציה משתמשת באותו עיצוב בהיר, בלי החלפת צבעים לפי מערכת ההפעלה.
 
-[רשימת התוכן לרתם](docs/retem-content-request.md).
+```bash
+npm run typecheck
+npm test
+npx playwright install chromium
+npm run test:e2e
+npm run build
+```
+
+לפני מיזוג ופריסה יש להשלים את [הפעלת Supabase ובדיקות ההרשאות](docs/release-checklist.md). [רשימת התוכן לרתם](docs/retem-content-request.md) מוכנה להעברה.
