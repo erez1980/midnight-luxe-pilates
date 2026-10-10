@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, Award, Check, MapPin, Menu, Phone, Mail, Plus, Settings2, Smartphone, Wind, X } from 'lucide-react';
+import { ArrowUpLeft, Award, Building2, Check, HeartPulse, Library, ListOrdered, MapPin, Menu, Phone, Mail, PartyPopper, Play, Plus, Settings2, Smartphone, Users, Wind, X } from 'lucide-react';
 import {
   ABOUT,
   APP_PROMO,
   AUDIENCE,
+  BOOKING,
   BRAND,
   CLASSES,
   CONTACT,
@@ -15,7 +16,10 @@ import {
   PRICING,
   PRINCIPLES,
   PRINCIPLES_TICKER,
+  SHOW_LOCATIONS,
+  SHOW_PRICING,
   TESTIMONIALS,
+  TOOL,
 } from './content';
 
 const ASSET = import.meta.env.BASE_URL;
@@ -330,16 +334,19 @@ function Hero() {
           </Reveal>
           <Reveal delay={360}>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <BookButton>
-                {CONTACT.whatsapp && <WhatsAppIcon />}
-                {CONTACT_LABEL}
-              </BookButton>
+              {/* Two gates: people booking Rotem, and instructors using the tool. */}
               <a
-                href="#classes"
-                className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base text-ink transition-colors hover:text-sage"
+                href="#book"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-sage px-7 py-3.5 text-base font-medium text-white shadow-[0_10px_30px_-12px_rgba(76,92,66,0.55)] transition-all duration-500 ease-soft hover:-translate-y-0.5 hover:bg-sage-deep"
               >
-                להכיר את השיעורים
-                <ArrowUpLeft className="h-4 w-4" aria-hidden="true" />
+                {HERO.primaryCta}
+              </a>
+              <a
+                href={APP_URL}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-sage/60 px-7 py-3.5 text-base text-sage transition-colors hover:border-sage hover:bg-sage-soft"
+              >
+                <ListOrdered className="h-4 w-4" aria-hidden="true" />
+                {HERO.secondaryCta}
               </a>
             </div>
           </Reveal>
@@ -614,6 +621,221 @@ function Pricing() {
   );
 }
 
+const BOOKING_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  event: PartyPopper,
+  studio: Building2,
+  private: Users,
+};
+
+// Builds a ready-to-send WhatsApp (or email) message from the form, so an
+// inquiry reaches Rotem with every detail she needs to answer it.
+function BookingForm() {
+  const [type, setType] = useState(BOOKING.options[0].id);
+  const [name, setName] = useState('');
+  const [date, setDate] = useState('');
+  const [place, setPlace] = useState('');
+  const [participants, setParticipants] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const option = BOOKING.options.find((o) => o.id === type);
+    const lines = [
+      'היי רתם, הגעתי מהאתר 🙂',
+      `אשמח לתאם: ${option?.title ?? ''}`,
+      name && `שם: ${name}`,
+      date && `תאריך משוער: ${date}`,
+      place && `מקום: ${place}`,
+      participants && `מספר משתתפים: ${participants}`,
+      notes && `פרטים נוספים: ${notes}`,
+    ].filter(Boolean);
+    const text = lines.join('\n');
+    const url = CONTACT.whatsapp
+      ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(text)}`
+      : `mailto:${CONTACT.email}?subject=${encodeURIComponent(option?.title ?? 'פנייה מהאתר')}&body=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const field =
+    'mt-2 w-full rounded-2xl border border-line bg-white/80 px-4 py-3 text-ink placeholder:text-muted/70 focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20';
+
+  return (
+    <form onSubmit={onSubmit} className="rounded-[28px] border border-line bg-ivory p-6 md:p-10">
+      <h3 className="font-display text-2xl md:text-3xl">{BOOKING.form.title}</h3>
+      <fieldset className="mt-6">
+        <legend className="text-sm font-medium text-ink">סוג השיעור</legend>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {BOOKING.options.map((o) => (
+            <label
+              key={o.id}
+              className={`cursor-pointer rounded-full border px-4 py-2 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold ${
+                type === o.id ? 'border-sage bg-sage text-white' : 'border-line text-muted hover:border-sage hover:text-sage'
+              }`}
+            >
+              <input type="radio" name="booking-type" value={o.id} checked={type === o.id} onChange={() => setType(o.id)} className="sr-only" />
+              {o.title}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
+        <label className="block text-sm font-medium text-ink">
+          שם
+          <input className={field} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
+        </label>
+        <label className="block text-sm font-medium text-ink">
+          תאריך משוער
+          <input className={field} value={date} onChange={(e) => setDate(e.target.value)} placeholder="למשל: חמישי, 20.11 בערב" />
+        </label>
+        <label className="block text-sm font-medium text-ink">
+          מקום
+          <input className={field} value={place} onChange={(e) => setPlace(e.target.value)} placeholder="יישוב / סטודיו / אולם" />
+        </label>
+        <label className="block text-sm font-medium text-ink">
+          מספר משתתפים
+          <input className={field} value={participants} onChange={(e) => setParticipants(e.target.value)} inputMode="numeric" placeholder="למשל: 12" />
+        </label>
+      </div>
+      <label className="mt-5 block text-sm font-medium text-ink">
+        עוד משהו שחשוב לדעת?
+        <textarea className={`${field} min-h-24 resize-y`} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="אופי האירוע, רמת המשתתפים, פציעות, הריון…" />
+      </label>
+      <button
+        type="submit"
+        className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-sage px-7 py-3.5 font-medium text-white transition-colors hover:bg-sage-deep sm:w-auto"
+      >
+        {CONTACT.whatsapp ? <WhatsAppIcon /> : <Mail className="h-5 w-5" aria-hidden="true" />}
+        {CONTACT.whatsapp ? BOOKING.form.submit : 'שליחה במייל'}
+      </button>
+      <p className="mt-3 text-sm text-muted">{BOOKING.form.note}</p>
+    </form>
+  );
+}
+
+function Booking() {
+  return (
+    <section id="book" className="py-24 md:py-36">
+      <div className="mx-auto max-w-[1240px] px-5 md:px-8">
+        <div className="max-w-2xl">
+          <Reveal>
+            <Eyebrow>הזמנות ואירועים</Eyebrow>
+          </Reveal>
+          <Reveal delay={100}>
+            <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{BOOKING.title}</h2>
+          </Reveal>
+          <Reveal delay={180}>
+            <p className="mt-6 text-lg leading-relaxed text-muted">{BOOKING.intro}</p>
+          </Reveal>
+        </div>
+
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {BOOKING.options.map((o, i) => {
+            const Icon = BOOKING_ICON[o.id] ?? Users;
+            return (
+              <Reveal as="article" key={o.id} delay={i * 120}>
+                <div className="flex h-full flex-col rounded-[28px] border border-line bg-sand/60 p-8">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 text-gold-deep">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="mt-6 font-display text-2xl md:text-3xl">{o.title}</h3>
+                  <p className="mt-3 flex-1 leading-relaxed text-muted">{o.text}</p>
+                  <ul className="mt-6 space-y-2 border-t border-line pt-5 text-sm text-ink">
+                    {o.points.map((point) => (
+                      <li key={point} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 shrink-0 text-sage" aria-hidden="true" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+
+        <Reveal delay={120} className="mt-10">
+          <BookingForm />
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+const TOOL_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  library: Library,
+  conditions: HeartPulse,
+  builder: ListOrdered,
+  coach: Play,
+};
+
+// Illustrative only: shows how the conditions layer reads inside the tool.
+const TOOL_PREVIEW = [
+  { name: 'Cat Stretch', status: 'מתאים', tone: 'bg-sage-soft text-sage-deep' },
+  { name: 'The Hundred', status: 'בהתאמה', tone: 'bg-gold-soft/60 text-gold-deep' },
+  { name: 'Swan Dive', status: 'להימנע', tone: 'bg-red-100 text-red-800' },
+];
+
+function Tool() {
+  return (
+    <section id="tool" className="bg-sand py-24 md:py-36">
+      <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-5 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+        <div>
+          <Reveal>
+            <Eyebrow>למדריכות ומדריכים</Eyebrow>
+          </Reveal>
+          <Reveal delay={100}>
+            <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{TOOL.title}</h2>
+          </Reveal>
+          <Reveal delay={180}>
+            <p className="mt-6 text-lg leading-relaxed text-muted">{TOOL.intro}</p>
+          </Reveal>
+          <div className="mt-10 grid gap-x-8 gap-y-7 sm:grid-cols-2">
+            {TOOL.features.map((f, i) => {
+              const Icon = TOOL_ICON[f.id] ?? Library;
+              return (
+                <Reveal key={f.id} delay={i * 80}>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory text-sage">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="mt-4 text-lg font-medium text-ink">{f.title}</h3>
+                  <p className="mt-1.5 leading-relaxed text-muted">{f.text}</p>
+                </Reveal>
+              );
+            })}
+          </div>
+          <Reveal delay={200}>
+            <a
+              href={APP_URL}
+              className="mt-10 inline-flex items-center gap-2 rounded-full bg-sage px-7 py-3.5 font-medium text-white transition-colors hover:bg-sage-deep"
+            >
+              {TOOL.cta}
+              <ArrowUpLeft className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </Reveal>
+        </div>
+
+        <Reveal delay={160} className="mx-auto w-full max-w-[420px]">
+          <figure className="rounded-[28px] border border-line bg-ivory p-6 shadow-[0_40px_80px_-48px_rgba(46,49,40,0.5)]">
+            <figcaption className="flex items-center justify-between text-sm text-muted">
+              <span>מצב: הריון</span>
+              <span className="rounded-full border border-line px-3 py-1 text-xs">דוגמה</span>
+            </figcaption>
+            <ul className="mt-5 space-y-3">
+              {TOOL_PREVIEW.map((row) => (
+                <li key={row.name} className="flex items-center justify-between rounded-2xl border border-line bg-white/70 px-4 py-3">
+                  <span dir="ltr" className="font-medium text-ink">{row.name}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-medium ${row.tone}`}>{row.status}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 text-xs leading-relaxed text-muted">כלי עזר למדריכות מוסמכות. אינו תחליף לייעוץ רפואי.</p>
+          </figure>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 function Method() {
   return (
     <section id="method" className="relative overflow-hidden bg-night py-24 text-cream md:py-36">
@@ -842,35 +1064,6 @@ function Contact() {
   );
 }
 
-function AppPromo() {
-  return (
-    <section className="py-16 md:py-20">
-      <div className="mx-auto max-w-[1240px] px-5 md:px-8">
-        <Reveal>
-          <div className="flex flex-col items-start justify-between gap-6 rounded-[28px] border border-line p-8 md:flex-row md:items-center md:p-10">
-            <div className="flex items-start gap-5">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-sage-soft text-sage">
-                <Smartphone className="h-6 w-6" aria-hidden="true" />
-              </span>
-              <div>
-                <h2 className="font-display text-2xl text-ink md:text-3xl">{APP_PROMO.title}</h2>
-                <p className="mt-2 max-w-xl leading-relaxed text-muted">{APP_PROMO.text}</p>
-              </div>
-            </div>
-            <a
-              href={APP_URL}
-              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-sage px-6 py-3 text-sage transition-colors hover:bg-sage hover:text-white"
-            >
-              {APP_PROMO.cta}
-              <ArrowUpLeft className="h-4 w-4" aria-hidden="true" />
-            </a>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
 function Footer() {
   return (
     <footer className="border-t border-line">
@@ -951,13 +1144,14 @@ export default function Site() {
         <Ticker />
         <About />
         <Classes />
-        <Pricing />
+        {SHOW_PRICING && <Pricing />}
+        <Booking />
+        <Tool />
         <Method />
-        <Locations />
+        {SHOW_LOCATIONS && <Locations />}
         <Testimonials />
         <Faq />
         <Contact />
-        <AppPromo />
       </main>
       <Footer />
       <MobileBookBar />
