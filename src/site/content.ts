@@ -24,7 +24,7 @@ export const CONTACT = {
 // placeholder instead of a photo. Portrait ~4:5 works best for both.
 export const PHOTOS: { hero: string | null; about: string | null } = {
   hero: null,
-  about: null,
+  about: 'photos/rotem.webp',
 };
 
 export const NAV_LINKS = [
