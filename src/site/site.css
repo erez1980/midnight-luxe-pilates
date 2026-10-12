@@ -13,7 +13,6 @@ body {
   font-family: var(--font-sans);
   background: var(--color-ivory);
   color: var(--color-ink);
-  direction: rtl;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -58,6 +57,10 @@ body {
   from { transform: translateX(0); }
   to { transform: translateX(50%); }
 }
+@keyframes marquee-ltr {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
 @keyframes draw {
   from { stroke-dashoffset: 1; }
   to { stroke-dashoffset: 0; }
@@ -66,6 +69,8 @@ body {
 .breathe { animation: breathe 10s ease-in-out infinite; }
 .float { animation: float 7s ease-in-out infinite; }
 .marquee { animation: marquee 38s linear infinite; }
+/* LTR pages overflow to the right, so the strip scrolls the other way. */
+[dir="ltr"] .marquee { animation-name: marquee-ltr; }
 .draw {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
@@ -81,6 +86,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   :root { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
-  .breathe, .float, .marquee { animation: none; }
+  .breathe, .float, .marquee, [dir="ltr"] .marquee { animation: none; }
   .draw { animation: none; stroke-dashoffset: 0; }
 }

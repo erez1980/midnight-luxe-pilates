@@ -1,54 +1,53 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, Award, Building2, Check, HeartPulse, Library, ListOrdered, MapPin, Menu, Phone, Mail, PartyPopper, Play, Plus, Settings2, Smartphone, Users, Wind, X } from 'lucide-react';
-import {
-  ABOUT,
-  APP_PROMO,
-  AUDIENCE,
-  BOOKING,
-  BRAND,
-  CLASSES,
-  CONTACT,
-  FAQ,
-  HERO,
-  LOCATIONS,
-  NAV_LINKS,
-  PHOTOS,
-  PRICING,
-  PRINCIPLES,
-  PRINCIPLES_TICKER,
-  SHOW_LOCATIONS,
-  SHOW_PRICING,
-  TESTIMONIALS,
-  TOOL,
-} from './content';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowUpLeft, ArrowUpRight, Award, Building2, Check, HeartPulse, Library, ListOrdered, MapPin, Menu, Phone, Mail, PartyPopper, Play, Plus, Settings2, Shirt, Smartphone, Users, Wind, X } from 'lucide-react';
+import { HE, type SiteContent } from './content';
 
-const ASSET = import.meta.env.BASE_URL;
-const APP_URL = `${ASSET}app/`;
-const EMBLEM_LIGHT = `${ASSET}brand/emblem-light.webp`;
-const EMBLEM_DARK = `${ASSET}brand/emblem-dark.webp`;
+// The site renders in one language per page (/ = Hebrew, /en/ = English).
+// Everything language-specific comes from a SiteContent object; `root` is the
+// path back to the site root, so assets and the /app/ link resolve from both.
+const SiteContext = createContext<{ content: SiteContent; root: string; altUrl: string }>({
+  content: HE,
+  root: import.meta.env.BASE_URL,
+  altUrl: '',
+});
+
+type ContactAction = { href: string; external: boolean };
 
 // One primary "book a class" action, picked from whatever contact details
 // exist: WhatsApp beats phone beats email.
-function primaryContact(subject = 'תיאום שיעור פילאטיס', message = CONTACT.whatsappGreeting) {
-  if (CONTACT.whatsapp) {
+function primaryContact(contact: SiteContent['CONTACT'], subject: string, message: string): ContactAction {
+  if (contact.whatsapp) {
     return {
-      href: `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(message)}`,
+      href: `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(message)}`,
       external: true,
     };
   }
-  if (CONTACT.phone) return { href: `tel:${CONTACT.phone.replace(/[^\d+]/g, '')}`, external: false };
+  if (contact.phone) return { href: `tel:${contact.phone.replace(/[^\d+]/g, '')}`, external: false };
   return {
-    href: `mailto:${CONTACT.email}?subject=${encodeURIComponent(subject)}`,
+    href: `mailto:${contact.email}?subject=${encodeURIComponent(subject)}`,
     external: false,
   };
 }
-const BOOK = primaryContact();
-const SCHEDULE = primaryContact(
-  'בקשת מערכת שעות ומיקום לשיעורי פילאטיס',
-  'היי רתם, הגעתי מהאתר ואשמח לקבל את המיקומים והשעות של השיעורים הקבוצתיים 🙂'
-);
-const CONTACT_LABEL = CONTACT.whatsapp ? 'לשיחה בווטסאפ' : CONTACT.phone ? 'לשיחה ותיאום' : 'לשליחת פנייה במייל';
-const bookLinkProps = BOOK.external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+
+function useSite() {
+  const { content, root, altUrl } = useContext(SiteContext);
+  return useMemo(() => {
+    const { CONTACT, UI } = content;
+    const BOOK = primaryContact(CONTACT, UI.bookSubject, CONTACT.whatsappGreeting);
+    return {
+      ...content,
+      ASSET: root,
+      ALT_URL: altUrl,
+      APP_URL: `${root}app/`,
+      EMBLEM_LIGHT: `${root}brand/emblem-light.webp`,
+      EMBLEM_DARK: `${root}brand/emblem-dark.webp`,
+      BOOK,
+      SCHEDULE: primaryContact(CONTACT, UI.scheduleSubject, UI.scheduleGreeting),
+      CONTACT_LABEL: CONTACT.whatsapp ? UI.contactLabels.whatsapp : CONTACT.phone ? UI.contactLabels.phone : UI.contactLabels.email,
+      bookLinkProps: BOOK.external ? { target: '_blank', rel: 'noopener noreferrer' } : {},
+    };
+  }, [content, root, altUrl]);
+}
 
 // ---------- small building blocks ----------
 
@@ -115,6 +114,7 @@ function Eyebrow({ children, tone = 'light' }: { children: React.ReactNode; tone
 }
 
 function BookButton({ children, className = '', tone = 'sage' }: { children: React.ReactNode; className?: string; tone?: 'sage' | 'gold' }) {
+  const { BOOK, bookLinkProps } = useSite();
   const colors =
     tone === 'gold'
       ? 'bg-gold text-night hover:bg-gold-soft'
@@ -159,6 +159,7 @@ function FacebookIcon({ className = 'w-5 h-5' }: { className?: string }) {
 // Photo inside an arch; until a real photo exists, the brand emblem on a soft
 // gradient stands in so the layout already reads as finished.
 function ArchPhoto({ src, alt, tone = 'light', className = '', priority = false }: { src: string | null; alt: string; tone?: 'light' | 'dark'; className?: string; priority?: boolean }) {
+  const { ASSET, EMBLEM_LIGHT, EMBLEM_DARK } = useSite();
   return (
     <div
       className={`arch relative overflow-hidden ${
@@ -183,9 +184,81 @@ function ArchPhoto({ src, alt, tone = 'light', className = '', priority = false 
   );
 }
 
+// Drawn as SVG: flag emoji don't render on Windows (they show as letters).
+function FlagIL({ className = 'h-3.5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 220 160" className={`${className} rounded-[2px] ring-1 ring-black/10`} aria-hidden="true">
+      <rect width="220" height="160" fill="#fff" />
+      <rect y="15" width="220" height="25" fill="#0038b8" />
+      <rect y="120" width="220" height="25" fill="#0038b8" />
+      <g fill="none" stroke="#0038b8" strokeWidth="5.5">
+        <path d="M110 50 136 95H84Z" />
+        <path d="M110 110 84 65h52Z" />
+      </g>
+    </svg>
+  );
+}
+
+function FlagUS({ className = 'h-3.5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 76 40" className={`${className} rounded-[2px] ring-1 ring-black/10`} aria-hidden="true">
+      <rect width="76" height="40" fill="#fff" />
+      {[0, 2, 4, 6, 8, 10, 12].map((i) => (
+        <rect key={i} y={(i * 40) / 13} width="76" height={40 / 13} fill="#b22234" />
+      ))}
+      <rect width="30.4" height={(7 * 40) / 13} fill="#3c3b6e" />
+      <g fill="#fff">
+        {[0, 1, 2].map((r) =>
+          [0, 1, 2, 3, 4].map((c) => <circle key={`${r}-${c}`} cx={3.5 + c * 5.9} cy={3.6 + r * 6.4} r="1.1" />)
+        )}
+      </g>
+    </svg>
+  );
+}
+
+// Language switcher. The visitor's explicit choice is remembered and always
+// beats the automatic detection in index.html.
+function LangSwitch({ compact = false }: { compact?: boolean }) {
+  const { lang, ALT_URL, UI } = useSite();
+  const choose = (target: 'he' | 'en') => {
+    try {
+      localStorage.setItem('site-lang', target);
+    } catch {
+      // Storage blocked: the switch still works for this visit.
+    }
+    if (target !== lang) window.location.href = ALT_URL + window.location.hash;
+  };
+  const options = [
+    { id: 'he' as const, label: 'עב', name: 'עברית', Flag: FlagIL },
+    { id: 'en' as const, label: 'EN', name: 'English', Flag: FlagUS },
+  ];
+  return (
+    <div role="group" aria-label={UI.language} className="inline-flex shrink-0 rounded-full border border-line bg-ivory/70 p-0.5">
+      {options.map(({ id, label, name, Flag }) => (
+        <button
+          key={id}
+          type="button"
+          lang={id}
+          aria-pressed={lang === id}
+          aria-label={name}
+          title={name}
+          onClick={() => choose(id)}
+          className={`flex items-center gap-1.5 rounded-full px-2 py-1.5 text-xs transition-colors ${
+            lang === id ? 'bg-sage-soft font-medium text-sage-deep' : 'text-muted hover:text-ink'
+          }`}
+        >
+          <Flag />
+          {!compact && <span>{label}</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ---------- sections ----------
 
 function Header() {
+  const { BRAND, NAV_LINKS, APP_PROMO, UI, APP_URL, EMBLEM_LIGHT, BOOK, CONTACT_LABEL, bookLinkProps } = useSite();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -234,51 +307,50 @@ function Header() {
       }`}
     >
       <div className="mx-auto flex h-[72px] max-w-[1240px] items-center justify-between gap-6 px-5 md:px-8">
-        <a href="#top" className="flex items-center gap-3" aria-label={`${BRAND.name} — לראש העמוד`}>
+        <a href="#top" className="flex items-center gap-3" aria-label={`${BRAND.name} — ${UI.toTop}`}>
           <img src={EMBLEM_LIGHT} alt="" className="h-9 w-auto" />
-          <span className="font-display text-xl font-medium text-gold-deep">{BRAND.name}</span>
+          <span className="whitespace-nowrap font-display text-xl font-medium text-gold-deep">{BRAND.name}</span>
         </a>
 
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="ניווט ראשי">
+        <nav className="hidden items-center gap-7 xl:flex" aria-label={UI.mainNav}>
           {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href} className="text-[15px] text-muted transition-colors hover:text-ink">
+            <a key={link.href} href={link.href} className="whitespace-nowrap text-[15px] text-muted transition-colors hover:text-ink">
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <a
-            href={APP_URL}
-            className="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage"
-          >
-            <Smartphone className="h-4 w-4" aria-hidden="true" />
-            {APP_PROMO.navigationLabel}
-          </a>
+        {/* The lesson builder is reached via the "for instructors" section
+            (and the mobile menu), which keeps the desktop bar on one line. */}
+        <div className="hidden items-center gap-3 xl:flex">
+          <LangSwitch />
           <a
             href={BOOK.href}
             {...bookLinkProps}
-            className="rounded-full bg-sage px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-sage-deep"
+            className="whitespace-nowrap rounded-full bg-sage px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-sage-deep"
           >
             {CONTACT_LABEL}
           </a>
         </div>
 
+        <div className="flex items-center gap-1 xl:hidden">
+        <LangSwitch compact />
         <button ref={menuButtonRef}
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="-me-2 flex h-11 w-11 items-center justify-center rounded-full text-ink lg:hidden"
+          className="-me-2 flex h-11 w-11 items-center justify-center rounded-full text-ink"
           aria-expanded={open}
           aria-controls="mobile-menu"
-          aria-label={open ? 'סגירת התפריט' : 'פתיחת התפריט'}
+          aria-label={open ? UI.closeMenu : UI.openMenu}
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
+        </div>
       </div>
 
       {open && (
-        <div id="mobile-menu" className="h-[calc(100dvh-72px)] overflow-y-auto bg-ivory px-6 pb-10 pt-6 lg:hidden">
-          <nav className="flex flex-col" aria-label="ניווט ראשי">
+        <div id="mobile-menu" className="h-[calc(100dvh-72px)] overflow-y-auto bg-ivory px-6 pb-10 pt-6 xl:hidden">
+          <nav className="flex flex-col" aria-label={UI.mainNav}>
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}
@@ -307,6 +379,7 @@ function Header() {
 }
 
 function Hero() {
+  const { BRAND, PHOTOS, HERO, UI, APP_URL } = useSite();
   return (
     <section id="top" className="relative overflow-hidden pt-[72px]">
       {/* Soft ambient light — the "breathing" studio feel. */}
@@ -342,10 +415,10 @@ function Hero() {
                 {HERO.primaryCta}
               </a>
               <a
-                href={APP_URL}
+                href={HERO.secondaryHref === 'app' ? APP_URL : HERO.secondaryHref}
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-sage/60 px-7 py-3.5 text-base text-sage transition-colors hover:border-sage hover:bg-sage-soft"
               >
-                <ListOrdered className="h-4 w-4" aria-hidden="true" />
+                {HERO.secondaryHref === 'app' && <ListOrdered className="h-4 w-4" aria-hidden="true" />}
                 {HERO.secondaryCta}
               </a>
             </div>
@@ -381,12 +454,12 @@ function Hero() {
             />
           </svg>
           <ArchPhoto priority src={PHOTOS.hero} alt={`${BRAND.owner} — ${BRAND.name}`} className="aspect-[440/560] w-full shadow-[0_40px_80px_-40px_rgba(46,49,40,0.35)]" />
-          <div className="absolute -bottom-6 right-4 rounded-2xl border border-line bg-ivory/95 px-5 py-4 shadow-[0_20px_40px_-24px_rgba(46,49,40,0.4)] backdrop-blur md:right-[-2rem]">
+          <div className="absolute -bottom-6 start-4 rounded-2xl border border-line bg-ivory/95 px-5 py-4 shadow-[0_20px_40px_-24px_rgba(46,49,40,0.4)] backdrop-blur md:start-[-2rem]">
             <p className="flex items-center gap-2 text-sm font-medium text-ink">
               <Award className="h-4 w-4 text-gold-deep" aria-hidden="true" />
-              מזרן · מכשירים
+              {UI.heroBadgeTitle}
             </p>
-            <p className="mt-1 text-xs text-muted">הסמכה — מרתה פילאטיס</p>
+            <p className="mt-1 text-xs text-muted">{UI.heroBadgeSub}</p>
           </div>
         </Reveal>
       </div>
@@ -395,6 +468,7 @@ function Hero() {
 }
 
 function Ticker() {
+  const { PRINCIPLES_TICKER } = useSite();
   const words = [...PRINCIPLES_TICKER, ...PRINCIPLES_TICKER];
   return (
     <div className="overflow-hidden border-y border-line bg-sand py-5" aria-hidden="true">
@@ -415,17 +489,18 @@ function Ticker() {
 }
 
 function About() {
+  const { BRAND, PHOTOS, ABOUT, UI } = useSite();
   return (
     <section id="about" className="relative py-24 md:py-36">
       <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-5 md:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-24">
         <Reveal className="relative mx-auto w-full max-w-[400px] lg:order-none">
           <ArchPhoto src={PHOTOS.about} alt={BRAND.owner} tone="dark" className="aspect-[4/5] w-full" />
-          <div className="absolute -bottom-5 -left-5 hidden h-28 w-28 rounded-full border border-gold/60 md:block" aria-hidden="true" />
+          <div className="absolute -bottom-5 -end-5 hidden h-28 w-28 rounded-full border border-gold/60 md:block" aria-hidden="true" />
         </Reveal>
 
         <div>
           <Reveal>
-            <Eyebrow>על רתם</Eyebrow>
+            <Eyebrow>{UI.aboutEyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 font-display text-4xl font-light leading-tight text-ink md:text-6xl">{ABOUT.title}</h2>
@@ -463,19 +538,20 @@ const CLASS_ICON: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 function Classes() {
+  const { CLASSES, AUDIENCE, UI } = useSite();
   return (
     <section id="classes" className="bg-sand py-24 md:py-36">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <div className="max-w-2xl">
           <Reveal>
-            <Eyebrow>השיעורים</Eyebrow>
+            <Eyebrow>{UI.classesEyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={100}>
-            <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">שתי דרכים לנוע. מטרה אחת.</h2>
+            <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{UI.classesTitle}</h2>
           </Reveal>
           <Reveal delay={180}>
             <p className="mt-6 text-lg leading-relaxed text-muted">
-              על המזרן או על המכשירים — כל שיעור בנוי סביב הגוף שלך, הרמה שלך והמטרות שלך.
+              {UI.classesIntro}
             </p>
           </Reveal>
         </div>
@@ -513,8 +589,8 @@ function Classes() {
         <div className="mt-20 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <Reveal>
             <h3 className="font-display text-3xl font-light leading-snug md:text-4xl">
-              למי זה מתאים?
-              <span className="mt-2 block">כמעט לכל אחת ואחד.</span>
+              {UI.audienceTitle}
+              <span className="mt-2 block">{UI.audienceSub}</span>
             </h3>
           </Reveal>
           <ul className="grid gap-x-10 gap-y-4 sm:grid-cols-2">
@@ -532,12 +608,13 @@ function Classes() {
 }
 
 function Pricing() {
+  const { CONTACT, PRICING, UI, BOOK, SCHEDULE } = useSite();
   return (
     <section id="pricing" className="py-24 md:py-36">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <div className="max-w-2xl">
           <Reveal>
-            <Eyebrow>שיעורים ומחירים</Eyebrow>
+            <Eyebrow>{UI.pricingEyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{PRICING.title}</h2>
@@ -561,8 +638,8 @@ function Pricing() {
                   }`}
                 >
                   {plan.featured && (
-                    <span className="absolute -top-3.5 right-8 rounded-full bg-gold px-4 py-1 text-xs font-medium text-night">
-                      מומלץ להתחלה
+                    <span className="absolute -top-3.5 start-8 rounded-full bg-gold px-4 py-1 text-xs font-medium text-night">
+                      {UI.pricingFeatured}
                     </span>
                   )}
                   <h3 className="font-display text-2xl md:text-3xl">{plan.name}</h3>
@@ -622,6 +699,7 @@ function Pricing() {
 }
 
 const BOOKING_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  brand: Shirt,
   event: PartyPopper,
   studio: Building2,
   private: Users,
@@ -630,6 +708,7 @@ const BOOKING_ICON: Record<string, React.ComponentType<{ className?: string }>> 
 // Builds a ready-to-send WhatsApp (or email) message from the form, so an
 // inquiry reaches Rotem with every detail she needs to answer it.
 function BookingForm() {
+  const { CONTACT, BOOKING, UI } = useSite();
   const [type, setType] = useState(BOOKING.options[0].id);
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
@@ -641,18 +720,18 @@ function BookingForm() {
     e.preventDefault();
     const option = BOOKING.options.find((o) => o.id === type);
     const lines = [
-      'היי רתם, הגעתי מהאתר 🙂',
-      `אשמח לתאם: ${option?.title ?? ''}`,
-      name && `שם: ${name}`,
-      date && `תאריך משוער: ${date}`,
-      place && `מקום: ${place}`,
-      participants && `מספר משתתפים: ${participants}`,
-      notes && `פרטים נוספים: ${notes}`,
+      UI.message.hello,
+      `${UI.message.request} ${option?.title ?? ''}`,
+      name && `${UI.message.name} ${name}`,
+      date && `${UI.message.date} ${date}`,
+      place && `${UI.message.place} ${place}`,
+      participants && `${UI.message.participants} ${participants}`,
+      notes && `${UI.message.notes} ${notes}`,
     ].filter(Boolean);
     const text = lines.join('\n');
     const url = CONTACT.whatsapp
       ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(text)}`
-      : `mailto:${CONTACT.email}?subject=${encodeURIComponent(option?.title ?? 'פנייה מהאתר')}&body=${encodeURIComponent(text)}`;
+      : `mailto:${CONTACT.email}?subject=${encodeURIComponent(option?.title ?? UI.message.fallbackSubject)}&body=${encodeURIComponent(text)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -663,7 +742,7 @@ function BookingForm() {
     <form onSubmit={onSubmit} className="rounded-[28px] border border-line bg-ivory p-6 md:p-10">
       <h3 className="font-display text-2xl md:text-3xl">{BOOKING.form.title}</h3>
       <fieldset className="mt-6">
-        <legend className="text-sm font-medium text-ink">סוג השיעור</legend>
+        <legend className="text-sm font-medium text-ink">{UI.form.typeLegend}</legend>
         <div className="mt-3 flex flex-wrap gap-2">
           {BOOKING.options.map((o) => (
             <label
@@ -680,32 +759,32 @@ function BookingForm() {
       </fieldset>
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
         <label className="block text-sm font-medium text-ink">
-          שם
+          {UI.form.name}
           <input className={field} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
         </label>
         <label className="block text-sm font-medium text-ink">
-          תאריך משוער
-          <input className={field} value={date} onChange={(e) => setDate(e.target.value)} placeholder="למשל: חמישי, 20.11 בערב" />
+          {UI.form.date}
+          <input className={field} value={date} onChange={(e) => setDate(e.target.value)} placeholder={UI.form.datePlaceholder} />
         </label>
         <label className="block text-sm font-medium text-ink">
-          מקום
-          <input className={field} value={place} onChange={(e) => setPlace(e.target.value)} placeholder="יישוב / סטודיו / אולם" />
+          {UI.form.place}
+          <input className={field} value={place} onChange={(e) => setPlace(e.target.value)} placeholder={UI.form.placePlaceholder} />
         </label>
         <label className="block text-sm font-medium text-ink">
-          מספר משתתפים
-          <input className={field} value={participants} onChange={(e) => setParticipants(e.target.value)} inputMode="numeric" placeholder="למשל: 12" />
+          {UI.form.participants}
+          <input className={field} value={participants} onChange={(e) => setParticipants(e.target.value)} inputMode="numeric" placeholder={UI.form.participantsPlaceholder} />
         </label>
       </div>
       <label className="mt-5 block text-sm font-medium text-ink">
-        עוד משהו שחשוב לדעת?
-        <textarea className={`${field} min-h-24 resize-y`} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="אופי האירוע, רמת המשתתפים, פציעות, הריון…" />
+        {UI.form.notes}
+        <textarea className={`${field} min-h-24 resize-y`} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={UI.form.notesPlaceholder} />
       </label>
       <button
         type="submit"
         className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-sage px-7 py-3.5 font-medium text-white transition-colors hover:bg-sage-deep sm:w-auto"
       >
         {CONTACT.whatsapp ? <WhatsAppIcon /> : <Mail className="h-5 w-5" aria-hidden="true" />}
-        {CONTACT.whatsapp ? BOOKING.form.submit : 'שליחה במייל'}
+        {CONTACT.whatsapp ? BOOKING.form.submit : UI.form.submitEmail}
       </button>
       <p className="mt-3 text-sm text-muted">{BOOKING.form.note}</p>
     </form>
@@ -713,12 +792,13 @@ function BookingForm() {
 }
 
 function Booking() {
+  const { BOOKING, UI } = useSite();
   return (
     <section id="book" className="py-24 md:py-36">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <div className="max-w-2xl">
           <Reveal>
-            <Eyebrow>הזמנות ואירועים</Eyebrow>
+            <Eyebrow>{UI.bookingEyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{BOOKING.title}</h2>
@@ -770,24 +850,26 @@ const TOOL_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
 
 // Illustrative only: shows how the conditions layer reads inside the tool.
 const TOOL_PREVIEW = [
-  { name: 'Cat Stretch', status: 'מתאים', tone: 'bg-sage-soft text-sage-deep' },
-  { name: 'The Hundred', status: 'בהתאמה', tone: 'bg-gold-soft/60 text-gold-deep' },
-  { name: 'Swan Dive', status: 'להימנע', tone: 'bg-red-100 text-red-800' },
-];
+  { name: 'Cat Stretch', status: 'suitable', tone: 'bg-sage-soft text-sage-deep' },
+  { name: 'The Hundred', status: 'modify', tone: 'bg-gold-soft/60 text-gold-deep' },
+  { name: 'Swan Dive', status: 'avoid', tone: 'bg-red-100 text-red-800' },
+] as const;
 
 function Tool() {
+  const { TOOL, UI, APP_URL } = useSite();
   return (
     <section id="tool" className="bg-sand py-24 md:py-36">
       <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-5 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
         <div>
           <Reveal>
-            <Eyebrow>למדריכות ומדריכים</Eyebrow>
+            <Eyebrow>{UI.toolEyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{TOOL.title}</h2>
           </Reveal>
           <Reveal delay={180}>
             <p className="mt-6 text-lg leading-relaxed text-muted">{TOOL.intro}</p>
+            {UI.toolLanguageNote && <p className="mt-3 text-sm text-gold-deep">{UI.toolLanguageNote}</p>}
           </Reveal>
           <div className="mt-10 grid gap-x-8 gap-y-7 sm:grid-cols-2">
             {TOOL.features.map((f, i) => {
@@ -809,7 +891,7 @@ function Tool() {
               className="mt-10 inline-flex items-center gap-2 rounded-full bg-sage px-7 py-3.5 font-medium text-white transition-colors hover:bg-sage-deep"
             >
               {TOOL.cta}
-              <ArrowUpLeft className="h-4 w-4" aria-hidden="true" />
+              <ArrowUpLeft className="h-4 w-4 ltr:-scale-x-100" aria-hidden="true" />
             </a>
           </Reveal>
         </div>
@@ -817,18 +899,18 @@ function Tool() {
         <Reveal delay={160} className="mx-auto w-full max-w-[420px]">
           <figure className="rounded-[28px] border border-line bg-ivory p-6 shadow-[0_40px_80px_-48px_rgba(46,49,40,0.5)]">
             <figcaption className="flex items-center justify-between text-sm text-muted">
-              <span>מצב: הריון</span>
-              <span className="rounded-full border border-line px-3 py-1 text-xs">דוגמה</span>
+              <span>{UI.toolPreviewCaption}</span>
+              <span className="rounded-full border border-line px-3 py-1 text-xs">{UI.toolPreviewTag}</span>
             </figcaption>
             <ul className="mt-5 space-y-3">
               {TOOL_PREVIEW.map((row) => (
                 <li key={row.name} className="flex items-center justify-between rounded-2xl border border-line bg-white/70 px-4 py-3">
                   <span dir="ltr" className="font-medium text-ink">{row.name}</span>
-                  <span className={`rounded-full px-3 py-1 text-xs font-medium ${row.tone}`}>{row.status}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-medium ${row.tone}`}>{UI.toolPreviewStatus[row.status]}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-5 text-xs leading-relaxed text-muted">כלי עזר למדריכות מוסמכות. אינו תחליף לייעוץ רפואי.</p>
+            <p className="mt-5 text-xs leading-relaxed text-muted">{UI.toolDisclaimer}</p>
           </figure>
         </Reveal>
       </div>
@@ -837,28 +919,29 @@ function Tool() {
 }
 
 function Method() {
+  const { PRINCIPLES, UI, EMBLEM_DARK } = useSite();
   return (
     <section id="method" className="relative overflow-hidden bg-night py-24 text-cream md:py-36">
       <img
         src={EMBLEM_DARK}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute -left-40 top-1/2 w-[720px] max-w-none -translate-y-1/2 opacity-[0.07]"
+        className="pointer-events-none absolute -end-40 top-1/2 w-[720px] max-w-none -translate-y-1/2 opacity-[0.07]"
       />
       <div className="relative mx-auto max-w-[1240px] px-5 md:px-8">
         <div className="max-w-2xl">
           <Reveal>
-            <Eyebrow tone="dark">השיטה</Eyebrow>
+            <Eyebrow tone="dark">{UI.methodEyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">
-              שישה עקרונות.
-              <span className="block">גוף אחד.</span>
+              {UI.methodTitle[0]}
+              <span className="block">{UI.methodTitle[1]}</span>
             </h2>
           </Reveal>
           <Reveal delay={180}>
             <p className="mt-6 text-lg leading-relaxed text-cream/70">
-              ג׳וזף פילאטיס בנה את השיטה על שישה עקרונות פשוטים. הם מלווים כל שיעור שלי — מהנשימה הראשונה ועד התרגיל האחרון.
+              {UI.methodIntro}
             </p>
           </Reveal>
         </div>
@@ -882,6 +965,7 @@ function Method() {
 }
 
 function Locations() {
+  const { LOCATIONS, UI, SCHEDULE, bookLinkProps } = useSite();
   return (
     <section className="py-24 md:py-32">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
@@ -894,15 +978,15 @@ function Locations() {
                 </span>
                 <h2 className="mt-6 font-display text-3xl font-light md:text-5xl">{LOCATIONS.title}</h2>
                 <p className="mt-4 text-lg leading-relaxed text-muted">{LOCATIONS.text}</p>
-                {LOCATIONS.areas.length > 0 && <p className="mt-4 font-medium">אזורי פעילות: {LOCATIONS.areas.join(' · ')}</p>}
-                {LOCATIONS.studios.length > 0 && <ul className="mt-4 space-y-2">{LOCATIONS.studios.map((studio) => <li key={studio.name}>מלמדת בסטודיו ״{studio.name}״{studio.address && ` · ${studio.address}`}{studio.url && <a href={studio.url} target="_blank" rel="noopener noreferrer" className="ms-3 underline">פרטי הסטודיו</a>}</li>)}</ul>}
+                {LOCATIONS.areas.length > 0 && <p className="mt-4 font-medium">{UI.locationsAreas} {LOCATIONS.areas.join(' · ')}</p>}
+                {LOCATIONS.studios.length > 0 && <ul className="mt-4 space-y-2">{LOCATIONS.studios.map((studio) => <li key={studio.name}>{UI.locationsTeachesAt} {studio.name}{studio.address && ` · ${studio.address}`}{studio.url && <a href={studio.url} target="_blank" rel="noopener noreferrer" className="ms-3 underline">פרטי הסטודיו</a>}</li>)}</ul>}
                 {LOCATIONS.comingSoon && <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/50 bg-white/70 px-4 py-2 text-sm text-gold-deep">
                   <span className="h-2 w-2 rounded-full bg-gold breathe" aria-hidden="true" />
                   {LOCATIONS.comingSoon}
                 </p>}
               </div>
               <a href={LOCATIONS.scheduleUrl || SCHEDULE.href} {...(LOCATIONS.scheduleUrl ? { target: '_blank', rel: 'noopener noreferrer' } : bookLinkProps)} className="inline-flex items-center justify-center rounded-full bg-sage px-7 py-3.5 text-white hover:bg-sage-deep focus-visible:outline-2">
-                {LOCATIONS.scheduleUrl ? 'למערכת השעות' : 'לבקשת מערכת שעות ומיקום'}
+                {LOCATIONS.scheduleUrl ? UI.locationsSchedule : UI.locationsRequest}
               </a>
             </div>
           </div>
@@ -913,16 +997,17 @@ function Locations() {
 }
 
 function Testimonials() {
+  const { TESTIMONIALS, UI } = useSite();
   if (TESTIMONIALS.length === 0) return null;
   return (
     <section className="bg-sand py-24 md:py-32" aria-labelledby="testimonials-title">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <Reveal>
-          <Eyebrow>מילים חמות</Eyebrow>
+          <Eyebrow>{UI.testimonialsEyebrow}</Eyebrow>
         </Reveal>
         <Reveal delay={100}>
           <h2 id="testimonials-title" className="mt-5 font-display text-4xl font-light md:text-6xl">
-            מה אומרים בסטודיו
+            {UI.testimonialsTitle}
           </h2>
         </Reveal>
         <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -944,23 +1029,24 @@ function Testimonials() {
 }
 
 function Faq() {
+  const { FAQ, UI, BOOK, bookLinkProps } = useSite();
   return (
     <section id="faq" className="py-24 md:py-32">
       <div className="mx-auto grid max-w-[1240px] gap-12 px-5 md:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <div>
           <Reveal>
-            <Eyebrow>שאלות נפוצות</Eyebrow>
+            <Eyebrow>{UI.faqEyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={100}>
-            <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">כל מה שרציתם לשאול</h2>
+            <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{UI.faqTitle}</h2>
           </Reveal>
           <Reveal delay={180}>
             <p className="mt-6 text-lg leading-relaxed text-muted">
-              לא מצאתם תשובה?{' '}
+              {UI.faqNotFound}{' '}
               <a href={BOOK.href} {...bookLinkProps} className="text-sage underline decoration-gold/60 underline-offset-4 hover:decoration-sage">
-                כתבו לי
+                {UI.faqWriteMe}
               </a>{' '}
-              — אשמח לעזור.
+              {UI.faqHappyToHelp}
             </p>
           </Reveal>
         </div>
@@ -986,9 +1072,10 @@ function Faq() {
 }
 
 function Contact() {
+  const { CONTACT, UI, EMBLEM_DARK, CONTACT_LABEL } = useSite();
   const socials = [
-    CONTACT.instagram && { href: CONTACT.instagram, label: 'אינסטגרם', icon: <InstagramIcon /> },
-    CONTACT.facebook && { href: CONTACT.facebook, label: 'פייסבוק', icon: <FacebookIcon /> },
+    CONTACT.instagram && { href: CONTACT.instagram, label: UI.instagram, icon: <InstagramIcon /> },
+    CONTACT.facebook && { href: CONTACT.facebook, label: UI.facebook, icon: <FacebookIcon /> },
   ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode }[];
 
   return (
@@ -1003,13 +1090,13 @@ function Contact() {
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-10 font-display text-4xl font-light leading-tight md:text-7xl">
-              הצעד הראשון
-              <span className="block text-gold">הוא הכי פשוט.</span>
+              {UI.contactTitle[0]}
+              <span className="block text-gold">{UI.contactTitle[1]}</span>
             </h2>
           </Reveal>
           <Reveal delay={200}>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-cream/70">
-              שלחו לי הודעה, ספרו קצת על עצמכם — ונתאים יחד את השיעור הראשון שלכם.
+              {UI.contactIntro}
             </p>
           </Reveal>
           <Reveal delay={300}>
@@ -1065,6 +1152,7 @@ function Contact() {
 }
 
 function Footer() {
+  const { BRAND, CONTACT, NAV_LINKS, APP_PROMO, UI, APP_URL, EMBLEM_LIGHT } = useSite();
   return (
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-[1240px] flex-col gap-8 px-5 py-12 pb-28 md:flex-row md:items-center md:justify-between md:px-8 md:pb-12">
@@ -1072,7 +1160,7 @@ function Footer() {
           <img src={EMBLEM_LIGHT} alt="" className="h-10 w-auto" />
           <span className="font-display text-xl text-gold-deep">{BRAND.name}</span>
         </a>
-        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted" aria-label="ניווט תחתון">
+        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted" aria-label={UI.footerNav}>
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} className="hover:text-ink">
               {link.label}
@@ -1085,10 +1173,10 @@ function Footer() {
         <div className="flex flex-col gap-2 text-sm text-muted md:items-end">
           <div className="flex gap-4">
             <a href={`${APP_URL}?page=privacy`} className="hover:text-ink">
-              מדיניות פרטיות
+              {UI.privacy}
             </a>
             <a href={`${APP_URL}?page=terms`} className="hover:text-ink">
-              תנאי שימוש
+              {UI.terms}
             </a>
           </div>
           {CONTACT.instagram && (
@@ -1098,7 +1186,7 @@ function Footer() {
             </a>
           )}
           <p>
-            © {new Date().getFullYear()} {BRAND.name}. באהבה, {BRAND.owner}.
+            © {new Date().getFullYear()} {BRAND.name}. {UI.footerSignoff} {BRAND.owner}.
           </p>
         </div>
       </div>
@@ -1108,6 +1196,7 @@ function Footer() {
 
 // Mobile-only sticky CTA that appears once the hero's own buttons scroll away.
 function MobileBookBar() {
+  const { CONTACT_LABEL } = useSite();
   const [show, setShow] = useState(false);
   useEffect(() => {
     const onScroll = () => {
@@ -1129,14 +1218,15 @@ function MobileBookBar() {
   );
 }
 
-export default function Site() {
+function Page() {
+  const { SHOW_PRICING, SHOW_LOCATIONS, UI } = useSite();
   return (
     <>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:right-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-ivory"
+        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-ivory"
       >
-        דילוג לתוכן
+        {UI.skipToContent}
       </a>
       <Header />
       <main id="main">
@@ -1156,5 +1246,16 @@ export default function Site() {
       <Footer />
       <MobileBookBar />
     </>
+  );
+}
+
+// `root`: path from this page to the site root ('./' for Hebrew, '../' from
+// /en/). `altUrl`: the same page in the other language, for the switcher.
+export default function Site({ content, root, altUrl }: { content: SiteContent; root: string; altUrl: string }) {
+  const value = useMemo(() => ({ content, root, altUrl }), [content, root, altUrl]);
+  return (
+    <SiteContext.Provider value={value}>
+      <Page />
+    </SiteContext.Provider>
   );
 }
