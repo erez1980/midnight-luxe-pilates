@@ -2,7 +2,7 @@
 // for repeat visits. Network-first for navigations (so deploys show up
 // immediately), cache-first for static assets (hashed filenames make them
 // immutable anyway).
-const CACHE = 'pilates-app-v3';
+const CACHE = 'pilates-app-v4';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -23,7 +23,10 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      // Revalidate with the server every time: GitHub Pages lets browsers
+      // cache HTML for 10 minutes, which otherwise hides a fresh deploy.
+      // (A navigate-mode Request can't take init options, so fetch the URL.)
+      fetch(request.url, { cache: 'no-cache', credentials: 'same-origin' })
         .then((response) => {
           if (response.ok) { const copy = response.clone(); event.waitUntil(caches.open(CACHE).then((cache) => cache.put('./', copy))); }
           return response;
