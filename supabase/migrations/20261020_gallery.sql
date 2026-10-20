@@ -17,6 +17,7 @@ create or replace function public.is_gallery_admin()
 returns boolean
 language sql
 stable
+set search_path = ''
 as $$
   select coalesce(auth.jwt() ->> 'email', '') in (
     'rotem1980.shapira@gmail.com',
