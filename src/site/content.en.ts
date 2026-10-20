@@ -40,7 +40,7 @@ export const EN: SiteContent = {
     primaryCta: 'Work with me',
     secondaryCta: 'Explore the classes',
     secondaryHref: '#classes',
-    highlights: ['Certified in mat & apparatus', 'Based in Israel’s Jezreel Valley', 'Classes for events & communities'],
+    highlights: ['Certified in mat & apparatus', 'Based in Emek Izrael Valley, Israel', 'Private, pair, event & group classes'],
   },
 
   PRINCIPLES_TICKER: ['Breath', 'Centering', 'Control', 'Precision', 'Flow', 'Concentration'],
@@ -92,7 +92,7 @@ export const EN: SiteContent = {
       {
         id: 'private',
         title: 'Private & pair sessions',
-        text: 'One-on-one or pair sessions built around your body, pace and goals — in Israel’s Jezreel Valley area.',
+        text: 'One-on-one or pair sessions built around your body, pace and goals — in the Emek Izrael Valley area, Israel.',
         points: ['50 minutes', 'Mat or apparatus'],
       },
     ],
@@ -143,11 +143,12 @@ export const EN: SiteContent = {
   FAQ: [
     {
       q: 'Do you collaborate with activewear brands?',
-      a: 'Yes — ambassador programs, product testing in real classes, brand events and community sessions. Send a short message with what you have in mind and I’ll get back to you.',
+      a: 'Yes — ambassador programs, product testing in real classes, brand events and community sessions. Send a short message with what you have in mind on any of these channels and I’ll get back to you:',
+      contact: true,
     },
     {
       q: 'Where are you based?',
-      a: 'In Israel’s Jezreel Valley. I teach across the area and come to wherever the session is — for collaborations further away, let’s talk.',
+      a: 'In the Emek Izrael Valley, in northern Israel. I teach across the area and come to wherever the session is — for collaborations further away, let’s talk.',
     },
     {
       q: 'What’s the difference between mat and apparatus Pilates?',
@@ -163,7 +164,8 @@ export const EN: SiteContent = {
     },
     {
       q: 'What’s the best way to reach you?',
-      a: 'WhatsApp is the fastest: +972 54-802-4606. You can also email rotem1980.shapira@gmail.com.',
+      a: 'WhatsApp is the fastest (+972 54-802-4606). You can also email me or reach me on Instagram:',
+      contact: true,
     },
   ],
 
@@ -249,5 +251,15 @@ export const EN: SiteContent = {
     privacy: 'Privacy (Hebrew)',
     terms: 'Terms (Hebrew)',
     footerSignoff: 'With love,',
+    channels: { whatsapp: 'WhatsApp', email: 'Email', instagram: 'Instagram', website: 'Website' },
+    galleryNav: 'Gallery',
+    galleryEyebrow: 'Gallery',
+    galleryTitle: 'Moments in motion',
+    galleryIntro: 'From classes, events and everything in between.',
+    galleryOpen: 'Open full size',
+    galleryClose: 'Close',
+    galleryPrev: 'Previous',
+    galleryNext: 'Next',
+    galleryVideo: 'Video',
   },
 };

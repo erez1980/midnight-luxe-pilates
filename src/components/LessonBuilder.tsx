@@ -607,7 +607,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                               {conditions.length > 0 && (() => {
                                 const fit = assessForConditions(el.exercise, conditions);
                                 return fit.status !== 'suitable' ? (
-                                  <SuitabilityBadge status={fit.status} draft={fit.perCondition.some((a) => !a.approved)} />
+                                  <SuitabilityBadge status={fit.status} />
                                 ) : null;
                               })()}
                             </div>
@@ -942,7 +942,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                         </span>
                         {conditions.length > 0 && (() => {
                           const fit = assessForConditions(exercise, conditions);
-                          return <SuitabilityBadge status={fit.status} draft={fit.perCondition.some((a) => !a.approved)} />;
+                          return <SuitabilityBadge status={fit.status} />;
                         })()}
                       </span>
                     </div>

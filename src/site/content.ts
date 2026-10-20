@@ -15,6 +15,9 @@ export const CONTACT = {
   phone: '054-802-4606',
   email: 'rotem1980.shapira@gmail.com',
   instagram: 'https://www.instagram.com/rotem_shap/',
+  // The site's own address, shown in the contact section and footer.
+  // Update when the custom domain is connected.
+  website: 'https://erez1980.github.io/midnight-luxe-pilates/',
   facebook: '',
   preferredChannelLabel: 'וואטסאפ',
   whatsappGreeting: 'היי רתם, הגעתי מהאתר ואשמח לשמוע על שיעורי הפילאטיס 🙂',
@@ -45,7 +48,7 @@ export const HERO = {
   secondaryCta: 'לבניית שיעור',
   // 'app' = the lesson builder; otherwise an in-page anchor like '#classes'.
   secondaryHref: 'app',
-  highlights: ['הסמכה במזרן ובמכשירים', 'מגיעה אליכם — עמק יזרעאל והסביבה', 'שיעורים לאירועים ולקבוצות'],
+  highlights: ['הסמכה במזרן ובמכשירים', 'מגיעה אליכם — עמק יזרעאל והסביבה', 'שיעורים ליחידים, זוגות, אירועים וקבוצות'],
 };
 
 export const PRINCIPLES_TICKER = ['נשימה', 'מרכז', 'שליטה', 'דיוק', 'זרימה', 'ריכוז'];
@@ -231,7 +234,8 @@ export const LOCATIONS = {
 // Real quotes only — the section is hidden while this list is empty.
 export const TESTIMONIALS: { quote: string; name: string }[] = [];
 
-export const FAQ = [
+// `contact: true` shows WhatsApp / email / Instagram links under the answer.
+export const FAQ: { q: string; a: string; contact?: boolean }[] = [
   {
     q: 'אין לי שום ניסיון בפילאטיס. זה מתאים לי?',
     a: 'בהחלט. כל שיעור מותאם לרמה של מי שנמצא בו, ואני מלווה צעד אחרי צעד — בלי לחץ ובלי השוואות.',
@@ -254,7 +258,8 @@ export const FAQ = [
   },
   {
     q: 'אפשר להזמין אותך לאירוע?',
-    a: 'בהחלט — ערב נשים, יום גיבוש, יום הולדת או כל מפגש אחר. את הפרטים — מקום, מספר משתתפים ומה צריך להכין — נתאם יחד מראש.',
+    a: 'בהחלט — ערב נשים, יום גיבוש, יום הולדת או כל מפגש אחר. את הפרטים — מקום, מספר משתתפים ומה צריך להכין — נתאם יחד מראש. אפשר לפנות אליי בכל אחד מהערוצים:',
+    contact: true,
   },
   {
     q: 'איפה מתקיימים השיעורים?',
@@ -351,6 +356,16 @@ export const UI = {
   privacy: 'מדיניות פרטיות',
   terms: 'תנאי שימוש',
   footerSignoff: 'באהבה,',
+  channels: { whatsapp: 'וואטסאפ', email: 'מייל', instagram: 'אינסטגרם', website: 'האתר' },
+  galleryNav: 'גלריה',
+  galleryEyebrow: 'גלריה',
+  galleryTitle: 'רגעים בתנועה',
+  galleryIntro: 'מהשיעורים, מהאירועים ומהדרך.',
+  galleryOpen: 'פתיחה בגודל מלא',
+  galleryClose: 'סגירה',
+  galleryPrev: 'הקודם',
+  galleryNext: 'הבא',
+  galleryVideo: 'סרטון',
 };
 
 // Everything the site renders for one language. content.en.ts provides the

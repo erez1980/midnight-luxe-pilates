@@ -14,11 +14,10 @@ const TONE: Record<Suitability, string> = {
   avoid: 'bg-error-container text-error border-error/30',
 };
 
-export function SuitabilityBadge({ status, draft, className = '' }: { status: Suitability; draft?: boolean; className?: string }) {
+export function SuitabilityBadge({ status, className = '' }: { status: Suitability; className?: string }) {
   return (
     <span className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] font-semibold ${TONE[status]} ${className}`}>
       {SUITABILITY_LABEL[status]}
-      {draft && <span className="font-normal opacity-70">· טיוטה</span>}
     </span>
   );
 }
@@ -86,7 +85,7 @@ export function ConditionDisclaimer() {
     <p className="flex items-start gap-2 rounded-xl border border-outline/20 bg-surface-container px-3 py-2 text-[11px] leading-relaxed text-on-surface-variant">
       <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-secondary" aria-hidden="true" />
       <span>
-        {DISCLAIMER} סימון ״טיוטה״ = המלצה כללית שעדיין לא אושרה ידנית.
+        {DISCLAIMER}
       </span>
     </p>
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Search, Info, Dumbbell, Activity, Check, Plus, X, PlayCircle } from 'lucide-react';
+import { Search, Info, Dumbbell, Activity, Check, Plus, X, PlayCircle, ArrowRight } from 'lucide-react';
 import { Exercise } from '../types';
 import { INITIAL_EXERCISES } from '../data';
 import { getExerciseMedia } from '../utils/exerciseMedia';
@@ -35,6 +35,30 @@ export default function ExerciseLibrary({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
+  // The exercise dialog gets its own history entry, so the phone's back
+  // button (or browser back) closes the dialog instead of leaving the screen.
+  const openExercise = (exercise: Exercise) => {
+    setSelectedExercise(exercise);
+    if (!window.history.state?.exerciseDialog) {
+      window.history.pushState({ ...(window.history.state ?? {}), exerciseDialog: true }, '');
+    }
+  };
+  const closeExercise = () => {
+    if (window.history.state?.exerciseDialog) {
+      window.history.back(); // the popstate listener below closes the dialog
+    } else {
+      setSelectedExercise(null);
+    }
+  };
+
+  useEffect(() => {
+    const onPopState = (event: PopStateEvent) => {
+      if (!event.state?.exerciseDialog) setSelectedExercise(null);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
   // Modal accessibility: Escape closes, background scroll is locked while open,
   // focus moves into the dialog and returns to the trigger on close, and Tab is
   // trapped inside the dialog.
@@ -53,7 +77,7 @@ export default function ExerciseLibrary({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.stopPropagation();
-        setSelectedExercise(null);
+        closeExercise();
         return;
       }
       if (event.key !== 'Tab' || !modalRef.current) return;
@@ -279,7 +303,7 @@ export default function ExerciseLibrary({
               >
                 <button
                   type="button"
-                  onClick={() => setSelectedExercise(exercise)}
+                  onClick={() => openExercise(exercise)}
                   className="relative block w-full aspect-video overflow-hidden"
                 >
                   <img
@@ -292,7 +316,7 @@ export default function ExerciseLibrary({
                   {fit && (
                     <SuitabilityBadge
                       status={fit.status}
-                      draft={fit.perCondition.some((a) => !a.approved)}
+                     
                       className="absolute top-3 right-3 text-[11px] shadow-sm"
                     />
                   )}
@@ -353,7 +377,7 @@ export default function ExerciseLibrary({
                 {/* Bottom Row Controls */}
                 <div className="px-6 pb-5 pt-4 border-t border-outline/20 flex justify-between items-center mt-auto">
                   <button
-                    onClick={() => setSelectedExercise(exercise)}
+                    onClick={() => openExercise(exercise)}
                     className="text-on-surface-variant hover:text-on-surface text-xs flex items-center gap-1.5 transition-colors"
                   >
                     <Info className="w-4 h-4 text-secondary/70" />
@@ -418,7 +442,7 @@ export default function ExerciseLibrary({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedExercise(null)}
+              onClick={closeExercise}
               className="absolute inset-0 bg-background/90 backdrop-blur-sm"
             />
 
@@ -434,15 +458,27 @@ export default function ExerciseLibrary({
               aria-label={`פרטי תרגיל: ${selectedExercise.name}`}
               className="relative w-full max-w-4xl bg-surface border border-secondary/30 shadow-2xl overflow-y-auto max-h-[90vh]"
             >
-              {/* Close button */}
-              <button
-                ref={closeButtonRef}
-                onClick={() => setSelectedExercise(null)}
-                aria-label="סגירת חלון פרטי התרגיל"
-                className="absolute top-6 left-6 text-on-surface-variant hover:text-on-surface border border-outline/20 hover:border-outline p-2 transition-colors rounded-sm"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              {/* Sticky bar: "back" stays reachable however far the dialog is scrolled. */}
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-outline/20 bg-surface/95 px-4 py-3 backdrop-blur md:px-6">
+                <button
+                  ref={closeButtonRef}
+                  type="button"
+                  onClick={closeExercise}
+                  className="inline-flex items-center gap-2 rounded-full border border-outline/30 px-4 py-2 text-sm font-medium text-on-surface transition-colors hover:border-secondary hover:text-secondary"
+                >
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  חזרה
+                </button>
+                <span className="truncate text-sm font-bold text-on-surface">{selectedExercise.name}</span>
+                <button
+                  type="button"
+                  onClick={closeExercise}
+                  aria-label="סגירת חלון פרטי התרגיל"
+                  className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
               <div className="relative aspect-video bg-surface-container-high border-b border-outline/20 overflow-hidden">
                 {getExerciseMedia(selectedExercise).hasInlineVideo && getExerciseMedia(selectedExercise).embedUrl ? (
@@ -546,7 +582,7 @@ export default function ExerciseLibrary({
                             <div className="flex w-40 shrink-0 items-center gap-2">
                               <span className={`text-sm ${conditions.includes(c.id) ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>{c.label}</span>
                             </div>
-                            <SuitabilityBadge status={a.status} draft={!a.approved} className="self-start" />
+                            <SuitabilityBadge status={a.status} className="self-start" />
                             {a.reasons.length > 0 && (
                               <span className="text-xs leading-relaxed text-on-surface-variant">{a.reasons.join(' · ')}</span>
                             )}
@@ -590,7 +626,7 @@ export default function ExerciseLibrary({
                     <button
                       onClick={() => {
                         onAddToLesson(selectedExercise);
-                        setSelectedExercise(null);
+                        closeExercise();
                       }}
                       className={`px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2 ${
                         addedExerciseIds.includes(selectedExercise.id)
@@ -612,6 +648,17 @@ export default function ExerciseLibrary({
                     </button>
                   </div>
                 )}
+
+                <div className="mt-8 border-t border-outline/20 pt-6">
+                  <button
+                    type="button"
+                    onClick={closeExercise}
+                    className="inline-flex items-center gap-2 rounded-full border border-outline/30 px-5 py-2.5 text-sm font-medium text-on-surface transition-colors hover:border-secondary hover:text-secondary"
+                  >
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    חזרה לרשימת התרגילים
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

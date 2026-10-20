@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpLeft, ArrowUpRight, Award, Building2, Check, HeartPulse, Library, ListOrdered, MapPin, Menu, Phone, Mail, PartyPopper, Play, Plus, Settings2, Shirt, Smartphone, Users, Wind, X } from 'lucide-react';
+import { ArrowUpLeft, ChevronLeft, ChevronRight, Globe, ArrowUpRight, Award, Building2, Check, HeartPulse, Library, ListOrdered, MapPin, Menu, Phone, Mail, PartyPopper, Play, Plus, Settings2, Shirt, Smartphone, Users, Wind, X } from 'lucide-react';
 import { HE, type SiteContent } from './content';
+import { STATIC_GALLERY } from './gallery';
+import { fetchUploadedGallery, type GalleryItem } from '../utils/gallery';
 
 // The site renders in one language per page (/ = Hebrew, /en/ = English).
 // Everything language-specific comes from a SiteContent object; `root` is the
 // path back to the site root, so assets and the /app/ link resolve from both.
-const SiteContext = createContext<{ content: SiteContent; root: string; altUrl: string }>({
+const SiteContext = createContext<{ content: SiteContent; root: string; altUrl: string; gallery: GalleryItem[] }>({
   content: HE,
   root: import.meta.env.BASE_URL,
   altUrl: '',
+  gallery: [],
 });
 
 type ContactAction = { href: string; external: boolean };
@@ -30,12 +33,20 @@ function primaryContact(contact: SiteContent['CONTACT'], subject: string, messag
 }
 
 function useSite() {
-  const { content, root, altUrl } = useContext(SiteContext);
+  const { content, root, altUrl, gallery } = useContext(SiteContext);
   return useMemo(() => {
     const { CONTACT, UI } = content;
     const BOOK = primaryContact(CONTACT, UI.bookSubject, CONTACT.whatsappGreeting);
+    // The gallery link only appears once there is something to show.
+    const NAV_LINKS = gallery.length
+      ? content.NAV_LINKS.flatMap((link) =>
+          link.href === '#faq' ? [{ href: '#gallery', label: UI.galleryNav }, link] : [link]
+        )
+      : content.NAV_LINKS;
     return {
       ...content,
+      NAV_LINKS,
+      GALLERY: gallery,
       ASSET: root,
       ALT_URL: altUrl,
       APP_URL: `${root}app/`,
@@ -46,7 +57,7 @@ function useSite() {
       CONTACT_LABEL: CONTACT.whatsapp ? UI.contactLabels.whatsapp : CONTACT.phone ? UI.contactLabels.phone : UI.contactLabels.email,
       bookLinkProps: BOOK.external ? { target: '_blank', rel: 'noopener noreferrer' } : {},
     };
-  }, [content, root, altUrl]);
+  }, [content, root, altUrl, gallery]);
 }
 
 // ---------- small building blocks ----------
@@ -252,6 +263,55 @@ function LangSwitch({ compact = false }: { compact?: boolean }) {
         </button>
       ))}
     </div>
+  );
+}
+
+const displayUrl = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+const instagramHandle = (url: string) => `@${url.replace(/\/+$/, '').split('/').pop()}`;
+
+// WhatsApp / email / Instagram (and optionally the website) as labelled
+// links, so people can reach Rotem on whichever channel they prefer.
+type Channel = 'whatsapp' | 'email' | 'instagram' | 'website';
+
+function ContactChannels({
+  tone = 'light',
+  channels = ['whatsapp', 'email', 'instagram'],
+}: {
+  tone?: 'light' | 'dark';
+  channels?: Channel[];
+}) {
+  const { CONTACT, UI } = useSite();
+  const show = (c: Channel) => channels.includes(c);
+  const items = [
+    show('whatsapp') && CONTACT.whatsapp && {
+      href: `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(CONTACT.whatsappGreeting)}`,
+      label: UI.channels.whatsapp,
+      icon: <WhatsAppIcon className="h-4 w-4" />,
+    },
+    show('email') && CONTACT.email && { href: `mailto:${CONTACT.email}`, label: CONTACT.email, icon: <Mail className="h-4 w-4" aria-hidden="true" />, ltr: true },
+    show('instagram') && CONTACT.instagram && { href: CONTACT.instagram, label: instagramHandle(CONTACT.instagram), icon: <InstagramIcon className="h-4 w-4" />, ltr: true },
+    show('website') && CONTACT.website && { href: CONTACT.website, label: displayUrl(CONTACT.website), icon: <Globe className="h-4 w-4" aria-hidden="true" />, ltr: true },
+  ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode; ltr?: boolean }[];
+  const pill =
+    tone === 'dark'
+      ? 'border-cream/20 text-cream/85 hover:border-gold hover:text-gold'
+      : 'border-line bg-white/70 text-ink hover:border-sage hover:text-sage';
+  return (
+    <ul className={`flex flex-wrap gap-2 ${tone === 'dark' ? 'justify-center' : ''}`}>
+      {items.map((item) => (
+        <li key={item.href}>
+          <a
+            href={item.href}
+            target={item.href.startsWith('mailto:') ? undefined : '_blank'}
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${pill}`}
+          >
+            {item.icon}
+            <span dir={item.ltr ? 'ltr' : undefined}>{item.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -514,9 +574,6 @@ function About() {
           </div>
           <Reveal delay={420}>
             <div className="mt-10 flex flex-wrap items-center gap-6">
-              <span className="font-display text-5xl text-gold" aria-hidden="true">
-                {ABOUT.signature}
-              </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white/60 px-4 py-2 text-sm text-ink">
                 <Award className="h-4 w-4 text-gold-deep" aria-hidden="true" />
                 {BRAND.certification}
@@ -918,6 +975,131 @@ function Tool() {
   );
 }
 
+// Full-screen viewer. Gets its own history entry so the phone's back button
+// closes it; arrow keys / buttons move between items, Escape closes.
+function Lightbox({ items, index, onIndex, onClose }: { items: GalleryItem[]; index: number; onIndex: (i: number) => void; onClose: () => void }) {
+  const { UI, lang } = useSite();
+  const item = items[index];
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const prev = () => onIndex((index - 1 + items.length) % items.length);
+  const next = () => onIndex((index + 1) % items.length);
+
+  useEffect(() => {
+    window.history.pushState({ ...(window.history.state ?? {}), lightbox: true }, '');
+    const onPop = () => onClose();
+    window.addEventListener('popstate', onPop);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeRef.current?.focus();
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      document.body.style.overflow = previousOverflow;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') window.history.back();
+      // In RTL the "next" item sits to the left.
+      if (e.key === 'ArrowLeft') (lang === 'he' ? next : prev)();
+      if (e.key === 'ArrowRight') (lang === 'he' ? prev : next)();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  const caption = lang === 'he' ? item.caption_he : item.caption_en || item.caption_he;
+  const navBtn = 'flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20';
+  return (
+    <div role="dialog" aria-modal="true" aria-label={caption || UI.galleryTitle} className="fixed inset-0 z-[70] flex flex-col bg-night/95 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4 py-3 text-cream/80">
+        <span className="text-sm" dir="ltr">
+          {index + 1} / {items.length}
+        </span>
+        <button ref={closeRef} type="button" onClick={() => window.history.back()} aria-label={UI.galleryClose} className={navBtn}>
+          <X className="h-6 w-6" />
+        </button>
+      </div>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center px-4 pb-4">
+        {item.kind === 'video' ? (
+          <video key={item.url} src={item.url} controls autoPlay playsInline className="max-h-full max-w-full rounded-xl" />
+        ) : (
+          <img key={item.url} src={item.url} alt={caption} className="max-h-full max-w-full rounded-xl object-contain" />
+        )}
+        {items.length > 1 && (
+          <>
+            <button type="button" onClick={prev} aria-label={UI.galleryPrev} className={`${navBtn} absolute start-4 top-1/2 -translate-y-1/2`}>
+              <ChevronRight className="h-6 w-6 ltr:-scale-x-100" />
+            </button>
+            <button type="button" onClick={next} aria-label={UI.galleryNext} className={`${navBtn} absolute end-4 top-1/2 -translate-y-1/2`}>
+              <ChevronLeft className="h-6 w-6 ltr:-scale-x-100" />
+            </button>
+          </>
+        )}
+      </div>
+      {caption && <p className="px-6 pb-6 text-center text-cream/85">{caption}</p>}
+    </div>
+  );
+}
+
+function Gallery() {
+  const { GALLERY, UI, lang } = useSite();
+  const [open, setOpen] = useState<number | null>(null);
+  if (GALLERY.length === 0) return null;
+  return (
+    <section id="gallery" className="py-24 md:py-32">
+      <div className="mx-auto max-w-[1240px] px-5 md:px-8">
+        <div className="max-w-2xl">
+          <Reveal>
+            <Eyebrow>{UI.galleryEyebrow}</Eyebrow>
+          </Reveal>
+          <Reveal delay={100}>
+            <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">{UI.galleryTitle}</h2>
+          </Reveal>
+          <Reveal delay={180}>
+            <p className="mt-6 text-lg leading-relaxed text-muted">{UI.galleryIntro}</p>
+          </Reveal>
+        </div>
+        <ul className="mt-12 columns-2 gap-3 md:columns-3 md:gap-4">
+          {GALLERY.map((item, i) => {
+            const caption = lang === 'he' ? item.caption_he : item.caption_en || item.caption_he;
+            return (
+              <li key={item.id} className="mb-3 break-inside-avoid md:mb-4">
+                <button
+                  type="button"
+                  onClick={() => setOpen(i)}
+                  aria-label={caption || UI.galleryOpen}
+                  className="group relative block w-full overflow-hidden rounded-2xl bg-sand"
+                >
+                  {item.kind === 'video' ? (
+                    <>
+                      <video src={`${item.url}#t=0.1`} muted playsInline preload="metadata" className="block w-full" />
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-night/60 text-white backdrop-blur">
+                          <Play className="h-6 w-6" aria-hidden="true" />
+                        </span>
+                      </span>
+                    </>
+                  ) : (
+                    <img src={item.url} alt={caption} loading="lazy" className="block w-full transition-transform duration-700 ease-soft group-hover:scale-[1.03]" />
+                  )}
+                  {caption && (
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-night/70 to-transparent px-4 pb-3 pt-8 text-start text-sm text-cream opacity-0 transition-opacity group-hover:opacity-100">
+                      {caption}
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      {open !== null && <Lightbox items={GALLERY} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />}
+    </section>
+  );
+}
+
 function Method() {
   const { PRINCIPLES, UI, EMBLEM_DARK } = useSite();
   return (
@@ -1061,7 +1243,12 @@ function Faq() {
                     <Plus className="h-4 w-4" aria-hidden="true" />
                   </span>
                 </summary>
-                <p className="max-w-2xl pb-7 leading-relaxed text-muted">{item.a}</p>
+                <p className={`max-w-2xl leading-relaxed text-muted ${item.contact ? 'pb-4' : 'pb-7'}`}>{item.a}</p>
+                {item.contact && (
+                  <div className="pb-7">
+                    <ContactChannels />
+                  </div>
+                )}
               </details>
             </Reveal>
           ))}
@@ -1073,11 +1260,6 @@ function Faq() {
 
 function Contact() {
   const { CONTACT, UI, EMBLEM_DARK, CONTACT_LABEL } = useSite();
-  const socials = [
-    CONTACT.instagram && { href: CONTACT.instagram, label: UI.instagram, icon: <InstagramIcon /> },
-    CONTACT.facebook && { href: CONTACT.facebook, label: UI.facebook, icon: <FacebookIcon /> },
-  ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode }[];
-
   return (
     <section id="contact" className="px-3 pb-3 md:px-5 md:pb-5">
       <div className="relative overflow-hidden rounded-[32px] bg-night px-6 py-24 text-center text-cream md:rounded-[44px] md:py-36">
@@ -1127,24 +1309,12 @@ function Contact() {
               </a>
             </Reveal>
           )}
-          {socials.length > 0 && (
-            <Reveal delay={400}>
-              <div className="mt-10 flex justify-center gap-3">
-                {socials.map((s) => (
-                  <a
-                    key={s.href}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={s.label}
-                    className="flex h-12 w-12 items-center justify-center rounded-full border border-cream/20 text-cream/80 transition-colors hover:border-gold hover:text-gold"
-                  >
-                    {s.icon}
-                  </a>
-                ))}
-              </div>
-            </Reveal>
-          )}
+          <Reveal delay={400}>
+            <div className="mt-10">
+              {/* WhatsApp, phone and email have their own buttons above. */}
+              <ContactChannels tone="dark" channels={['instagram', 'website']} />
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -1182,7 +1352,13 @@ function Footer() {
           {CONTACT.instagram && (
             <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-ink">
               <InstagramIcon className="h-4 w-4" />
-              <span dir="ltr">@{CONTACT.instagram.replace(/\/+$/, '').split('/').pop()}</span>
+              <span dir="ltr">{instagramHandle(CONTACT.instagram)}</span>
+            </a>
+          )}
+          {CONTACT.website && (
+            <a href={CONTACT.website} className="inline-flex items-center gap-2 whitespace-nowrap hover:text-ink">
+              <Globe className="h-4 w-4" aria-hidden="true" />
+              <span dir="ltr">{displayUrl(CONTACT.website)}</span>
             </a>
           )}
           <p>
@@ -1234,6 +1410,7 @@ function Page() {
         <Ticker />
         <About />
         <Classes />
+        <Gallery />
         {SHOW_PRICING && <Pricing />}
         <Booking />
         <Tool />
@@ -1252,7 +1429,15 @@ function Page() {
 // `root`: path from this page to the site root ('./' for Hebrew, '../' from
 // /en/). `altUrl`: the same page in the other language, for the switcher.
 export default function Site({ content, root, altUrl }: { content: SiteContent; root: string; altUrl: string }) {
-  const value = useMemo(() => ({ content, root, altUrl }), [content, root, altUrl]);
+  const [uploaded, setUploaded] = useState<GalleryItem[]>([]);
+  useEffect(() => {
+    fetchUploadedGallery().then(setUploaded);
+  }, []);
+  const gallery = useMemo(
+    () => [...STATIC_GALLERY.map((item) => ({ ...item, url: item.url.startsWith('http') ? item.url : `${root}${item.url}` })), ...uploaded],
+    [uploaded, root]
+  );
+  const value = useMemo(() => ({ content, root, altUrl, gallery }), [content, root, altUrl, gallery]);
   return (
     <SiteContext.Provider value={value}>
       <Page />

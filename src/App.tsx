@@ -22,10 +22,12 @@ const ExerciseLibrary = lazy(() => import('./components/ExerciseLibrary'));
 const LessonBuilder = lazy(() => import('./components/LessonBuilder'));
 const MyLessons = lazy(() => import('./components/MyLessons'));
 const CoachingSession = lazy(() => import('./components/CoachingSession'));
+const GalleryManager = lazy(() => import('./components/GalleryManager'));
 import { PrivacyPolicy, TermsOfUse } from './components/LegalPages';
 import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
 import { pullCloudLessons, pushCloudLessons, createSharedLesson, fetchSharedLesson } from './utils/cloudSync';
 import { supabaseEnabled } from './lib/supabase';
+import { isGalleryAdmin } from './utils/gallery';
 import { AuthProfile, getAuthProfile, listenToAuthChanges, signInWithGoogle, signOut } from './utils/auth';
 import { ProfileDetails, fetchProfileDetails, upsertProfile } from './utils/profile';
 import { Subscription, FREE_SUBSCRIPTION, ensureSubscription, fetchSubscription } from './utils/subscription';
@@ -38,10 +40,10 @@ export default function App() {
   // Feature flag: pricing is hidden until a real payment decision + processor
   // are in place. Flip to true to bring the section back - the markup is kept.
   const SHOW_PRICING = false;
-  const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms'>(() => {
+  const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery'>(() => {
     // The marketing site's footer deep-links here with ?page=privacy|terms.
     const page = new URLSearchParams(window.location.search).get('page');
-    return page === 'privacy' || page === 'terms' ? page : 'home';
+    return page === 'privacy' || page === 'terms' || page === 'gallery' ? page : 'home';
   });
   const theme = 'light' as const;
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -83,7 +85,7 @@ export default function App() {
   };
 
   const navigateTo = (
-    screen: 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms',
+    screen: 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery',
     options?: { lesson?: Lesson | null; editingLesson?: Lesson | null; replace?: boolean }
   ) => {
     const nextLesson = options?.lesson ?? (screen === 'session' ? activeSessionLesson : null);
@@ -228,19 +230,22 @@ export default function App() {
         return;
       }
 
-      const nextScreen = state.screen as 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms';
+      const nextScreen = state.screen as 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery';
       setActiveScreen(nextScreen);
 
       if (nextScreen === 'session' && state.lessonId) {
-        const lesson = lessons.find((item) => item.id === state.lessonId) ?? null;
-        setActiveSessionLesson(lesson);
+        const lesson = lessons.find((item) => item.id === state.lessonId);
+        setActiveSessionLesson((current) => lesson ?? (current?.id === state.lessonId ? current : null));
       } else {
         setActiveSessionLesson(null);
       }
 
       if (nextScreen === 'builder' && state.editingLessonId) {
-        const lesson = lessons.find((item) => item.id === state.editingLessonId) ?? null;
-        setEditingLesson(lesson);
+        // A shared or not-yet-saved lesson isn't in `lessons`; keep the one
+        // already open rather than dropping it (which would also lock the
+        // builder for guests opening a shared link).
+        const lesson = lessons.find((item) => item.id === state.editingLessonId);
+        setEditingLesson((current) => lesson ?? (current?.id === state.editingLessonId ? current : null));
       } else {
         setEditingLesson(null);
       }
@@ -1042,6 +1047,11 @@ export default function App() {
           <TermsOfUse onBack={() => navigateTo('home')} />
         </div>
       )}
+      {activeScreen === 'gallery' && (
+        <Suspense fallback={<div className="py-20 text-center text-on-surface-variant">טוען…</div>}>
+          <GalleryManager email={authProfile?.email} onGoogleLogin={handleGoogleLogin} />
+        </Suspense>
+      )}
 
       </main>
 
@@ -1067,6 +1077,11 @@ export default function App() {
             <a href="../" className="text-on-surface-variant hover:text-secondary transition-colors">
               לאתר הסטודיו
             </a>
+            {isGalleryAdmin(authProfile?.email) && (
+              <button onClick={() => navigateTo('gallery')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+                ניהול גלריה
+              </button>
+            )}
             <button onClick={() => navigateTo('privacy')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               מדיניות פרטיות
             </button>
