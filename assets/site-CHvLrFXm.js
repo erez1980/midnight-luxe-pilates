@@ -1,1 +1,0 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{c as r,j as t,r as e}from"./react-vendor-Bb048-hH.js";import{S as s,H as n}from"./site-DDSEHoxT.js";import"./icons-C7VlbgyB.js";const o="./";r.createRoot(document.getElementById("root")).render(t.jsx(e.StrictMode,{children:t.jsx(s,{content:n,root:o,altUrl:`${o}en/`})}));
