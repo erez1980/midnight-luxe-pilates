@@ -68,7 +68,7 @@ VITE_SUPABASE_ANON_KEY=...
 
 כל push ל-`main` בונה ופורס אוטומטית ל-GitHub Pages דרך `.github/workflows/deploy.yml`.
 
-> ב-Supabase צריך להוסיף את `https://erez1980.github.io/midnight-luxe-pilates/app/` תחת **Authentication → URL Configuration → Redirect URLs**, כדי שההתחברות עם Google תחזור ישירות לאפליקציה.
+> ב-Supabase צריך להוסיף את `https://rkpilatestudio.com/app/` תחת **Authentication → URL Configuration → Redirect URLs**, כדי שההתחברות עם Google תחזור ישירות לאפליקציה.
 
 ## הגדרת Supabase
 

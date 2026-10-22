@@ -17,7 +17,7 @@ export const CONTACT = {
   instagram: 'https://www.instagram.com/rotem_shap/',
   // The site's own address, shown in the contact section and footer.
   // Update when the custom domain is connected.
-  website: 'https://erez1980.github.io/midnight-luxe-pilates/',
+  website: 'https://rkpilatestudio.com/',
   facebook: '',
   preferredChannelLabel: 'וואטסאפ',
   whatsappGreeting: 'היי רתם, הגעתי מהאתר ואשמח לשמוע על שיעורי הפילאטיס 🙂',
