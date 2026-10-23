@@ -70,6 +70,14 @@ function staticDocument({ root, url, title, description, html, jsonLd, robots = 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..700&family=Heebo:wght@300..700&display=swap" />
     <link rel="stylesheet" href="${root}${css}" />
     ${jsonLd ? jsonLdTag(jsonLd) : ''}
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z43V0E6JK6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z43V0E6JK6');
+    </script>
   </head>
   <body>
     <div id="root">${html}</div>
