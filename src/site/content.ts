@@ -313,7 +313,7 @@ export const FAQ: { q: string; a: string; contact?: boolean }[] = [
 export const FOOTER_PAGES: { href: string; label: string }[] = [
   { href: 'pilates-events/', label: 'פילאטיס לאירועים' },
   { href: 'private-pilates/', label: 'שיעור פרטי וזוגי' },
-  { href: 'pilates-pregnancy-postnatal/', label: 'פילאטיס בהריון ואחרי לידה' },
+  { href: 'pilates-pregnancy-postnatal/', label: 'הריון ואחרי לידה: מדריך למדריכות' },
   { href: 'pilates-lesson-builder/', label: 'בניית שיעורי פילאטיס' },
   { href: 'exercises/', label: 'ספריית תרגילים' },
 ];
