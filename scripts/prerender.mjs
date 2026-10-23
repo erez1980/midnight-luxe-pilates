@@ -74,7 +74,9 @@ function staticDocument({ root, url, title, description, html, jsonLd, robots = 
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="${root}favicon.png" type="image/png" />
+    <link rel="icon" href="${root}favicon.ico" sizes="48x48" />
+    <link rel="icon" href="${root}favicon-96x96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="${root}favicon-192x192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="${root}apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
