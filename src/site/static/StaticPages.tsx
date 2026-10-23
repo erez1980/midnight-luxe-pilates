@@ -12,6 +12,12 @@ import type { Landing } from './landings';
 
 const { BRAND, CONTACT, FOOTER_PAGES, UI } = HE;
 
+// The per-condition suitability (pregnancy, lower back…) is still a draft that
+// Rotem is reviewing (docs/conditions-review.csv). Until she approves it, the
+// public pages point to the lesson-builder tool instead of publishing it.
+// Flip to true to show the tables and the pregnancy/postnatal exercise lists.
+export const PUBLISH_CONDITION_TABLES = false;
+
 export const APPARATUS: Record<Exercise['apparatus'], { label: string; title: string }> = {
   mat: { label: 'מזרן', title: 'תרגילי פילאטיס מזרן' },
   reformer: { label: 'רפורמר', title: 'תרגילי פילאטיס רפורמר' },
@@ -208,6 +214,20 @@ export function ExercisePage({ ex, all, root }: { ex: Exercise; all: Exercise[];
           </aside>
         </div>
 
+        {!PUBLISH_CONDITION_TABLES && (
+          <section className="mt-14 rounded-[28px] border border-line bg-sand/60 p-7">
+            <h2 className="font-display text-3xl font-light text-ink">התאמה למצבים מיוחדים</h2>
+            <p className="mt-3 max-w-3xl leading-relaxed text-muted">
+              בכלי בניית השיעורים בוחרים מצב — גב תחתון, צוואר וכתפיים, ברכיים, אוסטאופורוזיס, הריון או אחרי לידה — ורואים לכל תרגיל אם
+              הוא מתאים, דורש התאמה או שעדיף להימנע ממנו.
+            </p>
+            <a href={`${root}app/`} className="mt-4 inline-block py-1 text-sage underline decoration-gold/50 underline-offset-4 hover:decoration-sage">
+              לכלי בניית השיעורים
+            </a>
+          </section>
+        )}
+
+        {PUBLISH_CONDITION_TABLES && (
         <section className="mt-14">
           <h2 className="font-display text-3xl font-light text-ink">התאמה למצבים מיוחדים</h2>
           <p className="mt-3 max-w-3xl text-sm text-muted">{DISCLAIMER}</p>
@@ -239,6 +259,7 @@ export function ExercisePage({ ex, all, root }: { ex: Exercise; all: Exercise[];
             </table>
           </div>
         </section>
+        )}
 
         {related.length > 0 && (
           <section className="mt-14">
@@ -271,8 +292,8 @@ export function ExerciseIndexPage({ all, root }: { all: Exercise[]; root: string
         <p className="text-sm font-medium text-gold-deep">למדריכות, למדריכים ולמתאמנים</p>
         <h1 className="mt-3 font-display text-4xl font-light leading-tight text-ink md:text-6xl">ספריית תרגילי פילאטיס</h1>
         <p className="mt-5 text-lg leading-relaxed text-muted">
-          {all.length} תרגילי פילאטיס מזרן, מכשירים ואביזרים — לכל תרגיל הוראות ביצוע, נשימה, שרירים עיקריים והתאמה לגב תחתון, הריון,
-          אחרי לידה ומצבים נוספים.
+          {all.length} תרגילי פילאטיס מזרן, מכשירים ואביזרים — לכל תרגיל הוראות ביצוע, נשימה ושרירים עיקריים
+          {PUBLISH_CONDITION_TABLES ? ', והתאמה לגב תחתון, הריון, אחרי לידה ומצבים נוספים.' : '.'}
         </p>
         <nav className="mt-6 flex flex-wrap gap-2" aria-label="מכשירים">
           {APPARATUS_ORDER.map((a) => (
@@ -401,7 +422,7 @@ export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[
         ))}
       </div>
 
-      {page.extra === 'conditions' && (
+      {page.extra === 'conditions' && PUBLISH_CONDITION_TABLES && (
         <>
           <ConditionLists all={all} root={root} condition="pregnancy" title="תרגילי פילאטיס בהריון" />
           <ConditionLists all={all} root={root} condition="postnatal" title="תרגילי פילאטיס אחרי לידה" />

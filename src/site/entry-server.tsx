@@ -5,7 +5,7 @@ import { HE } from './content';
 import { EN } from './content.en';
 import { homeStructuredData, faqPage, personAndBusiness, SITE_ORIGIN } from './seo';
 import { INITIAL_EXERCISES } from '../data';
-import { APPARATUS, ExerciseIndexPage, ExercisePage, LandingPage, NotFoundPage, exerciseSlug } from './static/StaticPages';
+import { APPARATUS, PUBLISH_CONDITION_TABLES, ExerciseIndexPage, ExercisePage, LandingPage, NotFoundPage, exerciseSlug } from './static/StaticPages';
 import { LANDINGS } from './static/landings';
 
 // Server entry used only at build time (scripts/prerender.mjs). The home
@@ -87,7 +87,7 @@ export function renderStaticPages(): StaticPage[] {
     path: 'exercises/',
     title: `ספריית תרגילי פילאטיס: ${all.length} תרגילי מזרן, רפורמר ואביזרים | פילאטיס בתנועה`,
     description:
-      'ספריית תרגילי פילאטיס בעברית: מזרן, רפורמר, קדילק, כיסא ואביזרים — הוראות ביצוע, נשימה, שרירים עיקריים והתאמה לגב תחתון, הריון ואחרי לידה.',
+      `ספריית תרגילי פילאטיס בעברית: מזרן, רפורמר, קדילק, כיסא ואביזרים — הוראות ביצוע, נשימה ושרירים עיקריים${PUBLISH_CONDITION_TABLES ? ', והתאמה לגב תחתון, הריון ואחרי לידה' : ''}.`,
     html: renderToStaticMarkup(<ExerciseIndexPage all={all} root="../" />),
     jsonLd: {
       '@context': 'https://schema.org',
@@ -111,8 +111,8 @@ export function renderStaticPages(): StaticPage[] {
     const apparatus = APPARATUS[ex.apparatus].label;
     pages.push({
       path: `exercises/${slug}/`,
-      title: `${ex.name} — תרגיל פילאטיס ${apparatus}: ביצוע, נשימה והתאמות`,
-      description: `${ex.benefits} איך מבצעים את ${ex.englishName} שלב אחר שלב, נשימה, שרירים עיקריים והתאמה להריון, לגב תחתון ומצבים נוספים.`.slice(0, 300),
+      title: `${ex.name} — תרגיל פילאטיס ${apparatus}: ביצוע, נשימה ${PUBLISH_CONDITION_TABLES ? 'והתאמות' : 'ושרירים'}`,
+      description: `${ex.benefits} איך מבצעים את ${ex.englishName} שלב אחר שלב, נשימה ושרירים עיקריים${PUBLISH_CONDITION_TABLES ? ', והתאמה להריון, לגב תחתון ומצבים נוספים' : ''}.`,
       html: renderToStaticMarkup(<ExercisePage ex={ex} all={all} root="../../" />),
       jsonLd: {
         '@context': 'https://schema.org',
