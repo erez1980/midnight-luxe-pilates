@@ -128,8 +128,9 @@ fs.writeFileSync(
 );
 
 // ---- sitemap.xml ----
+// x-default is the Hebrew home page: most visitors are Hebrew speakers.
 const alternates = ['he', 'en', 'x-default']
-  .map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${ORIGIN}/${l === 'he' ? '' : 'en/'}" />`)
+  .map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${ORIGIN}/${l === 'en' ? 'en/' : ''}" />`)
   .join('\n');
 const entry = (loc, { images = [], extra = '' } = {}) => `  <url>
     <loc>${loc}</loc>

@@ -451,22 +451,20 @@ function Hero() {
       <div className="relative mx-auto grid min-h-[calc(100svh-72px)] max-w-[1240px] items-center gap-12 px-5 py-14 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:py-20">
         <div>
           <Reveal>
-            {/* The eyebrow is part of the H1 so the page heading says who, what
-                and where; the big lines are separated by real spaces so
-                crawlers don't read them as one word. */}
-            <h1>
-              <span className="flex items-center gap-3 text-sm font-medium text-gold-deep">
-                <span className="h-px w-8 bg-gold" aria-hidden="true" />
-                {HERO.eyebrow}
-              </span>
-              <span className="mt-6 block font-display text-[clamp(3.2rem,9vw,6.5rem)] font-light leading-[0.98] tracking-tight text-ink">
-                {HERO.title.map((line, i) => (
-                  <React.Fragment key={line}>
-                    {i > 0 && ' '}
-                    <span className={`block ${i === HERO.title.length - 1 ? 'text-sage' : ''}`}>{line}</span>
-                  </React.Fragment>
-                ))}
-              </span>
+            {/* The eyebrow is its own paragraph, outside the H1, so crawlers
+                don't glue its last word to the heading's first. The big lines
+                are separated by real spaces for the same reason. */}
+            <p className="flex items-center gap-3 text-sm font-medium text-gold-deep">
+              <span className="h-px w-8 bg-gold" aria-hidden="true" />
+              {HERO.eyebrow}
+            </p>
+            <h1 className="mt-6 font-display text-[clamp(3.2rem,9vw,6.5rem)] font-light leading-[0.98] tracking-tight text-ink">
+              {HERO.title.map((line, i) => (
+                <React.Fragment key={line}>
+                  {i > 0 && ' '}
+                  <span className={`block ${i === HERO.title.length - 1 ? 'text-sage' : ''}`}>{line}</span>
+                </React.Fragment>
+              ))}
             </h1>
           </Reveal>
           <Reveal delay={240}>
