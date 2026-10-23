@@ -1,0 +1,10 @@
+# robots.txt for rkpilatestudio.com
+User-agent: *
+Allow: /
+
+# Lesson share links and auth callbacks are per-user state, not pages.
+Disallow: /app/*?s=
+Disallow: /app/*?sharedLesson=
+Disallow: /*?code=
+
+Sitemap: https://rkpilatestudio.com/sitemap.xml
