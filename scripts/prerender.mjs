@@ -37,6 +37,17 @@ for (const [lang, file] of [['he', 'index.html'], ['en', 'en/index.html']]) {
   fs.writeFileSync(target, page);
 }
 
+// ---- the lesson builder (/app/): client-rendered, so only structured data ----
+{
+  const target = path.join(DIST, 'app/index.html');
+  const page = fs.readFileSync(target, 'utf8');
+  if (!page.includes('</head>')) throw new Error('app/index.html: </head> not found');
+  fs.writeFileSync(target, page.replace('</head>', () => `  ${jsonLdTag(ssr.appStructuredData())}\n  </head>`));
+}
+
+// ---- llms.txt: a Markdown guide to the site for AI assistants ----
+fs.writeFileSync(path.join(DIST, 'llms.txt'), ssr.renderLlmsTxt());
+
 // ---- static pages ----
 const home = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
 const css = home.match(/href="\.\/(assets\/site-[^"]+\.css)"/)?.[1];
@@ -142,4 +153,4 @@ ${urls.join('\n')}
 );
 
 fs.rmSync(SSR_DIR, { recursive: true, force: true });
-console.log(`prerender: 2 home pages, ${pages.length} static pages, 404.html, sitemap.xml (${urls.length} URLs)`);
+console.log(`prerender: 2 home pages, ${pages.length} static pages, 404.html, llms.txt, sitemap.xml (${urls.length} URLs)`);

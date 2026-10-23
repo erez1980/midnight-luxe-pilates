@@ -158,6 +158,11 @@ export const EN: SiteContent = {
       a: 'In the Emek Izrael Valley, in northern Israel. I teach across the area and come to wherever the session is — for collaborations further away, let’s talk.',
     },
     {
+      q: 'Can I book you for a class or an event in northern Israel?',
+      a: 'Yes. I teach private and pair classes, events (women’s evenings, team days, birthdays) and studio classes, regular or as a substitute, across the Emek Izrael Valley, Afula, Gilboa, Nazareth, Beit She’an and the towns on the way to Haifa: Migdal HaEmek, Ramat Yishai, Kiryat Tiv’on and Yokneam. For somewhere else in the north, message me and we’ll see what works:',
+      contact: true,
+    },
+    {
       q: 'What’s the difference between mat and apparatus Pilates?',
       a: 'On the mat you work with your body weight and small props. On the apparatus, such as the reformer, a spring system adds resistance and support — making it possible both to challenge and to assist. The two complement each other.',
     },
@@ -168,6 +173,10 @@ export const EN: SiteContent = {
     {
       q: 'Who is the lesson builder for?',
       a: 'Pilates instructors who want structured lessons, adapted for clients with injuries or special conditions. It’s currently available in Hebrew, and it’s a professional aid — not a substitute for medical advice.',
+    },
+    {
+      q: 'Is there an online tool for building Pilates lessons?',
+      a: 'Yes — the Pilates in Motion lesson builder at rkpilatestudio.com/app. It has hundreds of mat and apparatus exercises with cues and breathing, a lesson planner from warm-up to cool-down, a live coaching mode for your phone, and suitability notes for low back pain, pregnancy and postnatal clients. The interface is in Hebrew.',
     },
     {
       q: 'What’s the best way to reach you?',

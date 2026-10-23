@@ -3,7 +3,8 @@ import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import Site from './Site';
 import { HE } from './content';
 import { EN } from './content.en';
-import { homeStructuredData, faqPage, personAndBusiness, SITE_ORIGIN } from './seo';
+import { homeStructuredData, faqPage, personAndBusiness, lessonBuilderApp, areaServed, SITE_ORIGIN } from './seo';
+import { llmsTxt } from './llms';
 import { INITIAL_EXERCISES } from '../data';
 import { APPARATUS, PUBLISH_CONDITION_TABLES, ExerciseIndexPage, ExercisePage, LandingPage, NotFoundPage, exerciseSlug } from './static/StaticPages';
 import { LANDINGS } from './static/landings';
@@ -65,15 +66,16 @@ export function renderStaticPages(): StaticPage[] {
             name: page.h1,
             inLanguage: 'he-IL',
             isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
-            about: { '@id': `${SITE_ORIGIN}/#business` },
+            about: { '@id': page.app ? `${SITE_ORIGIN}/app/#app` : `${SITE_ORIGIN}/#business` },
           },
+          ...(page.app ? [lessonBuilderApp()] : []),
           ...(page.service
             ? [{
                 '@type': 'Service',
                 name: page.service.name,
                 description: page.service.description,
                 provider: { '@id': `${SITE_ORIGIN}/#business` },
-                areaServed: { '@type': 'AdministrativeArea', name: 'עמק יזרעאל' },
+                areaServed: areaServed('he'),
               }]
             : []),
           breadcrumbList([{ name: 'דף הבית', url: `${SITE_ORIGIN}/` }, { name: page.h1 }]),
@@ -138,6 +140,19 @@ export function renderStaticPages(): StaticPage[] {
   }
 
   return pages;
+}
+
+// The lesson builder's own page (/app/) is a client-rendered app; its
+// structured data is added to the built HTML by scripts/prerender.mjs.
+export function appStructuredData() {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [lessonBuilderApp(), ...personAndBusiness(HE)],
+  };
+}
+
+export function renderLlmsTxt() {
+  return llmsTxt(LANDINGS);
 }
 
 export function render404() {
