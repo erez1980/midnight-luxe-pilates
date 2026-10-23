@@ -1,5 +1,6 @@
 import { Lesson } from '../types';
 import { isConditionId } from './conditions';
+import { isPropId } from './props';
 
 const LESSONS_KEY = 'pilates_lessons';
 const TEMPLATES_KEY = 'pilates_saved_templates';
@@ -21,7 +22,9 @@ function normalizeLesson(raw: any): Lesson {
     totalDuration,
     createdAt: String(raw?.createdAt || new Date().toISOString().split('T')[0]),
     isCustom: Boolean(raw?.isCustom ?? true),
-    conditions: Array.isArray(raw?.conditions) ? raw.conditions.filter(isConditionId) : []
+    conditions: Array.isArray(raw?.conditions) ? raw.conditions.filter(isConditionId) : [],
+    props: Array.isArray(raw?.props) ? raw.props.filter(isPropId) : [],
+    dumbbellKg: typeof raw?.dumbbellKg === 'number' ? raw.dumbbellKg : undefined
   };
 }
 

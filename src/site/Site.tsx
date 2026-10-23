@@ -548,6 +548,50 @@ function Ticker() {
   );
 }
 
+// Diploma cards; the full certificate opens in the shared lightbox.
+function Certificates() {
+  const { CERTIFICATES, UI, ASSET } = useSite();
+  const [open, setOpen] = useState<number | null>(null);
+  if (CERTIFICATES.length === 0) return null;
+  const items: GalleryItem[] = CERTIFICATES.map((c) => ({
+    id: c.id,
+    url: `${ASSET}${c.image}`,
+    kind: 'image',
+    caption_he: `${c.title} · ${c.details}`,
+    caption_en: `${c.title} · ${c.details}`,
+  }));
+  return (
+    <Reveal delay={480}>
+      <div className="mt-10 border-t border-line pt-8">
+        <h3 className="text-sm font-medium text-gold-deep">
+          {UI.certificatesTitle} · {UI.certificatesIssuer}
+        </h3>
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          {CERTIFICATES.map((c, i) => (
+            <li key={c.id}>
+              <button
+                type="button"
+                onClick={() => setOpen(i)}
+                className="group flex w-full items-center gap-4 rounded-2xl border border-line bg-white/60 p-3 text-start transition-colors hover:border-gold/60"
+              >
+                <img src={`${ASSET}${c.thumb}`} alt="" loading="lazy" className="h-16 w-24 shrink-0 rounded-lg object-cover ring-1 ring-line" />
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium text-ink">{c.title}</span>
+                  <span className="mt-0.5 block text-xs text-muted">{c.details}</span>
+                  <span className="mt-1 block text-xs text-sage underline decoration-gold/50 underline-offset-4 group-hover:decoration-sage">
+                    {UI.certificateView}
+                  </span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+      {open !== null && <Lightbox items={items} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />}
+    </Reveal>
+  );
+}
+
 function About() {
   const { BRAND, PHOTOS, ABOUT, UI } = useSite();
   return (
@@ -580,6 +624,7 @@ function About() {
               </span>
             </div>
           </Reveal>
+          <Certificates />
         </div>
       </div>
     </section>

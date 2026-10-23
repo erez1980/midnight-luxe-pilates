@@ -1088,7 +1088,7 @@ export default function App() {
             <button onClick={() => navigateTo('terms')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
               תנאי שימוש
             </button>
-            <a href="mailto:erez1980@gmail.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer" aria-label="יצירת קשר במייל">
+            <a href="mailto:rotem1980.shapira@gmail.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer" aria-label="יצירת קשר במייל">
               <Mail className="w-5 h-5" />
             </a>
           </div>

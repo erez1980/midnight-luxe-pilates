@@ -11,7 +11,7 @@ export const EN: SiteContent = {
   BRAND: {
     name: 'Pilates in Motion',
     owner: 'Rotem',
-    certification: 'Certified mat & apparatus Pilates instructor · Marta Pilates',
+    certification: 'Certified mat & apparatus Pilates instructor · Martha Pilates Center',
   },
 
   CONTACT: {
@@ -53,6 +53,11 @@ export const EN: SiteContent = {
     ],
     signature: 'Rotem',
   },
+
+  CERTIFICATES: [
+    { ...HE.CERTIFICATES[0], title: 'Mat Pilates Instructor Course', details: '209 hours · February 2026' },
+    { ...HE.CERTIFICATES[1], title: 'Apparatus Pilates Instructor Course', details: '304 hours · June 2026' },
+  ],
 
   CLASSES: [
     {
@@ -156,7 +161,7 @@ export const EN: SiteContent = {
     },
     {
       q: 'What is your certification?',
-      a: 'I’m a certified mat and apparatus Pilates instructor, trained through Marta Pilates.',
+      a: 'I’m a certified mat and apparatus Pilates instructor, trained at the Martha Pilates Center: a 209-hour mat course and a 304-hour apparatus course.',
     },
     {
       q: 'Who is the lesson builder for?',
@@ -186,7 +191,10 @@ export const EN: SiteContent = {
     closeMenu: 'Close menu',
     language: 'Site language',
     heroBadgeTitle: 'Mat · Apparatus',
-    heroBadgeSub: 'Certified · Marta Pilates',
+    heroBadgeSub: 'Certified · Martha Pilates Center',
+    certificatesTitle: 'Certifications',
+    certificatesIssuer: 'Martha Pilates Center',
+    certificateView: 'View certificate',
     aboutEyebrow: 'About Rotem',
     classesEyebrow: 'Classes',
     classesTitle: 'Two ways to move. One goal.',

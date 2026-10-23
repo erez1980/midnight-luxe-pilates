@@ -4,6 +4,7 @@ import { Lesson } from '../types';
 import { motion } from 'motion/react';
 import Button from './ui/Button';
 import { conditionLabel, isConditionId } from '../utils/conditions';
+import { isPropId, propLabel } from '../utils/props';
 
 interface MyLessonsProps {
   lessons: Lesson[];
@@ -282,6 +283,9 @@ export default function MyLessons({
                   </span>
                   {(lesson.conditions || []).filter(isConditionId).map((c) => (
                     <span key={c} className="text-[11px] px-2.5 py-1 rounded-full bg-gold-soft/60 text-gold-deep border border-gold/30">מותאם: {conditionLabel(c)}</span>
+                  ))}
+                  {(lesson.props || []).filter(isPropId).map((p) => (
+                    <span key={p} className="text-[11px] px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant border border-outline/20">{propLabel(p, lesson.dumbbellKg)}</span>
                   ))}
                 </div>
 

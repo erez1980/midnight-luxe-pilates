@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Button from './ui/Button';
 import { ConditionId, assessForConditions, conditionLabel, isConditionId } from '../utils/conditions';
 import { ConditionPicker, SuitabilityBadge } from './ConditionControls';
+import { DUMBBELL_WEIGHTS, MAX_LESSON_PROPS, PROPS, PropId, exerciseProps, isPropId, propLabel } from '../utils/props';
 
 interface LessonBuilderProps {
   onSaveLesson: (lesson: Lesson) => void;
@@ -22,6 +23,9 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
   const [targetFocus, setTargetFocus] = useState(existingLessonToEdit?.targetFocus || 'חיזוק כללי ויציבה');
   const [exercises, setExercises] = useState<LessonExercise[]>(existingLessonToEdit?.exercises || []);
   // Who the lesson is planned for: drives badges, warnings and auto-build.
+  // Up to two props the auto-build mixes into the lesson.
+  const [lessonProps, setLessonProps] = useState<PropId[]>((existingLessonToEdit?.props || []).filter(isPropId));
+  const [dumbbellKg, setDumbbellKg] = useState<number>(existingLessonToEdit?.dumbbellKg ?? 1);
   const [conditions, setConditions] = useState<ConditionId[]>(
     (existingLessonToEdit?.conditions || []).filter(isConditionId)
   );
@@ -112,13 +116,13 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
 
   useEffect(() => {
     const draftKey = existingLessonToEdit ? `pilates_lesson_draft_${existingLessonToEdit.id}` : 'pilates_lesson_builder_draft';
-    const draft = { lessonName, description, level, targetFocus, exercises, autoBuildDuration, conditions };
+    const draft = { lessonName, description, level, targetFocus, exercises, autoBuildDuration, conditions, lessonProps, dumbbellKg };
     try {
       localStorage.setItem(draftKey, JSON.stringify(draft));
     } catch {
       // Keep the builder usable even when storage is blocked/full.
     }
-  }, [lessonName, description, level, targetFocus, exercises, autoBuildDuration, conditions, existingLessonToEdit]);
+  }, [lessonName, description, level, targetFocus, exercises, autoBuildDuration, conditions, lessonProps, dumbbellKg, existingLessonToEdit]);
 
   const buildCurrentLessonPayload = (): Lesson => ({
     id: existingLessonToEdit?.id || `custom_lesson_${Date.now()}`,
@@ -131,7 +135,9 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     totalDuration: exercises.reduce((acc, curr) => acc + curr.customDuration, 0),
     createdAt: new Date().toISOString().split('T')[0],
     isCustom: true,
-    conditions
+    conditions,
+    props: lessonProps,
+    dumbbellKg: lessonProps.includes('dumbbells') ? dumbbellKg : undefined
   });
 
   // First "needs modification" reason, pre-filled as a coaching note.
@@ -140,6 +146,11 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     const hit = fit.perCondition.find((a) => a.status === 'modify' && a.reasons.length);
     return hit ? `${conditionLabel(hit.id)}: ${hit.reasons[0]}` : '';
   };
+
+  const toggleLessonProp = (id: PropId) =>
+    setLessonProps((current) =>
+      current.includes(id) ? current.filter((p) => p !== id) : current.length >= MAX_LESSON_PROPS ? current : [...current, id]
+    );
 
   const autoBuildLesson = () => {
     const acceptedLevels = level === 'mixed' ? ['beginner', 'intermediate'] : [level];
@@ -153,38 +164,125 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
       ['cooldown', Math.max(4, Math.round(autoBuildDuration * 0.12))]
     ] as const;
 
+    // Fresh order on every build, so "build again" gives a different lesson.
+    const shuffled = <T,>(items: T[]) => {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+    const fits = (exercise: Exercise) => !conditions.length || assessForConditions(exercise, conditions).status !== 'avoid';
+    // Fully suitable before "needs modification" when conditions are set.
+    const bySuitability = (pool: Exercise[]) =>
+      conditions.length
+        ? [...pool].sort(
+            (a, b) =>
+              Number(assessForConditions(a, conditions).status === 'modify') -
+              Number(assessForConditions(b, conditions).status === 'modify')
+          )
+        : pool;
+
+    // Exercises needing equipment only appear when that prop was chosen.
+    // Props belong to a mat class, so with props (and no explicit apparatus
+    // filter) the equipment-free exercises are mat exercises too — no jumping
+    // between a ring and the reformer.
+    const regularApparatus = preferredApparatus ?? (lessonProps.length ? 'mat' : null);
+    const regularFor = (category: string) =>
+      INITIAL_EXERCISES.filter((exercise) =>
+        exercise.category === category &&
+        acceptedLevels.includes(exercise.difficulty) &&
+        (!regularApparatus || exercise.apparatus === regularApparatus) &&
+        exerciseProps(exercise).length === 0 &&
+        fits(exercise)
+      );
+    // Prop exercises may be one level easier than the lesson (a beginner
+    // variation with equipment is fine in an intermediate class).
+    const propLevels = level === 'advanced' ? ['intermediate', 'advanced'] : level === 'intermediate' ? ['beginner', 'intermediate'] : ['beginner', 'intermediate'];
+    const propFor = (category: string, prop: PropId) =>
+      INITIAL_EXERCISES.filter((exercise) => {
+        const needs = exerciseProps(exercise);
+        return exercise.category === category &&
+          needs.includes(prop) &&
+          needs.every((p) => lessonProps.includes(p)) &&
+          propLevels.includes(exercise.difficulty) &&
+          fits(exercise);
+      });
+
+    // Which blocks use which prop: each prop gets one run of *consecutive*
+    // blocks (so the equipment comes out once and stays out), runs don't
+    // overlap, and the rest of the lesson stays equipment-free. One prop may
+    // span up to three blocks; with two props each gets up to two.
+    const maxRun = lessonProps.length === 1 ? 3 : 2;
+    const eligible = (index: number, prop: PropId) => propFor(blocks[index][0], prop).length > 0;
+    const runOf = new Map<number, { prop: PropId; role: 'single' | 'first' | 'middle' | 'last' }>();
+    let after = 0;
+    lessonProps.forEach((prop) => {
+      let best: number[] = [];
+      for (let start = 0; start < blocks.length; start++) {
+        const run: number[] = [];
+        for (let i = start; i < blocks.length && run.length < maxRun && !runOf.has(i) && eligible(i, prop); i++) run.push(i);
+        // Longest run wins; on a tie prefer one after the previous prop's run.
+        const better = run.length > best.length || (run.length === best.length && run.length > 0 && best[0] < after && start >= after);
+        if (better) best = run;
+      }
+      best.forEach((index, k) =>
+        runOf.set(index, {
+          prop,
+          role: best.length === 1 ? 'single' : k === 0 ? 'first' : k === best.length - 1 ? 'last' : 'middle',
+        })
+      );
+      if (best.length) after = best[best.length - 1] + 1;
+    });
+
     const used = new Set<string>();
     const generated: LessonExercise[] = [];
 
-    blocks.forEach(([category, targetMinutes]) => {
-      let remaining = targetMinutes;
-      const pool = INITIAL_EXERCISES.filter((exercise) => {
-        const matchesCategory = exercise.category === category;
-        const matchesLevel = level === 'mixed' || acceptedLevels.includes(exercise.difficulty);
-        const matchesApparatus = !preferredApparatus || exercise.apparatus === preferredApparatus;
-        const allowed = !conditions.length || assessForConditions(exercise, conditions).status !== 'avoid';
-        return matchesCategory && matchesLevel && matchesApparatus && allowed && !used.has(exercise.id);
-      });
-      // With special conditions, fully suitable exercises come before ones
-      // that need modification.
-      if (conditions.length) {
-        pool.sort((a, b) =>
-          Number(assessForConditions(a, conditions).status === 'modify') -
-          Number(assessForConditions(b, conditions).status === 'modify')
-        );
+    const noteFor = (exercise: Exercise, category: string) => {
+      const parts: string[] = [];
+      const needs = exerciseProps(exercise);
+      if (needs.length) parts.push(`אביזר: ${needs.map((p) => propLabel(p, dumbbellKg)).join(' + ')}`);
+      if (category === 'cooldown') parts.push('לסיים עם נשימה, הארכה והורדת עומס');
+      else if (conditions.length) {
+        const note = modificationNote(exercise);
+        if (note) parts.push(note);
       }
+      return parts.join(' · ');
+    };
 
-      for (const exercise of pool) {
-        if (remaining <= 0) break;
-        used.add(exercise.id);
-        const customDuration = Math.min(Math.max(2, exercise.durationMinutes), remaining);
-        generated.push({
-          exercise,
-          customDuration,
-          notes: category === 'cooldown' ? 'לסיים עם נשימה, הארכה והורדת עומס' : (conditions.length ? modificationNote(exercise) : '')
-        });
-        remaining -= customDuration;
-      }
+    blocks.forEach(([category, targetMinutes], index) => {
+      let remaining = targetMinutes;
+      // Minutes are fixed at pick time, so reordering the block afterwards
+      // can't squeeze out an exercise that was already counted.
+      const take = (pool: Exercise[], limit: number) => {
+        const picked: { exercise: Exercise; minutes: number }[] = [];
+        for (const exercise of pool) {
+          if (remaining <= 0 || picked.length >= limit) break;
+          if (used.has(exercise.id)) continue;
+          used.add(exercise.id);
+          const minutes = Math.min(Math.max(2, exercise.durationMinutes), remaining);
+          picked.push({ exercise, minutes });
+          remaining -= minutes;
+        }
+        return picked;
+      };
+
+      const slot = runOf.get(index);
+      // A middle block of a run is all prop work; elsewhere one prop exercise
+      // (two in longer blocks) alongside equipment-free ones.
+      const propLimit = !slot ? 0 : slot.role === 'middle' ? Infinity : targetMinutes >= 10 ? 2 : 1;
+      const propPicked = slot ? take(bySuitability(shuffled(propFor(category, slot.prop))), propLimit) : [];
+      const regularPicked = take(bySuitability(shuffled(regularFor(category))), Infinity);
+      // Prop exercises sit at the edge that touches the rest of their run:
+      // the end of the run's first block, the start of its last block.
+      const ordered = slot && (slot.role === 'last' || slot.role === 'middle')
+        ? [...propPicked, ...regularPicked]
+        : [...regularPicked, ...propPicked];
+
+      ordered.forEach(({ exercise, minutes }) => {
+        generated.push({ exercise, customDuration: minutes, notes: noteFor(exercise, category) });
+      });
     });
 
     if (generated.length) {
@@ -253,7 +351,7 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     { value: 'reformer', label: 'רפורמר' },
     { value: 'cadillac', label: 'קאדילק' },
     { value: 'chair', label: 'כיסא' },
-    { value: 'props', label: 'עזרים' }
+    { value: 'props', label: 'אביזרים' }
   ];
 
   const difficultyOptions = [
@@ -339,6 +437,14 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
     acc[key] = (acc[key] || 0) + item.customDuration;
     return acc;
   }, {});
+
+  // Props the current sequence actually uses, with how many exercises each.
+  const lessonPropsInUse = Object.entries(
+    exercises.reduce<Record<string, number>>((acc, item) => {
+      exerciseProps(item.exercise).forEach((prop) => (acc[prop] = (acc[prop] || 0) + 1));
+      return acc;
+    }, {})
+  ) as [PropId, number][];
 
   const avoidInLesson = conditions.length
     ? exercises.filter((item) => assessForConditions(item.exercise, conditions).status === 'avoid')
@@ -552,6 +658,58 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                 בניית שלד שיעור
               </Button>
             </div>
+
+            <div className="border-t border-secondary/15 pt-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <label className="block text-xs font-bold text-secondary uppercase">שילוב אביזרים (עד {MAX_LESSON_PROPS})</label>
+                <span className="text-[11px] text-on-surface-variant">
+                  האביזרים משולבים בחלק מהשיעור, ברצף, ולא לאורך כולו
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="אביזרים לשיעור">
+                {PROPS.map((prop) => {
+                  const on = lessonProps.includes(prop.id);
+                  const full = !on && lessonProps.length >= MAX_LESSON_PROPS;
+                  return (
+                    <button
+                      key={prop.id}
+                      type="button"
+                      aria-pressed={on}
+                      disabled={full}
+                      onClick={() => toggleLessonProp(prop.id)}
+                      className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
+                        on
+                          ? 'bg-secondary border-secondary text-on-secondary font-bold'
+                          : 'border-outline/30 text-on-surface hover:border-secondary/50 disabled:opacity-40 disabled:hover:border-outline/30'
+                      }`}
+                    >
+                      {prop.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {lessonProps.includes('dumbbells') && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="text-on-surface-variant">משקל המשקולות:</span>
+                  {DUMBBELL_WEIGHTS.map((kg) => (
+                    <button
+                      key={kg}
+                      type="button"
+                      aria-pressed={dumbbellKg === kg}
+                      onClick={() => setDumbbellKg(kg)}
+                      className={`rounded-full border px-3 py-1 transition-all ${
+                        dumbbellKg === kg ? 'bg-secondary/15 border-secondary/50 text-secondary font-bold' : 'border-outline/30 text-on-surface'
+                      }`}
+                    >
+                      {kg.toLocaleString('he-IL')} ק״ג
+                    </button>
+                  ))}
+                </div>
+              )}
+              {lessonProps.length === 0 && (
+                <p className="mt-2 text-[11px] text-on-surface-variant">בלי בחירה, השיעור נבנה בלי אביזרים.</p>
+              )}
+            </div>
           </div>
 
           {/* Active Flow (Selected Exercises) */}
@@ -604,6 +762,11 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                               <span className="rounded-full bg-surface-container-high px-2 py-0.5 text-[10px] text-on-surface-variant">
                                 {el.exercise.difficultyLabel}
                               </span>
+                              {exerciseProps(el.exercise).map((prop) => (
+                                <span key={prop} className="rounded-full bg-gold-soft/60 px-2 py-0.5 text-[10px] font-semibold text-gold-deep">
+                                  {propLabel(prop, lessonProps.includes('dumbbells') ? dumbbellKg : undefined)}
+                                </span>
+                              ))}
                               {conditions.length > 0 && (() => {
                                 const fit = assessForConditions(el.exercise, conditions);
                                 return fit.status !== 'suitable' ? (
@@ -769,6 +932,19 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                   )}
                 </div>
               </div>
+
+              {lessonPropsInUse.length > 0 && (
+                <div>
+                  <div className="text-sm text-on-surface font-bold mb-2">אביזרים בשיעור</div>
+                  <div className="flex flex-wrap gap-2">
+                    {lessonPropsInUse.map(([prop, count]) => (
+                      <span key={prop} className="rounded-full border border-gold/30 bg-gold-soft/40 px-3 py-1 text-xs text-gold-deep">
+                        {propLabel(prop, dumbbellKg)} · {count} תרגילים
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <div className="text-sm text-on-surface font-bold mb-2">בדיקות מהירות</div>
@@ -948,6 +1124,9 @@ export default function LessonBuilder({ onSaveLesson, existingLessonToEdit = nul
                     </div>
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       <span className="rounded-full bg-secondary/10 px-2 py-1 text-[10px] text-secondary">{exercise.apparatusLabel}</span>
+                      {exerciseProps(exercise).map((prop) => (
+                        <span key={prop} className="rounded-full bg-gold-soft/60 px-2 py-1 text-[10px] font-semibold text-gold-deep">{propLabel(prop)}</span>
+                      ))}
                       <span className="rounded-full bg-surface-container-high px-2 py-1 text-[10px] text-on-surface-variant">{exercise.difficultyLabel}</span>
                       {exercise.categoryLabel && <span className="rounded-full bg-surface-container-high px-2 py-1 text-[10px] text-on-surface-variant">{exercise.categoryLabel}</span>}
                     </div>

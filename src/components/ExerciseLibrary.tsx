@@ -7,6 +7,7 @@ import StepSequence from './StepSequence';
 import { motion, AnimatePresence } from 'motion/react';
 import { CONDITIONS, ConditionId, assessExercise, assessForConditions, conditionLabel } from '../utils/conditions';
 import { ConditionDisclaimer, ConditionPicker, SuitabilityBadge } from './ConditionControls';
+import { PROPS, PropId, exerciseProps, propLabel } from '../utils/props';
 
 interface ExerciseLibraryProps {
   onAddToLesson?: (exercise: Exercise) => void;
@@ -33,6 +34,8 @@ export default function ExerciseLibrary({
   const [selectedApparatus, setSelectedApparatus] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  // 'all' | 'none' (no equipment) | a specific prop
+  const [selectedProp, setSelectedProp] = useState<'all' | 'none' | PropId>('all');
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
   // The exercise dialog gets its own history entry, so the phone's back
@@ -113,7 +116,7 @@ export default function ExerciseLibrary({
     { value: 'reformer', label: 'רפורמר' },
     { value: 'cadillac', label: 'קאדילק' },
     { value: 'chair', label: 'כיסא (Chair)' },
-    { value: 'props', label: 'עזרים' }
+    { value: 'props', label: 'אביזרים' }
   ];
 
   const difficultyOptions = [
@@ -145,9 +148,11 @@ export default function ExerciseLibrary({
     const matchesDifficulty = selectedDifficulty === 'all' || ex.difficulty === selectedDifficulty;
     const matchesCategory = selectedCategory === 'all' || ex.category === selectedCategory;
 
+    const needs = exerciseProps(ex);
+    const matchesProp = selectedProp === 'all' || (selectedProp === 'none' ? needs.length === 0 : needs.includes(selectedProp));
     const matchesConditions = !conditions.length || !hideAvoid || assessForConditions(ex, conditions).status !== 'avoid';
 
-    return matchesSearch && matchesApparatus && matchesDifficulty && matchesCategory && matchesConditions;
+    return matchesSearch && matchesApparatus && matchesDifficulty && matchesCategory && matchesProp && matchesConditions;
   });
 
   return (
@@ -255,6 +260,24 @@ export default function ExerciseLibrary({
           ))}
         </div>
 
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-secondary">אביזר:</span>
+          {([['all', 'הכול'], ['none', 'בלי אביזרים'], ...PROPS.map((p) => [p.id, p.label])] as [string, string][]).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setSelectedProp(value as 'all' | 'none' | PropId)}
+              className={`px-3 py-1.5 text-xs font-medium border rounded-full transition-all ${
+                selectedProp === value
+                  ? 'bg-gold-soft/60 border-gold/50 text-gold-deep font-bold'
+                  : 'border-outline/30 text-on-surface hover:border-gold/40'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="mt-5 border-t border-outline/20 pt-5">
           <ConditionPicker value={conditions} onChange={setConditions} compact={isSelectorMode} />
           {conditions.length > 0 && (
@@ -269,13 +292,14 @@ export default function ExerciseLibrary({
       {/* Results Count */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between sm:items-center gap-3 text-sm text-on-surface-variant">
         <span>נמצאו {filteredExercises.length} תרגילים בספרייה{filteredExercises.length > 0 ? ' — אפשר לפתוח פרטים או להוסיף ישירות לשיעור' : ''}</span>
-        {searchQuery || selectedApparatus !== 'all' || selectedDifficulty !== 'all' || selectedCategory !== 'all' ? (
+        {searchQuery || selectedApparatus !== 'all' || selectedDifficulty !== 'all' || selectedCategory !== 'all' || selectedProp !== 'all' ? (
           <button 
             onClick={() => {
               setSearchQuery('');
               setSelectedApparatus('all');
               setSelectedDifficulty('all');
               setSelectedCategory('all');
+              setSelectedProp('all');
             }}
             className="text-secondary hover:underline flex items-center gap-1 text-xs"
           >
@@ -339,6 +363,11 @@ export default function ExerciseLibrary({
                           {exercise.categoryLabel}
                         </span>
                       )}
+                      {exerciseProps(exercise).map((prop) => (
+                        <span key={prop} className="text-[10px] font-semibold text-gold-deep bg-gold-soft/60 px-2 py-1">
+                          {propLabel(prop)}
+                        </span>
+                      ))}
                     </div>
                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
                       exercise.difficulty === 'beginner' ? 'bg-sage-soft text-sage-deep' :

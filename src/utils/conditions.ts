@@ -69,7 +69,7 @@ const TRAIT_PATTERNS: Record<Trait, RegExp> = {
   plankLight: /knee plank|push[ -]?up prep/i,
   twist: /twist|\bsaw\b|criss cross|corkscrew|russian|wood chop|tick tock|thread the needle/i,
   kneeling: /kneeling|child's pose|knee stretch|knees off|thigh stretch|knee plank|on knees|cat stretch|cat-cow|cat balance|bird dog|thread the needle|hip circles kneeling|balance point kneeling/i,
-  kneeLoad: /squat|step up|front splits|going up|frog|footwork|running|prancing|single leg pumping|leg press|achilles|standing splits/i,
+  kneeLoad: /squat|lunge|step up|front splits|going up|frog|footwork|running|prancing|single leg pumping|leg press|achilles|standing splits/i,
   overhead: /hang|pull[ -]?up|overhead|salute|push through bar|trapeze|airplane|spread eagle|monkey/i,
   supine: /hundred|footwork|bridge|leg springs|leg circle|feet in straps|pelvic (clock|tilt|lift)|floor angels|head nod|bicycle|walking on leg springs|knee to chest|leg beats|backstroke|angels in the snow|hamstring stretch in straps|breathing|ankle springs|double leg circles|full body stretch|scissors|frog in straps/i,
   balance: /balance|standing|step up|foam roller/i,

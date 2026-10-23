@@ -1,5 +1,9 @@
 import { Lesson } from '../types';
 import { conditionLabel, isConditionId } from './conditions';
+import { isPropId, propLabel } from './props';
+
+const propsText = (lesson: Lesson) =>
+  (lesson.props || []).filter(isPropId).map((p) => propLabel(p, lesson.dumbbellKg)).join(', ');
 
 const conditionsText = (lesson: Lesson) =>
   (lesson.conditions || []).filter(isConditionId).map(conditionLabel).join(', ');
@@ -11,6 +15,7 @@ export function lessonToWhatsappText(lesson: Lesson) {
     `פוקוס: ${lesson.targetFocus}`,
     `משך כולל: ${lesson.totalDuration} דקות`,
     conditionsText(lesson) ? `מותאם ל: ${conditionsText(lesson)}` : '',
+    propsText(lesson) ? `אביזרים: ${propsText(lesson)}` : '',
     lesson.description ? `תיאור: ${lesson.description}` : '',
     '',
     '*מבנה השיעור:*',
@@ -56,6 +61,7 @@ function buildPrintHtml(lesson: Lesson) {
           <div><strong>פוקוס:</strong> ${lesson.targetFocus}</div>
           <div><strong>משך:</strong> ${lesson.totalDuration} דקות</div>
           ${conditionsText(lesson) ? `<div><strong>מותאם ל:</strong> ${conditionsText(lesson)}</div>` : ''}
+          ${propsText(lesson) ? `<div><strong>אביזרים:</strong> ${propsText(lesson)}</div>` : ''}
           ${lesson.description ? `<div><strong>תיאור:</strong> ${lesson.description}</div>` : ''}
         </div>
         ${lesson.exercises.map((item, index) => `

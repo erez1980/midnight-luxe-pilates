@@ -5,7 +5,7 @@
 export const BRAND = {
   name: 'פילאטיס בתנועה',
   owner: 'רתם',
-  certification: 'מוסמכת להדרכת פילאטיס מזרן ופילאטיס מכשירים, דרך מרתה פילאטיס',
+  certification: 'מוסמכת להדרכת פילאטיס מזרן ופילאטיס מכשירים, מרכז מרתה פילאטיס',
 };
 
 export const CONTACT = {
@@ -61,6 +61,24 @@ export const ABOUT = {
   ],
   signature: 'רתם',
 };
+
+// Rotem's diplomas (images in public/certificates/), shown in the About section.
+export const CERTIFICATES = [
+  {
+    id: 'mat',
+    title: 'קורס הדרכת פילאטיס מזרן',
+    details: '209 שעות · פברואר 2026',
+    image: 'certificates/mat-2026.webp',
+    thumb: 'certificates/mat-2026-thumb.webp',
+  },
+  {
+    id: 'apparatus',
+    title: 'קורס הדרכת פילאטיס מכשירים',
+    details: '304 שעות · יוני 2026',
+    image: 'certificates/apparatus-2026.webp',
+    thumb: 'certificates/apparatus-2026-thumb.webp',
+  },
+];
 
 export const CLASSES = [
   {
@@ -290,7 +308,10 @@ export const UI = {
   closeMenu: 'סגירת התפריט',
   language: 'שפת האתר',
   heroBadgeTitle: 'מזרן · מכשירים',
-  heroBadgeSub: 'הסמכה — מרתה פילאטיס',
+  heroBadgeSub: 'הסמכה — מרכז מרתה פילאטיס',
+  certificatesTitle: 'תעודות הסמכה',
+  certificatesIssuer: 'מרכז מרתה פילאטיס',
+  certificateView: 'צפייה בתעודה',
   aboutEyebrow: 'על רתם',
   classesEyebrow: 'השיעורים',
   classesTitle: 'שתי דרכים לנוע. מטרה אחת.',
@@ -379,6 +400,7 @@ export const HE = {
   HERO,
   PRINCIPLES_TICKER,
   ABOUT,
+  CERTIFICATES,
   CLASSES,
   SHOW_PRICING,
   PRICING,

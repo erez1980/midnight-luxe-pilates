@@ -13,6 +13,9 @@ export interface Exercise {
   instructions: string[];
   benefits: string;
   breathing: string;
+  // Equipment the exercise needs (see utils/props.ts); derived from the
+  // English name when absent.
+  props?: string[];
   imageUrl?: string;
   videoUrl?: string;
 }
@@ -37,4 +40,7 @@ export interface Lesson {
   // Special conditions the lesson is planned for (see utils/conditions.ts),
   // e.g. ['pregnancy', 'lower-back'].
   conditions?: string[];
+  // Props the lesson was built around (max 2) and the dumbbell weight, if any.
+  props?: string[];
+  dumbbellKg?: number;
 }

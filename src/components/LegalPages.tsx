@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowRight } from 'lucide-react';
 
 const LAST_UPDATED = '21 ביולי 2026';
-const CONTACT_EMAIL = 'erez1980@gmail.com';
+const CONTACT_EMAIL = 'rotem1980.shapira@gmail.com';
 const SERVICE_NAME = 'פילאטיס בתנועה';
 
 function LegalShell({
