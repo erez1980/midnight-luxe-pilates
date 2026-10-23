@@ -14,7 +14,7 @@
 - [Home page (English)](https://rkpilatestudio.com/en/): the same in English, with a focus on collaborations with activewear brands
 - [פילאטיס לאירועים, ימי גיבוש וערבי נשים](https://rkpilatestudio.com/pilates-events/): רוצים שיעור פילאטיס באירוע? רתם, מדריכת פילאטיס מוסמכת, מגיעה לערבי נשים, ימי גיבוש, ימי הולדת ואירועי קהילה בעמק יזרעאל והסביבה — שיעור מזרן מותאם לקבוצה.
 - [שיעור פילאטיס פרטי וזוגי](https://rkpilatestudio.com/private-pilates/): שיעור פילאטיס פרטי או זוגי של 50 דקות עם רתם, מדריכת פילאטיס מזרן ומכשירים מוסמכת — בנוי סביב הגוף, הקצב והמטרות שלך. עמק יזרעאל והסביבה.
-- [פילאטיס בהריון ואחרי לידה](https://rkpilatestudio.com/pilates-pregnancy-postnatal/): פילאטיס בהריון ואחרי לידה — עקרונות התאמה למדריכות: מתי מתחילים, למה שמים לב ואיך בונים שיעור מותאם בעזרת כלי בניית השיעורים.
+- [פילאטיס בהריון ואחרי לידה: מדריך למדריכות](https://rkpilatestudio.com/pilates-pregnancy-postnatal/): פילאטיס בהריון ואחרי לידה — עקרונות התאמה למדריכות: מתי מתחילים, למה שמים לב ואיך בונים שיעור מותאם בעזרת כלי בניית השיעורים.
 - [כלי לבניית שיעורי פילאטיס](https://rkpilatestudio.com/pilates-lesson-builder/): אתר לבניית שיעורי פילאטיס בעברית, למדריכות ומדריכים: מאות תרגילי מזרן ומכשירים, בניית מערך שיעור, מצב הדרכה חי מהטלפון והתאמה לגב תחתון, הריון ואחרי לידה.
 - [ספריית תרגילי פילאטיס — Pilates exercise library](https://rkpilatestudio.com/exercises/): hundreds of mat, reformer, cadillac, chair and props exercises in Hebrew, each with steps, breathing and main muscles
 - [Lesson builder app](https://rkpilatestudio.com/app/): כלי עבודה למדריכות ומדריכי פילאטיס: מאגר תרגילים, בניית מערך שיעור והדרכה חיה — עם התאמה לפציעות ולמצבים מיוחדים כמו הריון ואחרי לידה.
