@@ -841,6 +841,8 @@ function BookingForm() {
     const url = CONTACT.whatsapp
       ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(text)}`
       : `mailto:${CONTACT.email}?subject=${encodeURIComponent(option?.title ?? UI.message.fallbackSubject)}&body=${encodeURIComponent(text)}`;
+    // Lead event: channel and service type only, none of the form's contents.
+    window.gtag?.('event', 'generate_lead', { method: CONTACT.whatsapp ? 'whatsapp' : 'email', service: type });
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
