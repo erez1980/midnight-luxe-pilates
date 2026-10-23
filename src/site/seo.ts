@@ -13,6 +13,22 @@ export const AREAS_SERVED = {
   en: ['Emek Izrael Valley', 'Afula', 'Gilboa'],
 };
 
+// The wider region the areas sit in, so "northern Israel" searches match.
+export const REGION = { he: 'צפון הארץ', en: 'Northern Israel' };
+
+export const areaServed = (lang: 'he' | 'en') =>
+  AREAS_SERVED[lang].map((name) => ({
+    '@type': 'AdministrativeArea',
+    name,
+    containedInPlace: { '@type': 'AdministrativeArea', name: REGION[lang], containedInPlace: { '@type': 'Country', name: 'Israel' } },
+  }));
+
+// Topics an assistant can match Rotem and the business to.
+const KNOWS_ABOUT = {
+  he: ['פילאטיס', 'פילאטיס מזרן', 'פילאטיס מכשירים', 'רפורמר', 'פילאטיס לאירועים', 'פילאטיס בהריון ואחרי לידה', 'בניית שיעורי פילאטיס'],
+  en: ['Pilates', 'Mat Pilates', 'Apparatus Pilates', 'Reformer Pilates', 'Pilates for events', 'Prenatal and postnatal Pilates', 'Pilates lesson planning'],
+};
+
 const id = (fragment: string) => `${SITE_ORIGIN}/#${fragment}`;
 
 export function personAndBusiness(content: SiteContent) {
@@ -30,6 +46,8 @@ export function personAndBusiness(content: SiteContent) {
       image: `${SITE_ORIGIN}/photos/rotem.webp`,
       url: lang === 'he' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}/en/`,
       knowsLanguage: ['he', 'en'],
+      knowsAbout: KNOWS_ABOUT[lang],
+      homeLocation: { '@type': 'Place', name: lang === 'he' ? 'עמק יזרעאל, צפון הארץ' : 'Emek Izrael Valley, Northern Israel' },
       sameAs,
       worksFor: { '@id': id('business') },
       hasCredential: CERTIFICATES.map((c) => ({
@@ -56,7 +74,8 @@ export function personAndBusiness(content: SiteContent) {
         addressRegion: AREAS_SERVED[lang][0],
         addressCountry: 'IL',
       },
-      areaServed: AREAS_SERVED[lang].map((name) => ({ '@type': 'AdministrativeArea', name })),
+      areaServed: areaServed(lang),
+      knowsAbout: KNOWS_ABOUT[lang],
       founder: { '@id': id('rotem') },
       employee: { '@id': id('rotem') },
       sameAs,
@@ -71,6 +90,33 @@ export function personAndBusiness(content: SiteContent) {
       },
     },
   ];
+}
+
+// The lesson builder at /app/ — a web app for Pilates instructors (Hebrew).
+export function lessonBuilderApp() {
+  return {
+    '@type': 'WebApplication',
+    '@id': `${SITE_ORIGIN}/app/#app`,
+    name: 'פילאטיס בתנועה — כלי לבניית שיעורי פילאטיס',
+    alternateName: ['Pilates lesson builder', 'בניית שיעורי פילאטיס', 'מערך שיעור פילאטיס'],
+    url: `${SITE_ORIGIN}/app/`,
+    applicationCategory: 'HealthApplication',
+    applicationSubCategory: 'Pilates lesson planning',
+    operatingSystem: 'Web, iOS, Android',
+    inLanguage: 'he-IL',
+    audience: { '@type': 'Audience', audienceType: 'מדריכות ומדריכי פילאטיס' },
+    description:
+      'כלי עבודה למדריכות ומדריכי פילאטיס: מאגר של מאות תרגילי מזרן ומכשירים, בניית מערך שיעור, מצב הדרכה חי מהטלפון, והתאמה לפציעות ולמצבים מיוחדים כמו גב תחתון, הריון ואחרי לידה.',
+    featureList: [
+      'מאגר תרגילי פילאטיס מזרן, רפורמר, קדילק, כיסא ואביזרים',
+      'בניית מערך שיעור: חימום, גוף השיעור ושחרור',
+      'סימון לכל תרגיל: מתאים, בהתאמה או להימנע, לפי מצב',
+      'מצב הדרכה חי עם טיימר',
+      'שמירה, סנכרון לענן ושיתוף שיעורים',
+    ],
+    publisher: { '@id': id('business') },
+    creator: { '@id': id('business') },
+  };
 }
 
 export function faqPage(faq: { q: string; a: string }[], url: string) {
@@ -101,6 +147,7 @@ export function homeStructuredData(content: SiteContent) {
         publisher: { '@id': id('business') },
       },
       ...personAndBusiness(content),
+      lessonBuilderApp(),
       {
         '@type': 'WebPage',
         '@id': `${url}#webpage`,

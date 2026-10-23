@@ -53,9 +53,13 @@
 
 - מרנדר מראש את דף הבית (עברית ואנגלית) ל-HTML. הדפדפן "מחייה" אותו (hydrate), כך שמנועי חיפוש ותצוגות מקדימות רואים תוכן אמיתי.
 - מזריק נתונים מובנים (JSON-LD) מתוך `src/site/seo.ts`: העסק, רתם, התעודות והשאלות הנפוצות.
-- מייצר עמודי נחיתה בעברית מתוך `src/site/static/landings.ts`: `/pilates-events/`, `/private-pilates/` ו-`/pilates-pregnancy-postnatal/`.
+- מייצר עמודי נחיתה בעברית מתוך `src/site/static/landings.ts`: `/pilates-events/`, `/private-pilates/`, `/pilates-pregnancy-postnatal/` ו-`/pilates-lesson-builder/`.
 - מייצר ספריית תרגילים ציבורית: `/exercises/`, ועמוד לכל תרגיל מתוך `src/data.ts`.
 - מייצר את `sitemap.xml` ואת `404.html`.
+- מייצר את `llms.txt` מתוך `src/site/llms.ts`: סיכום של האתר בשביל צ׳אטבוטים וחיפוש AI (מי רתם, אזורי שירות, שירותים, הכלי והשאלות הנפוצות בשתי השפות).
+- מוסיף נתונים מובנים לכלי בניית השיעורים (`/app/`).
+
+`public/robots.txt` מתיר במפורש לסורקים של שירותי AI (GPTBot, ClaudeBot, PerplexityBot, Google-Extended ועוד).
 
 ## קישורים ישנים
 

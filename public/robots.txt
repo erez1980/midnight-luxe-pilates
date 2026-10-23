@@ -7,4 +7,27 @@ Disallow: /app/*?s=
 Disallow: /app/*?sharedLesson=
 Disallow: /*?code=
 
+# AI assistants and AI search are welcome, so the site can be recommended in
+# their answers. A crawler named in its own group ignores the `*` group above,
+# so the same rules are repeated here.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Bingbot
+User-agent: meta-externalagent
+User-agent: CCBot
+Allow: /
+Disallow: /app/*?s=
+Disallow: /app/*?sharedLesson=
+Disallow: /*?code=
+
+# A short guide to the site for language models: https://rkpilatestudio.com/llms.txt
 Sitemap: https://rkpilatestudio.com/sitemap.xml
