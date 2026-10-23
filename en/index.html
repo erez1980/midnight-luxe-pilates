@@ -32,6 +32,14 @@
     <!-- JSON-LD and the pre-rendered page are injected at build time (scripts/prerender.mjs). -->
     <!--structured-data-->
     <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z43V0E6JK6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z43V0E6JK6');
+    </script>
   </head>
   <body>
     <div id="root"></div>
