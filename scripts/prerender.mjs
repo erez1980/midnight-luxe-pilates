@@ -91,6 +91,7 @@ function staticDocument({ root, url, title, description, html, jsonLd, robots = 
       gtag('js', new Date());
       gtag('config', 'G-Z43V0E6JK6');
     </script>
+    <script src="${root}analytics.js" defer></script>
   </head>
   <body>
     <div id="root">${html}</div>

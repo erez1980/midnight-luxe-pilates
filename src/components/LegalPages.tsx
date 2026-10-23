@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 
-const LAST_UPDATED = '21 ביולי 2026';
+const LAST_UPDATED = '23 באוקטובר 2026';
 const CONTACT_EMAIL = 'rotem1980.shapira@gmail.com';
 const SERVICE_NAME = 'פילאטיס בתנועה';
 
@@ -62,6 +62,7 @@ export function PrivacyPolicy({ onBack }: { onBack: () => void }) {
           <li><strong>מערכי שיעור ותבניות</strong> — השיעורים, התרגילים והדגשים שנוצרים ונשמרים בעת השימוש ב-builder.</li>
           <li><strong>מידע מקומי במכשיר</strong> — שיעורים וטיוטות נשמרים גם ב-localStorage של הדפדפן, כדי שהאתר יעבוד גם במצב אורח (ללא התחברות) וללא תלות ברשת.</li>
           <li><strong>קישורי שיתוף</strong> — כשנוצר קישור שיתוף לשיעור, תוכן השיעור נשמר לצורך הצגתו למי שמחזיק בקישור.</li>
+          <li><strong>נתוני שימוש סטטיסטיים</strong> — האתר משתמש ב-Google Analytics כדי להבין אילו עמודים נצפים, מאיזה סוג מכשיר ומאיזה אזור כללי, וכמה פניות יוצאות מהאתר (למשל לחיצה על וואטסאפ או שליחת טופס הזמנה). נאסף מידע כללי בלבד, באמצעות עוגיות. תוכן ההודעות, שמות ופרטי קשר שמוזנים בטפסים אינם נשלחים ל-Google Analytics.</li>
         </ul>
         <p>האתר אינו אוסף פרטי תשלום, מכיוון שאין כרגע תשלום עבור השימוש בשירות.</p>
       </section>
@@ -90,7 +91,11 @@ export function PrivacyPolicy({ onBack }: { onBack: () => void }) {
       <section>
         <h2>5. שירותי צד שלישי</h2>
         <p>
-          השירות מסתמך על <strong>Google</strong> (לצורך התחברות) ועל <strong>Supabase</strong> (לצורך אחסון וסנכרון). לשני הספקים מדיניות פרטיות עצמאית משלהם החלה על עיבוד המידע אצלם.
+          השירות מסתמך על <strong>Google</strong> (לצורך התחברות), על <strong>Supabase</strong> (לצורך אחסון וסנכרון) ועל <strong>Google Analytics</strong> (לצורך סטטיסטיקת שימוש). לספקים אלה מדיניות פרטיות עצמאית משלהם החלה על עיבוד המידע אצלם.
+        </p>
+        <p>
+          ניתן לחסום את איסוף הנתונים של Google Analytics באמצעות הגדרות העוגיות בדפדפן, או באמצעות{' '}
+          <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">התוסף של Google לביטול Google Analytics</a>.
         </p>
       </section>
 
@@ -104,7 +109,7 @@ export function PrivacyPolicy({ onBack }: { onBack: () => void }) {
       <section>
         <h2>7. אבטחת מידע</h2>
         <p>
-          ננקטים אמצעי אבטחה סבירים (הצפרת תעבורה, הרשאות גישה מבוססות משתמש) כדי להגן על המידע, אך כמו בכל שירות מקוון, לא ניתן להבטיח הגנה מוחלטת מפני כל תרחיש.
+          ננקטים אמצעי אבטחה סבירים (הצפנת תעבורה, הרשאות גישה מבוססות משתמש) כדי להגן על המידע, אך כמו בכל שירות מקוון, לא ניתן להבטיח הגנה מוחלטת מפני כל תרחיש.
         </p>
       </section>
 
