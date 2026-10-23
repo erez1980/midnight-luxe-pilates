@@ -9,8 +9,8 @@ export const SITE_ORIGIN = 'https://rkpilatestudio.com';
 // Rotem is a freelancer who comes to the client — a service-area business,
 // so no street address (Google: hide the address of a service-area business).
 export const AREAS_SERVED = {
-  he: ['עמק יזרעאל', 'עפולה', 'הגלבוע'],
-  en: ['Emek Izrael Valley', 'Afula', 'Gilboa'],
+  he: ['עמק יזרעאל', 'עפולה', 'הגלבוע', 'נצרת', 'בית שאן', 'מגדל העמק', 'רמת ישי', 'קריית טבעון', 'יקנעם'],
+  en: ['Emek Izrael Valley', 'Afula', 'Gilboa', 'Nazareth', 'Beit She\'an', 'Migdal HaEmek', 'Ramat Yishai', 'Kiryat Tiv\'on', 'Yokneam'],
 };
 
 // The wider region the areas sit in, so "northern Israel" searches match.

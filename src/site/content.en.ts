@@ -159,7 +159,7 @@ export const EN: SiteContent = {
     },
     {
       q: 'Can I book you for a class or an event in northern Israel?',
-      a: 'Yes. I teach private and pair classes, events (women’s evenings, team days, birthdays) and studio classes, regular or as a substitute, across the Emek Izrael Valley, Afula and Gilboa. For somewhere further north, message me and we’ll see what works:',
+      a: 'Yes. I teach private and pair classes, events (women’s evenings, team days, birthdays) and studio classes, regular or as a substitute, across the Emek Izrael Valley, Afula, Gilboa, Nazareth, Beit She’an and the towns on the way to Haifa: Migdal HaEmek, Ramat Yishai, Kiryat Tiv’on and Yokneam. For somewhere else in the north, message me and we’ll see what works:',
       contact: true,
     },
     {
