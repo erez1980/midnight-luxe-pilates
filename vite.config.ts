@@ -31,10 +31,13 @@ function appSharedPublicAssets(): Plugin {
   };
 }
 
-export default defineConfig(() => {
+export default defineConfig(({isSsrBuild}) => {
   return {
     base: './',
-    plugins: [react(), tailwindcss(), appSharedPublicAssets()],
+    // The SSR build (src/site/entry-server.tsx, used by scripts/prerender.mjs)
+    // only needs the JS module, not another copy of public/.
+    publicDir: isSsrBuild ? false : 'public',
+    plugins: [react(), tailwindcss(), ...(isSsrBuild ? [] : [appSharedPublicAssets()])],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

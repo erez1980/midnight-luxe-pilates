@@ -454,7 +454,7 @@ export default function App() {
             className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
           >
             <LogoMark theme={theme} className="w-9 h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105" />
-            <h2 className="serif-text text-base sm:text-xl font-bold tracking-wide text-ink select-none">פילאטיס בתנועה</h2>
+            <span className="serif-text text-base sm:text-xl font-bold tracking-wide text-ink select-none">פילאטיס בתנועה</span>
           </button>
 
           {/* Desktop Navigation */}

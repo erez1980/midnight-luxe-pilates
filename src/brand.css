@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..700&family=Heebo:wght@300..700&display=swap");
+/* Fonts (Frank Ruhl Libre + Heebo) are linked from each page's <head>, so the
+   browser fetches them in parallel with the CSS instead of after it. */
 
 /* Shared studio identity for the marketing site and application. */
 @theme {

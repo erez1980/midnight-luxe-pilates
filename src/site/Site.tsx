@@ -451,15 +451,22 @@ function Hero() {
       <div className="relative mx-auto grid min-h-[calc(100svh-72px)] max-w-[1240px] items-center gap-12 px-5 py-14 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:py-20">
         <div>
           <Reveal>
-            <Eyebrow>{HERO.eyebrow}</Eyebrow>
-          </Reveal>
-          <Reveal delay={120}>
-            <h1 className="mt-6 font-display text-[clamp(3.2rem,9vw,6.5rem)] font-light leading-[0.98] tracking-tight text-ink">
-              {HERO.title.map((line, i) => (
-                <span key={line} className={`block ${i === HERO.title.length - 1 ? 'text-sage' : ''}`}>
-                  {line}
-                </span>
-              ))}
+            {/* The eyebrow is part of the H1 so the page heading says who, what
+                and where; the big lines are separated by real spaces so
+                crawlers don't read them as one word. */}
+            <h1>
+              <span className="flex items-center gap-3 text-sm font-medium text-gold-deep">
+                <span className="h-px w-8 bg-gold" aria-hidden="true" />
+                {HERO.eyebrow}
+              </span>
+              <span className="mt-6 block font-display text-[clamp(3.2rem,9vw,6.5rem)] font-light leading-[0.98] tracking-tight text-ink">
+                {HERO.title.map((line, i) => (
+                  <React.Fragment key={line}>
+                    {i > 0 && ' '}
+                    <span className={`block ${i === HERO.title.length - 1 ? 'text-sage' : ''}`}>{line}</span>
+                  </React.Fragment>
+                ))}
+              </span>
             </h1>
           </Reveal>
           <Reveal delay={240}>
@@ -574,7 +581,7 @@ function Certificates() {
                 onClick={() => setOpen(i)}
                 className="group flex w-full items-center gap-4 rounded-2xl border border-line bg-white/60 p-3 text-start transition-colors hover:border-gold/60"
               >
-                <img src={`${ASSET}${c.thumb}`} alt="" loading="lazy" className="h-16 w-24 shrink-0 rounded-lg object-cover ring-1 ring-line" />
+                <img src={`${ASSET}${c.thumb}`} alt={`${UI.certificateAlt}: ${c.title} · ${UI.certificatesIssuer}`} loading="lazy" width={96} height={64} className="h-16 w-24 shrink-0 rounded-lg object-cover ring-1 ring-line" />
                 <span className="min-w-0">
                   <span className="block text-sm font-medium text-ink">{c.title}</span>
                   <span className="mt-0.5 block text-xs text-muted">{c.details}</span>
@@ -598,7 +605,7 @@ function About() {
     <section id="about" className="relative py-24 md:py-36">
       <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-5 md:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-24">
         <Reveal className="relative mx-auto w-full max-w-[400px] lg:order-none">
-          <ArchPhoto src={PHOTOS.about} alt={BRAND.owner} tone="dark" className="aspect-[4/5] w-full" />
+          <ArchPhoto src={PHOTOS.about} alt={BRAND.photoAlt} tone="dark" className="aspect-[4/5] w-full" />
           <div className="absolute -bottom-5 -end-5 hidden h-28 w-28 rounded-full border border-gold/60 md:block" aria-hidden="true" />
         </Reveal>
 
@@ -691,7 +698,7 @@ function Classes() {
         <div className="mt-20 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <Reveal>
             <h3 className="font-display text-3xl font-light leading-snug md:text-4xl">
-              {UI.audienceTitle}
+              {UI.audienceTitle}{' '}
               <span className="mt-2 block">{UI.audienceSub}</span>
             </h3>
           </Reveal>
@@ -894,7 +901,7 @@ function BookingForm() {
 }
 
 function Booking() {
-  const { BOOKING, UI } = useSite();
+  const { BOOKING, UI, ASSET } = useSite();
   return (
     <section id="book" className="py-24 md:py-36">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
@@ -929,6 +936,12 @@ function Booking() {
                       </li>
                     ))}
                   </ul>
+                  {o.more && (
+                    <a href={`${ASSET}${o.more}`} className="mt-6 inline-flex items-center gap-1.5 self-start py-1 text-sm font-medium text-sage underline decoration-gold/50 underline-offset-4 hover:decoration-sage">
+                      {UI.bookingMore}
+                      <ArrowUpLeft className="h-3.5 w-3.5 ltr:-scale-x-100" aria-hidden="true" />
+                    </a>
+                  )}
                 </div>
               </Reveal>
             );
@@ -958,7 +971,7 @@ const TOOL_PREVIEW = [
 ] as const;
 
 function Tool() {
-  const { TOOL, UI, APP_URL } = useSite();
+  const { TOOL, UI, APP_URL, ASSET } = useSite();
   return (
     <section id="tool" className="bg-sand py-24 md:py-36">
       <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-5 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
@@ -994,6 +1007,9 @@ function Tool() {
             >
               {TOOL.cta}
               <ArrowUpLeft className="h-4 w-4 ltr:-scale-x-100" aria-hidden="true" />
+            </a>
+            <a href={`${ASSET}exercises/`} className="mt-10 ms-2 inline-flex items-center px-4 py-3.5 text-sage underline decoration-gold/50 underline-offset-4 hover:decoration-sage">
+              {UI.exerciseLibraryLink}
             </a>
           </Reveal>
         </div>
@@ -1162,7 +1178,7 @@ function Method() {
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 font-display text-4xl font-light leading-tight md:text-6xl">
-              {UI.methodTitle[0]}
+              {UI.methodTitle[0]}{' '}
               <span className="block">{UI.methodTitle[1]}</span>
             </h2>
           </Reveal>
@@ -1317,7 +1333,7 @@ function Contact() {
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-10 font-display text-4xl font-light leading-tight md:text-7xl">
-              {UI.contactTitle[0]}
+              {UI.contactTitle[0]}{' '}
               <span className="block text-gold">{UI.contactTitle[1]}</span>
             </h2>
           </Reveal>
@@ -1367,7 +1383,7 @@ function Contact() {
 }
 
 function Footer() {
-  const { BRAND, CONTACT, NAV_LINKS, APP_PROMO, UI, APP_URL, EMBLEM_LIGHT } = useSite();
+  const { BRAND, CONTACT, NAV_LINKS, FOOTER_PAGES, APP_PROMO, UI, APP_URL, EMBLEM_LIGHT, ASSET } = useSite();
   return (
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-[1240px] flex-col gap-8 px-5 py-12 pb-28 md:flex-row md:items-center md:justify-between md:px-8 md:pb-12">
@@ -1375,7 +1391,7 @@ function Footer() {
           <img src={EMBLEM_LIGHT} alt="" className="h-10 w-auto" />
           <span className="font-display text-xl text-gold-deep">{BRAND.name}</span>
         </a>
-        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted" aria-label={UI.footerNav}>
+        <nav className="flex flex-wrap gap-x-6 text-sm text-muted [&>a]:py-1.5" aria-label={UI.footerNav}>
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} className="hover:text-ink">
               {link.label}
@@ -1384,8 +1400,13 @@ function Footer() {
           <a href={APP_URL} className="hover:text-ink">
             {APP_PROMO.navigationLabel}
           </a>
+          {FOOTER_PAGES.map((page) => (
+            <a key={page.href} href={`${ASSET}${page.href}`} className="hover:text-ink">
+              {page.label}
+            </a>
+          ))}
         </nav>
-        <div className="flex flex-col gap-2 text-sm text-muted md:items-end">
+        <div className="flex flex-col gap-1 text-sm text-muted md:items-end [&_a]:py-1.5">
           <div className="flex gap-4">
             <a href={`${APP_URL}?page=privacy`} className="hover:text-ink">
               {UI.privacy}

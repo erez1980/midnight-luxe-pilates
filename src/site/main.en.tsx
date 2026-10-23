@@ -1,5 +1,5 @@
 import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 import Site from './Site';
 import { EN } from './content.en';
 import './site.css';
@@ -9,8 +9,13 @@ import './site.css';
 // browser normalizes '/../' to '/'.
 const root = `${import.meta.env.BASE_URL}../`;
 
-createRoot(document.getElementById('root')!).render(
+// The production build pre-renders the page into #root (scripts/prerender.mjs);
+// in dev the root is empty and React renders from scratch.
+const container = document.getElementById('root')!;
+const page = (
   <StrictMode>
     <Site content={EN} root={root} altUrl={root} />
-  </StrictMode>,
+  </StrictMode>
 );
+if (container.hasChildNodes()) hydrateRoot(container, page);
+else createRoot(container).render(page);

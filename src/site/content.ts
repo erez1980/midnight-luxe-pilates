@@ -5,6 +5,9 @@
 export const BRAND = {
   name: 'פילאטיס בתנועה',
   owner: 'רתם',
+  // Full name for search engines (structured data, image alt) — not shown.
+  fullName: 'רתם שפירא',
+  photoAlt: 'רתם שפירא, מדריכת פילאטיס מזרן ומכשירים',
   certification: 'מוסמכת להדרכת פילאטיס מזרן ופילאטיס מכשירים, מרכז מרתה פילאטיס',
 };
 
@@ -183,6 +186,8 @@ export const BOOKING = {
       title: 'שיעור לאירוע',
       text: 'ערב נשים, יום גיבוש, יום הולדת או כל מפגש שרוצים להכניס אליו רגע של תנועה ונשימה.',
       points: ['שיעור פילאטיס מזרן כחלק מהאירוע', 'מותאם לקבוצה ולרמת המשתתפים'],
+      // Optional link to a dedicated page (relative to the site root).
+      more: 'pilates-events/',
     },
     {
       id: 'studio',
@@ -195,6 +200,7 @@ export const BOOKING = {
       title: 'שיעור פרטי או זוגי',
       text: 'שיעור אישי, לבד או בזוג, שבנוי סביב הגוף, הקצב והמטרות שלכם.',
       points: ['50 דקות', 'במקום שנוח לכם או במקום מוסכם'],
+      more: 'private-pilates/',
     },
   ],
   form: {
@@ -289,6 +295,15 @@ export const FAQ: { q: string; a: string; contact?: boolean }[] = [
   },
 ];
 
+// Extra pages (generated at build time by scripts/prerender.mjs), linked
+// from the footer. Paths are relative to the site root.
+export const FOOTER_PAGES: { href: string; label: string }[] = [
+  { href: 'pilates-events/', label: 'פילאטיס לאירועים' },
+  { href: 'private-pilates/', label: 'שיעור פרטי וזוגי' },
+  { href: 'pilates-pregnancy-postnatal/', label: 'פילאטיס בהריון ואחרי לידה' },
+  { href: 'exercises/', label: 'ספריית תרגילים' },
+];
+
 export const APP_PROMO = {
   title: 'כלים לבניית מערכי שיעור',
   text: 'מאגר של מאות תרגילים, בניית מערכי שיעור ומצב הדרכה חי — כלי עבודה למדריכות ומדריכי פילאטיס.',
@@ -312,6 +327,9 @@ export const UI = {
   certificatesTitle: 'תעודות הסמכה',
   certificatesIssuer: 'מרכז מרתה פילאטיס',
   certificateView: 'צפייה בתעודה',
+  certificateAlt: 'תעודת הסמכה',
+  bookingMore: 'לפרטים נוספים',
+  exerciseLibraryLink: 'לספריית התרגילים',
   aboutEyebrow: 'על רתם',
   classesEyebrow: 'השיעורים',
   classesTitle: 'שתי דרכים לנוע. מטרה אחת.',
@@ -412,6 +430,7 @@ export const HE = {
   LOCATIONS,
   TESTIMONIALS,
   FAQ,
+  FOOTER_PAGES,
   APP_PROMO,
   UI,
 };

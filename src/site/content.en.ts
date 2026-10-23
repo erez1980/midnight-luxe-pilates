@@ -11,6 +11,8 @@ export const EN: SiteContent = {
   BRAND: {
     name: 'Pilates in Motion',
     owner: 'Rotem',
+    fullName: 'Rotem Shapira',
+    photoAlt: 'Rotem Shapira, mat and apparatus Pilates instructor',
     certification: 'Certified mat & apparatus Pilates instructor · Martha Pilates Center',
   },
 
@@ -174,6 +176,8 @@ export const EN: SiteContent = {
     },
   ],
 
+  FOOTER_PAGES: [{ href: 'exercises/', label: 'Exercise library (HE)' }],
+
   APP_PROMO: {
     ...HE.APP_PROMO,
     title: 'Lesson-planning tools',
@@ -195,6 +199,9 @@ export const EN: SiteContent = {
     certificatesTitle: 'Certifications',
     certificatesIssuer: 'Martha Pilates Center',
     certificateView: 'View certificate',
+    certificateAlt: 'Certificate',
+    bookingMore: 'Learn more',
+    exerciseLibraryLink: 'Browse the exercise library (HE)',
     aboutEyebrow: 'About Rotem',
     classesEyebrow: 'Classes',
     classesTitle: 'Two ways to move. One goal.',
