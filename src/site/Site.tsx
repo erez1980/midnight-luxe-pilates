@@ -870,7 +870,10 @@ type DetailField = 'date' | 'place' | 'participants';
 function BookingForm({ type, onType }: { type: string; onType: (id: string) => void }) {
   const { CONTACT, BOOKING, UI } = useSite();
   const [name, setName] = useState('');
-  const [values, setValues] = useState<Record<DetailField, string>>({ date: '', place: '', participants: '' });
+  // Kept per booking type: the same field asks a different question in each
+  // type, so an answer must not carry over when the visitor switches.
+  const [valuesByType, setValuesByType] = useState<Record<string, Partial<Record<DetailField, string>>>>({});
+  const values = valuesByType[type] ?? {};
   const [notes, setNotes] = useState('');
 
   const option = BOOKING.options.find((o) => o.id === type) ?? BOOKING.options[0];
@@ -935,8 +938,8 @@ function BookingForm({ type, onType }: { type: string; onType: (id: string) => v
             {f.label}
             <input
               className={field}
-              value={values[f.id]}
-              onChange={(e) => setValues((v) => ({ ...v, [f.id]: e.target.value }))}
+              value={values[f.id] ?? ''}
+              onChange={(e) => setValuesByType((all) => ({ ...all, [type]: { ...all[type], [f.id]: e.target.value } }))}
               placeholder={f.placeholder}
               inputMode={f.id === 'participants' && !option.fields ? 'numeric' : undefined}
             />
