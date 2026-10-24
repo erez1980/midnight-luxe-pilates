@@ -29,7 +29,7 @@ export const CONTACT = {
 // Paths are relative to the site root (public/). null = elegant emblem
 // placeholder instead of a photo. Portrait ~4:5 works best for both.
 export const PHOTOS: { hero: string | null; about: string | null } = {
-  hero: null,
+  hero: 'photos/rotem.webp',
   about: 'photos/rotem.webp',
 };
 
@@ -179,7 +179,29 @@ export const PRICING: { title: string; intro: string; plans: Plan[] } = {
 // "Book me" — Rotem is a freelancer who comes to wherever the class is.
 // Each option becomes a card and a choice in the inquiry form; the form
 // composes a WhatsApp message so the inquiry arrives already organized.
-export const BOOKING = {
+export type BookingField = { label: string; placeholder: string };
+
+// One booking type: a card in the booking section and a choice in the form.
+// `fields` lists the form fields this type asks for, with their own labels; a
+// field left out is hidden. Without `fields` the form shows UI.form's defaults.
+export type BookingOption = {
+  id: string;
+  title: string;
+  text: string;
+  points: string[];
+  // Optional link to a dedicated page (relative to the site root).
+  more?: string;
+  // Card button that picks this type in the form.
+  cta?: string;
+  fields?: { date?: BookingField; place?: BookingField; participants?: BookingField; notes?: BookingField };
+};
+
+export const BOOKING: {
+  title: string;
+  intro: string;
+  options: BookingOption[];
+  form: { title: string; note: string; submit: string };
+} = {
   title: 'מזמינים אותי. אני מגיעה.',
   intro:
     'אני מדריכה עצמאית ומגיעה לאן שצריך באזור עמק יזרעאל והסביבה — לאירוע, לסטודיו או אליכם. ספרו לי מה אתם מתכננים, ונבנה יחד את השיעור המתאים.',
@@ -189,14 +211,26 @@ export const BOOKING = {
       title: 'שיעור לאירוע',
       text: 'ערב נשים, יום גיבוש, יום הולדת או כל מפגש שרוצים להכניס אליו רגע של תנועה ונשימה.',
       points: ['שיעור פילאטיס מזרן כחלק מהאירוע', 'מותאם לקבוצה ולרמת המשתתפים'],
-      // Optional link to a dedicated page (relative to the site root).
       more: 'pilates-events/',
+      cta: 'לתיאום אירוע',
+      fields: {
+        date: { label: 'תאריך משוער', placeholder: 'למשל: חמישי, 20.11 בערב' },
+        place: { label: 'מקום', placeholder: 'יישוב / אולם / בית פרטי' },
+        participants: { label: 'מספר משתתפים', placeholder: 'למשל: 12' },
+        notes: { label: 'עוד משהו שחשוב לדעת?', placeholder: 'אופי האירוע, רמת המשתתפים, פציעות, הריון…' },
+      },
     },
     {
       id: 'studio',
       title: 'הדרכה בסטודיו',
       text: 'לסטודיואים שמחפשים מדריכה לשיעורים קבועים או להחלפות — מזרן ומכשירים.',
       points: ['שיעורים קבועים או החלפות', 'הסמכה במזרן ובמכשירים'],
+      cta: 'לתיאום הדרכה',
+      fields: {
+        date: { label: 'מה צריך?', placeholder: 'שיעור קבוע / החלפה בתאריך מסוים' },
+        place: { label: 'שם הסטודיו ויישוב', placeholder: 'שם הסטודיו, יישוב' },
+        notes: { label: 'עוד פרטים', placeholder: 'מזרן או מכשירים, ימים ושעות…' },
+      },
     },
     {
       id: 'private',
@@ -204,6 +238,13 @@ export const BOOKING = {
       text: 'שיעור אישי, לבד או בזוג, שבנוי סביב הגוף, הקצב והמטרות שלכם.',
       points: ['50 דקות', 'במקום שנוח לכם או במקום מוסכם'],
       more: 'private-pilates/',
+      cta: 'לתיאום שיעור',
+      fields: {
+        participants: { label: 'לבד או בזוג?', placeholder: 'לבד / בזוג' },
+        place: { label: 'יישוב', placeholder: 'למשל: עפולה' },
+        date: { label: 'מתי נוח לכם?', placeholder: 'למשל: ימי שני בבוקר' },
+        notes: { label: 'מטרות או מגבלות', placeholder: 'מה תרצו לחזק, פציעות, הריון…' },
+      },
     },
   ],
   form: {
@@ -262,7 +303,8 @@ export const LOCATIONS = {
 export const TESTIMONIALS: { quote: string; name: string }[] = [];
 
 // `contact: true` shows WhatsApp / email / Instagram links under the answer.
-export const FAQ: { q: string; a: string; contact?: boolean }[] = [
+// `audience: 'pros'` files the question under studios and instructors.
+export const FAQ: { q: string; a: string; contact?: boolean; audience?: 'pros' }[] = [
   {
     q: 'אין לי שום ניסיון בפילאטיס. זה מתאים לי?',
     a: 'בהחלט. כל שיעור מותאם לרמה של מי שנמצא בו, ואני מלווה צעד אחרי צעד — בלי לחץ ובלי השוואות.',
@@ -296,6 +338,7 @@ export const FAQ: { q: string; a: string; contact?: boolean }[] = [
     q: 'לסטודיו שלנו דרושה מדריכת פילאטיס. את מחליפה או מלמדת שיעורים קבועים?',
     a: 'כן. אני מוסמכת גם למזרן וגם למכשירים, ומלמדת בסטודיואים בעמק יזרעאל והסביבה, בשיעורים קבועים או בהחלפות. ספרו לי מה אתם צריכים:',
     contact: true,
+    audience: 'pros',
   },
   {
     q: 'איפה מתקיימים השיעורים?',
@@ -303,10 +346,12 @@ export const FAQ: { q: string; a: string; contact?: boolean }[] = [
   },
   {
     q: 'למי מיועד כלי בניית השיעורים?',
+    audience: 'pros',
     a: 'למדריכות ומדריכי פילאטיס שרוצים לבנות שיעורים מסודרים, להתאים אותם למתאמנים עם פציעות או מצבים מיוחדים, ולהעביר אותם בקלות. הכלי הוא עזר מקצועי ואינו תחליף לייעוץ רפואי.',
   },
   {
     q: 'יש אתר לבניית שיעורי פילאטיס בעברית?',
+    audience: 'pros',
     a: 'כן — כלי בניית השיעורים של פילאטיס בתנועה, בכתובת rkpilatestudio.com/app. יש בו מאגר של מאות תרגילי מזרן ומכשירים עם הנחיות ונשימה, בניית מערך שיעור מחימום ועד שחרור, מצב הדרכה חי מהטלפון, והתאמה לגב תחתון, להריון ולאחרי לידה.',
   },
 ];
@@ -405,6 +450,7 @@ export const UI = {
   faqNotFound: 'לא מצאתם תשובה?',
   faqWriteMe: 'כתבו לי',
   faqHappyToHelp: '— אשמח לעזור.',
+  faqGroups: { clients: 'למתאמנות ולמתאמנים', pros: 'לסטודיואים ולמדריכות' },
   instagram: 'אינסטגרם',
   facebook: 'פייסבוק',
   contactTitle: ['הצעד הראשון', 'הוא הכי פשוט.'],

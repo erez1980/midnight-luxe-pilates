@@ -80,7 +80,9 @@ function useReveal<T extends HTMLElement>() {
           }
         });
       },
-      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      // Fires just before the element scrolls in, so fast scrolling never
+      // lands on a blank stretch waiting for content to fade up.
+      { threshold: 0, rootMargin: '0px 0px 10% 0px' }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -243,6 +245,24 @@ function LangSwitch({ compact = false }: { compact?: boolean }) {
     { id: 'he' as const, label: 'עב', name: 'עברית', Flag: FlagIL },
     { id: 'en' as const, label: 'EN', name: 'English', Flag: FlagUS },
   ];
+  if (compact) {
+    // Phones get one button that goes to the other language, with a full
+    // 44px tap target and a text label next to the flag.
+    const other = options.find((o) => o.id !== lang) ?? options[1];
+    return (
+      <button
+        type="button"
+        lang={other.id}
+        aria-label={other.name}
+        title={other.name}
+        onClick={() => choose(other.id)}
+        className="flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-line bg-ivory/70 px-3 text-xs font-medium text-ink"
+      >
+        <other.Flag />
+        <span>{other.label}</span>
+      </button>
+    );
+  }
   return (
     <div role="group" aria-label={UI.language} className="inline-flex shrink-0 rounded-full border border-line bg-ivory/70 p-0.5">
       {options.map(({ id, label, name, Flag }) => (
@@ -259,7 +279,7 @@ function LangSwitch({ compact = false }: { compact?: boolean }) {
           }`}
         >
           <Flag />
-          {!compact && <span>{label}</span>}
+          <span>{label}</span>
         </button>
       ))}
     </div>
@@ -304,7 +324,7 @@ function ContactChannels({
             href={item.href}
             target={item.href.startsWith('mailto:') ? undefined : '_blank'}
             rel="noopener noreferrer"
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${pill}`}
+            className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${pill}`}
           >
             {item.icon}
             <span dir={item.ltr ? 'ltr' : undefined}>{item.label}</span>
@@ -366,10 +386,10 @@ function Header() {
         scrolled || open ? 'border-b border-line/80 bg-ivory/85 backdrop-blur-xl' : 'border-b border-transparent'
       }`}
     >
-      <div className="mx-auto flex h-[72px] max-w-[1240px] items-center justify-between gap-6 px-5 md:px-8">
+      <div className="mx-auto flex h-[72px] max-w-[1240px] items-center justify-between gap-3 px-5 sm:gap-6 md:px-8">
         <a href="#top" className="flex items-center gap-3" aria-label={`${BRAND.name} — ${UI.toTop}`}>
           <img src={EMBLEM_LIGHT} alt="" className="h-9 w-auto" />
-          <span className="whitespace-nowrap font-display text-xl font-medium text-gold-deep">{BRAND.name}</span>
+          <span className="whitespace-nowrap font-display text-xl font-medium text-gold-deep max-[359px]:text-base">{BRAND.name}</span>
         </a>
 
         <nav className="hidden items-center gap-7 xl:flex" aria-label={UI.mainNav}>
@@ -439,7 +459,7 @@ function Header() {
 }
 
 function Hero() {
-  const { BRAND, PHOTOS, HERO, UI, APP_URL } = useSite();
+  const { BRAND, PHOTOS, HERO, UI, APP_URL, ASSET } = useSite();
   return (
     <section id="top" className="relative overflow-hidden pt-[72px]">
       {/* Soft ambient light — the "breathing" studio feel. */}
@@ -448,7 +468,7 @@ function Hero() {
         <div className="breathe absolute bottom-[-20%] right-[-8%] h-[460px] w-[460px] rounded-full bg-gold-soft/40 blur-3xl [animation-delay:-5s]" />
       </div>
 
-      <div className="relative mx-auto grid min-h-[calc(100svh-72px)] max-w-[1240px] items-center gap-12 px-5 py-14 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:py-20">
+      <div className="relative mx-auto grid max-w-[1240px] items-center gap-12 px-5 pb-12 pt-8 md:px-8 md:py-14 lg:min-h-[calc(100svh-72px)] lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:py-20">
         <div>
           {HERO.instructorPill && (
             <Reveal>
@@ -470,7 +490,17 @@ function Hero() {
                 don't glue its last word to the heading's first. The big lines
                 are separated by real spaces for the same reason. */}
             <p className="flex items-center gap-3 text-sm font-medium text-gold-deep">
-              <span className="h-px w-8 bg-gold" aria-hidden="true" />
+              {/* Phones skip the big arch photo, so Rotem's face sits here instead. */}
+              {PHOTOS.hero && (
+                <img
+                  src={`${ASSET}${PHOTOS.hero}`}
+                  alt=""
+                  width={56}
+                  height={56}
+                  className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-gold/50 ring-offset-2 ring-offset-ivory lg:hidden"
+                />
+              )}
+              <span className={`h-px w-8 bg-gold ${PHOTOS.hero ? 'hidden lg:block' : ''}`} aria-hidden="true" />
               {HERO.eyebrow}
             </p>
             <h1 className="mt-6 font-display text-[clamp(3.2rem,9vw,6.5rem)] font-light leading-[0.98] tracking-tight text-ink">
@@ -505,7 +535,7 @@ function Hero() {
             </div>
           </Reveal>
           <Reveal delay={480}>
-            <ul className="mt-12 flex flex-wrap gap-x-6 gap-y-3 border-t border-line pt-6 text-sm text-muted">
+            <ul className="mt-10 flex flex-wrap gap-x-6 gap-y-3 border-t border-line pt-6 text-sm text-muted md:mt-12">
               {HERO.highlights.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden="true" />
@@ -516,7 +546,7 @@ function Hero() {
           </Reveal>
         </div>
 
-        <Reveal delay={200} className="relative mx-auto w-full max-w-[440px]">
+        <Reveal delay={200} className={`relative mx-auto w-full max-w-[440px] ${PHOTOS.hero ? 'hidden lg:block' : ''}`}>
           {/* Offset gold outline behind the arch, drawn in on load. */}
           <svg
             className="absolute -left-5 -top-5 h-full w-full text-gold/70"
@@ -615,11 +645,15 @@ function Certificates() {
 
 function About() {
   const { BRAND, PHOTOS, ABOUT, UI } = useSite();
+  // When the hero already shows this photo (desktop), the about arch shows
+  // the emblem instead; phones only see the photo here.
+  const sameAsHero = PHOTOS.hero !== null && PHOTOS.hero === PHOTOS.about;
   return (
-    <section id="about" className="relative py-24 md:py-36">
+    <section id="about" className="relative py-16 md:py-36">
       <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-5 md:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-24">
         <Reveal className="relative mx-auto w-full max-w-[400px] lg:order-none">
-          <ArchPhoto src={PHOTOS.about} alt={BRAND.photoAlt} tone="dark" className="aspect-[4/5] w-full" />
+          <ArchPhoto src={PHOTOS.about} alt={BRAND.photoAlt} tone="dark" className={`aspect-[4/5] w-full ${sameAsHero ? 'lg:hidden' : ''}`} />
+          {sameAsHero && <ArchPhoto src={null} alt="" tone="dark" className="hidden aspect-[4/5] w-full lg:block" />}
           <div className="absolute -bottom-5 -end-5 hidden h-28 w-28 rounded-full border border-gold/60 md:block" aria-hidden="true" />
         </Reveal>
 
@@ -663,7 +697,7 @@ const CLASS_ICON: Record<string, React.ComponentType<{ className?: string }>> = 
 function Classes() {
   const { CLASSES, AUDIENCE, UI } = useSite();
   return (
-    <section id="classes" className="bg-sand py-24 md:py-36">
+    <section id="classes" className="bg-sand py-16 md:py-36">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <div className="max-w-2xl">
           <Reveal>
@@ -679,7 +713,7 @@ function Classes() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2">
+        <div className="mt-10 grid gap-6 md:mt-16 md:grid-cols-2">
           {CLASSES.map((c, i) => {
             const Icon = CLASS_ICON[c.id];
             return (
@@ -709,7 +743,7 @@ function Classes() {
           })}
         </div>
 
-        <div className="mt-20 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+        <div className="mt-14 grid gap-8 md:mt-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <Reveal>
             <h3 className="font-display text-3xl font-light leading-snug md:text-4xl">
               {UI.audienceTitle}{' '}
@@ -733,7 +767,7 @@ function Classes() {
 function Pricing() {
   const { CONTACT, PRICING, UI, BOOK, SCHEDULE } = useSite();
   return (
-    <section id="pricing" className="py-24 md:py-36">
+    <section id="pricing" className="py-16 md:py-36">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <div className="max-w-2xl">
           <Reveal>
@@ -829,32 +863,44 @@ const BOOKING_ICON: Record<string, React.ComponentType<{ className?: string }>> 
 };
 
 // Builds a ready-to-send WhatsApp (or email) message from the form, so an
-// inquiry reaches Rotem with every detail she needs to answer it.
-function BookingForm() {
+// inquiry reaches Rotem with every detail she needs to answer it. Each booking
+// type asks only for the fields that matter to it (BOOKING.options[].fields).
+type DetailField = 'date' | 'place' | 'participants';
+
+function BookingForm({ type, onType }: { type: string; onType: (id: string) => void }) {
   const { CONTACT, BOOKING, UI } = useSite();
-  const [type, setType] = useState(BOOKING.options[0].id);
   const [name, setName] = useState('');
-  const [date, setDate] = useState('');
-  const [place, setPlace] = useState('');
-  const [participants, setParticipants] = useState('');
+  // Kept per booking type: the same field asks a different question in each
+  // type, so an answer must not carry over when the visitor switches.
+  const [valuesByType, setValuesByType] = useState<Record<string, Partial<Record<DetailField, string>>>>({});
+  const values = valuesByType[type] ?? {};
   const [notes, setNotes] = useState('');
+
+  const option = BOOKING.options.find((o) => o.id === type) ?? BOOKING.options[0];
+  const defaults: Record<DetailField, { label: string; placeholder: string }> = {
+    date: { label: UI.form.date, placeholder: UI.form.datePlaceholder },
+    place: { label: UI.form.place, placeholder: UI.form.placePlaceholder },
+    participants: { label: UI.form.participants, placeholder: UI.form.participantsPlaceholder },
+  };
+  const details = (['date', 'place', 'participants'] as const)
+    .map((id) => ({ id, ...(option.fields ? option.fields[id] : defaults[id]) }))
+    .filter((f): f is { id: DetailField; label: string; placeholder: string } => Boolean(f.label));
+  const notesField = option.fields?.notes ?? { label: UI.form.notes, placeholder: UI.form.notesPlaceholder };
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const option = BOOKING.options.find((o) => o.id === type);
     const lines = [
       UI.message.hello,
-      `${UI.message.request} ${option?.title ?? ''}`,
+      `${UI.message.request} ${option.title}`,
       name && `${UI.message.name} ${name}`,
-      date && `${UI.message.date} ${date}`,
-      place && `${UI.message.place} ${place}`,
-      participants && `${UI.message.participants} ${participants}`,
+      // Only the fields shown for this type, labelled the way the visitor saw them.
+      ...details.map((f) => values[f.id] && `${f.label.replace(/\?$/, '')}: ${values[f.id]}`),
       notes && `${UI.message.notes} ${notes}`,
     ].filter(Boolean);
     const text = lines.join('\n');
     const url = CONTACT.whatsapp
       ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(text)}`
-      : `mailto:${CONTACT.email}?subject=${encodeURIComponent(option?.title ?? UI.message.fallbackSubject)}&body=${encodeURIComponent(text)}`;
+      : `mailto:${CONTACT.email}?subject=${encodeURIComponent(option.title ?? UI.message.fallbackSubject)}&body=${encodeURIComponent(text)}`;
     // Lead event: channel and service type only, none of the form's contents.
     window.gtag?.('event', 'generate_lead', { method: CONTACT.whatsapp ? 'whatsapp' : 'email', service: type });
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -864,7 +910,7 @@ function BookingForm() {
     'mt-2 w-full rounded-2xl border border-line bg-white/80 px-4 py-3 text-ink placeholder:text-muted/70 focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20';
 
   return (
-    <form onSubmit={onSubmit} className="rounded-[28px] border border-line bg-ivory p-6 md:p-10">
+    <form id="booking-form" onSubmit={onSubmit} className="rounded-[28px] border border-line bg-ivory p-6 md:p-10">
       <h3 className="font-display text-2xl md:text-3xl">{BOOKING.form.title}</h3>
       <fieldset className="mt-6">
         <legend className="text-sm font-medium text-ink">{UI.form.typeLegend}</legend>
@@ -872,11 +918,11 @@ function BookingForm() {
           {BOOKING.options.map((o) => (
             <label
               key={o.id}
-              className={`cursor-pointer rounded-full border px-4 py-2 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold ${
+              className={`cursor-pointer rounded-full border px-4 py-2.5 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold ${
                 type === o.id ? 'border-sage bg-sage text-white' : 'border-line text-muted hover:border-sage hover:text-sage'
               }`}
             >
-              <input type="radio" name="booking-type" value={o.id} checked={type === o.id} onChange={() => setType(o.id)} className="sr-only" />
+              <input type="radio" name="booking-type" value={o.id} checked={type === o.id} onChange={() => onType(o.id)} className="sr-only" />
               {o.title}
             </label>
           ))}
@@ -887,22 +933,22 @@ function BookingForm() {
           {UI.form.name}
           <input className={field} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
         </label>
-        <label className="block text-sm font-medium text-ink">
-          {UI.form.date}
-          <input className={field} value={date} onChange={(e) => setDate(e.target.value)} placeholder={UI.form.datePlaceholder} />
-        </label>
-        <label className="block text-sm font-medium text-ink">
-          {UI.form.place}
-          <input className={field} value={place} onChange={(e) => setPlace(e.target.value)} placeholder={UI.form.placePlaceholder} />
-        </label>
-        <label className="block text-sm font-medium text-ink">
-          {UI.form.participants}
-          <input className={field} value={participants} onChange={(e) => setParticipants(e.target.value)} inputMode="numeric" placeholder={UI.form.participantsPlaceholder} />
-        </label>
+        {details.map((f) => (
+          <label key={f.id} className="block text-sm font-medium text-ink">
+            {f.label}
+            <input
+              className={field}
+              value={values[f.id] ?? ''}
+              onChange={(e) => setValuesByType((all) => ({ ...all, [type]: { ...all[type], [f.id]: e.target.value } }))}
+              placeholder={f.placeholder}
+              inputMode={f.id === 'participants' && !option.fields ? 'numeric' : undefined}
+            />
+          </label>
+        ))}
       </div>
       <label className="mt-5 block text-sm font-medium text-ink">
-        {UI.form.notes}
-        <textarea className={`${field} min-h-24 resize-y`} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={UI.form.notesPlaceholder} />
+        {notesField.label}
+        <textarea className={`${field} min-h-24 resize-y`} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={notesField.placeholder} />
       </label>
       <button
         type="submit"
@@ -918,8 +964,9 @@ function BookingForm() {
 
 function Booking() {
   const { BOOKING, UI, ASSET } = useSite();
+  const [type, setType] = useState(BOOKING.options[0].id);
   return (
-    <section id="book" className="py-24 md:py-36">
+    <section id="book" className="py-16 md:py-36">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <div className="max-w-2xl">
           <Reveal>
@@ -933,12 +980,12 @@ function Booking() {
           </Reveal>
         </div>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:mt-14 md:grid-cols-3">
           {BOOKING.options.map((o, i) => {
             const Icon = BOOKING_ICON[o.id] ?? Users;
             return (
               <Reveal as="article" key={o.id} delay={i * 120}>
-                <div className="flex h-full flex-col rounded-[28px] border border-line bg-sand/60 p-8">
+                <div className="flex h-full flex-col rounded-[28px] border border-line bg-sand/60 p-6 md:p-8">
                   <span className="flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 text-gold-deep">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
@@ -952,12 +999,24 @@ function Booking() {
                       </li>
                     ))}
                   </ul>
-                  {o.more && (
-                    <a href={`${ASSET}${o.more}`} className="mt-6 inline-flex items-center gap-1.5 self-start py-1 text-sm font-medium text-sage underline decoration-gold/50 underline-offset-4 hover:decoration-sage">
-                      {UI.bookingMore}
-                      <ArrowUpLeft className="h-3.5 w-3.5 ltr:-scale-x-100" aria-hidden="true" />
-                    </a>
-                  )}
+                  <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+                    {o.cta && (
+                      // Picks this type in the form below and jumps to it.
+                      <a
+                        href="#booking-form"
+                        onClick={() => setType(o.id)}
+                        className="inline-flex items-center justify-center rounded-full border border-sage px-5 py-2.5 text-sm font-medium text-sage transition-colors hover:bg-sage hover:text-white"
+                      >
+                        {o.cta}
+                      </a>
+                    )}
+                    {o.more && (
+                      <a href={`${ASSET}${o.more}`} className="inline-flex items-center gap-1.5 py-2.5 text-sm font-medium text-sage underline decoration-gold/50 underline-offset-4 hover:decoration-sage">
+                        {UI.bookingMore}
+                        <ArrowUpLeft className="h-3.5 w-3.5 ltr:-scale-x-100" aria-hidden="true" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </Reveal>
             );
@@ -965,7 +1024,7 @@ function Booking() {
         </div>
 
         <Reveal delay={120} className="mt-10">
-          <BookingForm />
+          <BookingForm type={type} onType={setType} />
         </Reveal>
       </div>
     </section>
@@ -989,7 +1048,7 @@ const TOOL_PREVIEW = [
 function Tool() {
   const { TOOL, UI, APP_URL, ASSET } = useSite();
   return (
-    <section id="tool" className="bg-sand py-24 md:py-36">
+    <section id="tool" className="bg-sand py-16 md:py-36">
       <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-5 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
         <div>
           <Reveal>
@@ -1125,7 +1184,7 @@ function Gallery() {
   const [open, setOpen] = useState<number | null>(null);
   if (GALLERY.length === 0) return null;
   return (
-    <section id="gallery" className="py-24 md:py-32">
+    <section id="gallery" className="py-16 md:py-32">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <div className="max-w-2xl">
           <Reveal>
@@ -1205,16 +1264,16 @@ function Method() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid border-t border-night-line sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-2 border-t border-night-line md:mt-16 lg:grid-cols-3">
           {PRINCIPLES.map((p, i) => (
             <Reveal
               key={p.title}
               delay={(i % 3) * 120}
-              className="border-b border-night-line py-7 sm:py-10 sm:pe-10"
+              className="border-b border-night-line py-6 pe-4 sm:py-10 sm:pe-10"
             >
               <span className="font-display text-sm text-gold/80">0{i + 1}</span>
-              <h3 className="mt-3 font-display text-3xl">{p.title}</h3>
-              <p className="mt-3 leading-relaxed text-cream/65">{p.text}</p>
+              <h3 className="mt-2 font-display text-2xl sm:mt-3 sm:text-3xl">{p.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-cream/65 sm:mt-3 sm:text-base">{p.text}</p>
             </Reveal>
           ))}
         </div>
@@ -1226,7 +1285,7 @@ function Method() {
 function Locations() {
   const { LOCATIONS, UI, SCHEDULE, bookLinkProps } = useSite();
   return (
-    <section className="py-24 md:py-32">
+    <section className="py-16 md:py-32">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <Reveal>
           <div className="relative overflow-hidden rounded-[32px] border border-line bg-[radial-gradient(90%_120%_at_100%_0%,#eaeee2_0%,#faf8f3_60%)] p-8 md:p-16">
@@ -1259,7 +1318,7 @@ function Testimonials() {
   const { TESTIMONIALS, UI } = useSite();
   if (TESTIMONIALS.length === 0) return null;
   return (
-    <section className="bg-sand py-24 md:py-32" aria-labelledby="testimonials-title">
+    <section className="bg-sand py-16 md:py-32" aria-labelledby="testimonials-title">
       <div className="mx-auto max-w-[1240px] px-5 md:px-8">
         <Reveal>
           <Eyebrow>{UI.testimonialsEyebrow}</Eyebrow>
@@ -1290,7 +1349,7 @@ function Testimonials() {
 function Faq() {
   const { FAQ, UI, BOOK, bookLinkProps } = useSite();
   return (
-    <section id="faq" className="py-24 md:py-32">
+    <section id="faq" className="py-16 md:py-32">
       <div className="mx-auto grid max-w-[1240px] gap-12 px-5 md:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <div>
           <Reveal>
@@ -1310,25 +1369,38 @@ function Faq() {
           </Reveal>
         </div>
 
-        <div className="border-t border-line">
-          {FAQ.map((item, i) => (
-            <Reveal key={item.q} delay={i * 60}>
-              <details className="faq group border-b border-line">
-                <summary className="flex cursor-pointer items-center justify-between gap-6 py-6 text-lg text-ink transition-colors hover:text-sage md:text-xl">
-                  {item.q}
-                  <span className="faq-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line text-gold-deep group-open:border-gold">
-                    <Plus className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                </summary>
-                <p className={`max-w-2xl leading-relaxed text-muted ${item.contact ? 'pb-4' : 'pb-7'}`}>{item.a}</p>
-                {item.contact && (
-                  <div className="pb-7">
-                    <ContactChannels />
-                  </div>
-                )}
-              </details>
-            </Reveal>
-          ))}
+        <div className="space-y-10">
+          {/* Split by audience so clients and studios/instructors each find
+              their questions without reading the other group's. */}
+          {(['clients', 'pros'] as const).map((group) => {
+            const items = FAQ.filter((item) => (item.audience === 'pros' ? 'pros' : 'clients') === group);
+            if (items.length === 0) return null;
+            return (
+              <div key={group}>
+                <h3 className="mb-2 text-sm font-medium text-gold-deep">{UI.faqGroups[group]}</h3>
+                <div className="border-t border-line">
+                  {items.map((item, i) => (
+                    <Reveal key={item.q} delay={Math.min(i, 4) * 60}>
+                      <details className="faq group border-b border-line">
+                        <summary className="flex cursor-pointer items-center justify-between gap-6 py-6 text-lg text-ink transition-colors hover:text-sage md:text-xl">
+                          {item.q}
+                          <span className="faq-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line text-gold-deep group-open:border-gold">
+                            <Plus className="h-4 w-4" aria-hidden="true" />
+                          </span>
+                        </summary>
+                        <p className={`max-w-2xl leading-relaxed text-muted ${item.contact ? 'pb-4' : 'pb-7'}`}>{item.a}</p>
+                        {item.contact && (
+                          <div className="pb-7">
+                            <ContactChannels />
+                          </div>
+                        )}
+                      </details>
+                    </Reveal>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -1407,7 +1479,7 @@ function Footer() {
           <img src={EMBLEM_LIGHT} alt="" className="h-10 w-auto" />
           <span className="font-display text-xl text-gold-deep">{BRAND.name}</span>
         </a>
-        <nav className="flex flex-wrap gap-x-6 text-sm text-muted [&>a]:py-1.5" aria-label={UI.footerNav}>
+        <nav className="flex flex-wrap gap-x-6 text-sm text-muted [&>a]:py-2.5 md:[&>a]:py-1.5" aria-label={UI.footerNav}>
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} className="hover:text-ink">
               {link.label}
@@ -1422,7 +1494,7 @@ function Footer() {
             </a>
           ))}
         </nav>
-        <div className="flex flex-col gap-1 text-sm text-muted md:items-end [&_a]:py-1.5">
+        <div className="flex flex-col gap-1 text-sm text-muted md:items-end [&_a]:py-2.5 md:[&_a]:py-1.5">
           <div className="flex gap-4">
             <a href={`${APP_URL}?page=privacy`} className="hover:text-ink">
               {UI.privacy}
@@ -1461,7 +1533,10 @@ function MobileBookBar() {
       const nearBottom = window.innerHeight + window.scrollY > document.body.scrollHeight - 600;
       const heroButton = document.querySelector('[data-hero-book]');
       const pastHeroButton = heroButton ? heroButton.getBoundingClientRect().bottom < 72 : false;
-      setShow(pastHeroButton && !nearBottom);
+      // The booking form has its own send button; the bar would cover its fields.
+      const form = document.getElementById('booking-form')?.getBoundingClientRect();
+      const overForm = form ? form.top < window.innerHeight && form.bottom > 0 : false;
+      setShow(pastHeroButton && !nearBottom && !overForm);
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
