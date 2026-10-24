@@ -90,18 +90,21 @@ export const EN: SiteContent = {
         title: 'Activewear collaborations',
         text: 'Ambassador programs, product testing in real classes, and Pilates sessions that show how your pieces move.',
         points: ['Certified mat & apparatus instructor', 'Real classes, real movement'],
+        cta: 'Start a collaboration',
       },
       {
         id: 'event',
         title: 'Brand events & community classes',
         text: 'Launch events, store activations and community sessions — a guided mat class your guests will remember.',
         points: ['Mat Pilates for groups', 'Tailored to the audience and the space'],
+        cta: 'Plan an event',
       },
       {
         id: 'private',
         title: 'Private & pair sessions',
         text: 'One-on-one or pair sessions built around your body, pace and goals — in the Emek Izrael Valley area, Israel.',
         points: ['50 minutes', 'Mat or apparatus'],
+        cta: 'Book a session',
       },
     ],
     form: {
@@ -173,10 +176,12 @@ export const EN: SiteContent = {
     },
     {
       q: 'Who is the lesson builder for?',
+      audience: 'pros',
       a: 'Pilates instructors who want structured lessons, adapted for clients with injuries or special conditions. It’s currently available in Hebrew, and it’s a professional aid — not a substitute for medical advice.',
     },
     {
       q: 'Is there an online tool for building Pilates lessons?',
+      audience: 'pros',
       a: 'Yes — the Pilates in Motion lesson builder at rkpilatestudio.com/app. It has hundreds of mat and apparatus exercises with cues and breathing, a lesson planner from warm-up to cool-down, a live coaching mode for your phone, and suitability notes for low back pain, pregnancy and postnatal clients. The interface is in Hebrew.',
     },
     {
@@ -269,6 +274,7 @@ export const EN: SiteContent = {
     faqNotFound: 'Didn’t find an answer?',
     faqWriteMe: 'Write to me',
     faqHappyToHelp: '— happy to help.',
+    faqGroups: { clients: 'Classes & collaborations', pros: 'For instructors' },
     instagram: 'Instagram',
     facebook: 'Facebook',
     contactTitle: ['The first step', 'is the easiest.'],

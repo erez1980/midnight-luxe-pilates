@@ -264,7 +264,7 @@ export default function App() {
   const goToProtected = (screen: 'builder' | 'lessons' | 'session') => {
     if (!isAuthenticated) {
       navigateTo(screen === 'session' ? 'builder' : screen, { lesson: null });
-      setUiNotice('יש להתחבר עם Google כדי לפתוח את סביבת העבודה המלאה: builder, ספריית שיעורים, תבניות וסנכרון.');
+      setUiNotice('יש להתחבר עם Google כדי לפתוח את סביבת העבודה המלאה: בניית שיעורים, ספריית שיעורים, תבניות וסנכרון.');
       return;
     }
     navigateTo(screen);
@@ -680,7 +680,7 @@ export default function App() {
                     transition={{ duration: 0.8, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
                     className="text-sm md:text-lg text-on-surface-variant max-w-[680px] mb-8 md:mb-10 leading-relaxed"
                   >
-                    מאגר של 255 תרגילים, builder חכם, ספריית שיעורים, שיתוף מהיר ומצב הדרכה חי — הכל במקום אחד.
+                    מאגר של 255 תרגילים, בונה שיעורים חכם, ספריית שיעורים, שיתוף מהיר ומצב הדרכה חי — הכל במקום אחד.
                   </motion.p>
 
                   <motion.div
@@ -716,7 +716,7 @@ export default function App() {
                   >
                     <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> בניית שיעור לפי מטרה, רמה ומשך</div>
                     <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> ספריית שיעורים פרטית</div>
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> שיתוף, הדפסה ו־teach mode</div>
+                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary" /> שיתוף, הדפסה ומצב הדרכה חי</div>
                   </motion.div>
                 </div>
 
@@ -1073,9 +1073,9 @@ export default function App() {
             © 2026 פילאטיס בתנועה. מרחב העבודה של מדריכות ומדריכי פילאטיס.
           </p>
 
-          <div className="flex items-center gap-5 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 text-sm [&>a]:py-3 [&>button]:py-3">
             <a href="../" className="text-on-surface-variant hover:text-secondary transition-colors">
-              לאתר הסטודיו
+              לאתר של רתם
             </a>
             {isGalleryAdmin(authProfile?.email) && (
               <button onClick={() => navigateTo('gallery')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
