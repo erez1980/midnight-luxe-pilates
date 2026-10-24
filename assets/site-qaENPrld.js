@@ -1,1 +1,0 @@
-import"./gallery-ZhnsvjAV.js";import{c as o,j as e,r as n}from"./react-vendor-Bb048-hH.js";import{S as a,H as c}from"./site-r-fYXGLm.js";import"./icons-BNLV76gM.js";const r="./",t=document.getElementById("root"),s=e.jsx(n.StrictMode,{children:e.jsx(a,{content:c,root:r,altUrl:`${r}en/`})});t.hasChildNodes()?o.hydrateRoot(t,s):o.createRoot(t).render(s);
