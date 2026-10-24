@@ -42,6 +42,7 @@ export const EN: SiteContent = {
     primaryCta: 'Work with me',
     secondaryCta: 'Explore the classes',
     secondaryHref: '#classes',
+    instructorPill: null,
     highlights: ['Certified in mat & apparatus', 'Based in Emek Izrael Valley, Israel', 'Private, pair, event & group classes'],
   },
 

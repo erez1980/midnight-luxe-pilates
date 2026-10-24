@@ -51,6 +51,9 @@ export const HERO = {
   secondaryCta: 'לבניית שיעור',
   // 'app' = the lesson builder; otherwise an in-page anchor like '#classes'.
   secondaryHref: 'app',
+  // Pill at the very top of the hero that sends instructors straight to the
+  // lesson builder. null hides it.
+  instructorPill: { label: 'למדריכות', text: 'התחילי לבנות שיעור עכשיו' } as { label: string; text: string } | null,
   highlights: ['הסמכה במזרן ובמכשירים', 'מגיעה אליכם — עמק יזרעאל והסביבה', 'שיעורים ליחידים, זוגות, אירועים וקבוצות'],
 };
 

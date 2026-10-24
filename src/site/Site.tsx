@@ -450,6 +450,21 @@ function Hero() {
 
       <div className="relative mx-auto grid min-h-[calc(100svh-72px)] max-w-[1240px] items-center gap-12 px-5 py-14 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:py-20">
         <div>
+          {HERO.instructorPill && (
+            <Reveal>
+              <a
+                href={APP_URL}
+                className="group mb-8 inline-flex items-center gap-3 rounded-full border border-sage/40 bg-ivory/80 py-1.5 pe-4 ps-1.5 text-sm text-ink shadow-[0_8px_24px_-16px_rgba(76,92,66,0.6)] backdrop-blur transition-all duration-500 ease-soft hover:-translate-y-0.5 hover:border-sage hover:bg-sage-soft"
+              >
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-sage px-3 py-1 text-xs font-medium text-white">
+                  <ListOrdered className="h-3.5 w-3.5" aria-hidden="true" />
+                  {HERO.instructorPill.label}
+                </span>
+                <span className="font-medium">{HERO.instructorPill.text}</span>
+                <ChevronLeft className="h-4 w-4 text-sage transition-transform duration-500 ease-soft group-hover:-translate-x-1" aria-hidden="true" />
+              </a>
+            </Reveal>
+          )}
           <Reveal>
             {/* The eyebrow is its own paragraph, outside the H1, so crawlers
                 don't glue its last word to the heading's first. The big lines
@@ -475,6 +490,7 @@ function Hero() {
               {/* Two gates: people booking Rotem, and instructors using the tool. */}
               <a
                 href="#book"
+                data-hero-book
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-sage px-7 py-3.5 text-base font-medium text-white shadow-[0_10px_30px_-12px_rgba(76,92,66,0.55)] transition-all duration-500 ease-soft hover:-translate-y-0.5 hover:bg-sage-deep"
               >
                 {HERO.primaryCta}
@@ -1443,7 +1459,7 @@ function MobileBookBar() {
   useEffect(() => {
     const onScroll = () => {
       const nearBottom = window.innerHeight + window.scrollY > document.body.scrollHeight - 600;
-      const heroButton = document.querySelector('#top a');
+      const heroButton = document.querySelector('[data-hero-book]');
       const pastHeroButton = heroButton ? heroButton.getBoundingClientRect().bottom < 72 : false;
       setShow(pastHeroButton && !nearBottom);
     };
