@@ -892,7 +892,7 @@ const BOOKING_ICON: Record<string, React.ComponentType<{ className?: string }>> 
 type DetailField = 'date' | 'place' | 'participants';
 
 function BookingForm({ type, onType }: { type: string; onType: (id: string) => void }) {
-  const { CONTACT, BOOKING, UI } = useSite();
+  const { CONTACT, BOOKING, UI, ASSET } = useSite();
   const [name, setName] = useState('');
   // Kept per booking type: the same field asks a different question in each
   // type, so an answer must not carry over when the visitor switches.
@@ -982,6 +982,12 @@ function BookingForm({ type, onType }: { type: string; onType: (id: string) => v
         {CONTACT.whatsapp ? BOOKING.form.submit : UI.form.submitEmail}
       </button>
       <p className="mt-3 text-sm text-muted">{BOOKING.form.note}</p>
+      <p className="mt-5 border-t border-line pt-4 text-sm text-muted">
+        {UI.healthFormPrompt}{' '}
+        <a href={`${ASSET}health/`} className="font-medium text-sage underline underline-offset-4 hover:text-sage-deep">
+          {UI.healthFormCta}
+        </a>
+      </p>
     </form>
   );
 }
@@ -1525,6 +1531,9 @@ function Footer() {
             </a>
             <a href={`${ASSET}terms/`} className="hover:text-ink">
               {UI.terms}
+            </a>
+            <a href={`${ASSET}health/`} className="hover:text-ink">
+              {UI.healthForm}
             </a>
           </div>
           {CONTACT.instagram && (

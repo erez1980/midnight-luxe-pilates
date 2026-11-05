@@ -183,3 +183,31 @@ create policy payments_select_own on public.payments
 
 ניהול לקוחות בשלב הזה נעשה ישירות מ-Supabase Dashboard (Table Editor על
 `profiles` + `subscriptions`) — אין צורך בממשק אדמין נפרד.
+
+## הצהרת בריאות אונליין (`/health/`) + רשימת לקוחות
+
+הלקוחה ממלאת את הטופס ב-`https://rkpilatestudio.com/health/`. ה-Edge Function
+`health-declaration` בודקת את הטופס, שומרת/מעדכנת את הלקוחה בטבלת `clients`
+(לפי מספר טלפון), שומרת את ההצהרה ב-`health_declarations`, ושולחת לרתם מייל
+עם סיכום והחתימה מצורפת. רתם רואה את כל הלקוחות ב-`/app/?page=clients`
+(קישור "הלקוחות שלי" בתחתית האפליקציה, רק לחשבונות המנהלים).
+
+**פרטיות:** זה מידע רפואי רגיש. לטבלאות אין שום הרשאת קריאה/כתיבה לציבור. רק
+ה-function (service role) כותבת, ורק `is_gallery_admin()` (רתם וארז) קוראים
+ומוחקים.
+
+### הפעלה (פעם אחת)
+
+1. **SQL:** להריץ את `supabase/migrations/20261105_health_declarations.sql`
+   (דורש את `is_gallery_admin()` מ-`20261020_gallery.sql`).
+2. **Function:** `supabase functions deploy health-declaration --no-verify-jwt`
+   (ההגדרה נמצאת גם ב-`supabase/config.toml`).
+3. **מייל (Resend):** לפתוח חשבון חינמי ב-resend.com **עם המייל של רתם**
+   (rotem1980.shapira@gmail.com), ליצור API key, ולשמור אותו ב-Dashboard →
+   Edge Functions → Secrets בשם `RESEND_API_KEY`. בלי המפתח ההצהרות עדיין
+   נשמרות, רק המייל לא נשלח.
+   - כל עוד הדומיין לא מאומת ב-Resend, השולח הוא `onboarding@resend.dev`
+     ואפשר לשלוח רק לכתובת שאיתה נפתח החשבון. כדי לשלוח מ-
+     `noreply@rkpilatestudio.com`: לאמת את הדומיין ב-Resend (רשומות DNS) ולהגדיר
+     secret בשם `FROM_EMAIL`, למשל `פילאטיס בתנועה <noreply@rkpilatestudio.com>`.
+   - `NOTIFY_EMAIL` (לא חובה) משנה את הנמען.
