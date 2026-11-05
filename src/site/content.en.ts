@@ -191,7 +191,25 @@ export const EN: SiteContent = {
     },
   ],
 
-  FOOTER_PAGES: [{ href: 'exercises/', label: 'Exercise library (HE)' }],
+  FOOTER_PAGES: [
+    { href: 'exercises/mat/', label: 'Mat exercises (HE)' },
+    { href: 'exercises/chair/', label: 'Chair Pilates (HE)' },
+    { href: 'pilates-pregnancy/', label: 'Prenatal Pilates (HE)' },
+    { href: 'pilates-postnatal/', label: 'Postnatal Pilates (HE)' },
+    { href: 'exercises/', label: 'Exercise library (HE)' },
+  ],
+
+  GUIDES: {
+    eyebrow: 'Library',
+    title: 'Hebrew exercise guides',
+    intro: 'These pages are in Hebrew. They explain a topic and link into the exercise library. The prenatal and postnatal pages are safety notes, not a list of exercises to do.',
+    items: [
+      { href: 'exercises/chair/', label: 'Chair Pilates', text: 'Wunda Chair exercises, with steps and breathing.' },
+      { href: 'exercises/mat/', label: 'Mat Pilates exercises', text: 'The mat repertoire, one page per exercise.' },
+      { href: 'pilates-pregnancy/', label: 'Pilates in pregnancy', text: 'Mat and apparatus, only with a doctor’s approval.' },
+      { href: 'pilates-postnatal/', label: 'Postnatal Pilates', text: 'A gradual return after medical clearance, not a rehab plan.' },
+    ],
+  },
 
   APP_PROMO: {
     ...HE.APP_PROMO,

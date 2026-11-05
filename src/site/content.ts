@@ -361,10 +361,27 @@ export const FAQ: { q: string; a: string; contact?: boolean; audience?: 'pros' }
 export const FOOTER_PAGES: { href: string; label: string }[] = [
   { href: 'pilates-events/', label: 'פילאטיס לאירועים' },
   { href: 'private-pilates/', label: 'שיעור פרטי וזוגי' },
-  { href: 'pilates-pregnancy-postnatal/', label: 'הריון ואחרי לידה: מדריך למדריכות' },
+  { href: 'pilates-pregnancy/', label: 'פילאטיס בהריון' },
+  { href: 'pilates-postnatal/', label: 'פילאטיס אחרי לידה' },
+  { href: 'exercises/mat/', label: 'תרגילי מזרן' },
+  { href: 'exercises/chair/', label: 'פילאטיס כיסא' },
   { href: 'pilates-lesson-builder/', label: 'בניית שיעורי פילאטיס' },
   { href: 'exercises/', label: 'ספריית תרגילים' },
 ];
+
+// Linked from the home page. The exercise catalogs describe how a movement
+// is done; the pregnancy and postnatal pages are safety guides, not prescriptions.
+export const GUIDES: { eyebrow: string; title: string; intro: string; items: { href: string; label: string; text: string }[] } = {
+  eyebrow: 'ספרייה ומדריכים',
+  title: 'תרגילים לפי נושא',
+  intro: 'עמודים בעברית עם הסבר קצר וקישור לתרגילים. בהריון ואחרי לידה אין רשימת תרגילים מותרים — רק עקרונות זהירות.',
+  items: [
+    { href: 'exercises/chair/', label: 'פילאטיס כיסא', text: 'תרגילי Wunda Chair: דוושה, קפיצים, וביצוע בעברית.' },
+    { href: 'exercises/mat/', label: 'תרגילי פילאטיס מזרן', text: 'הרפרטואר על המזרן, עם שלבי ביצוע ונשימה.' },
+    { href: 'pilates-pregnancy/', label: 'תרגילי פילאטיס בהריון', text: 'מזרן ומכשירים בהריון, רק באישור רופא/ה.' },
+    { href: 'pilates-postnatal/', label: 'פילאטיס אחרי לידה', text: 'חזרה הדרגתית אחרי אישור רפואי, לא תוכנית שיקום.' },
+  ],
+};
 
 export const APP_PROMO = {
   title: 'כלים לבניית מערכי שיעור',
@@ -494,6 +511,7 @@ export const HE = {
   TESTIMONIALS,
   FAQ,
   FOOTER_PAGES,
+  GUIDES,
   APP_PROMO,
   UI,
 };

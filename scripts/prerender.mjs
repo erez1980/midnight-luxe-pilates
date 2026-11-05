@@ -142,7 +142,7 @@ const urls = [
     images: ['og-image.jpg', 'photos/rotem.webp', 'certificates/mat-2026.webp', 'certificates/apparatus-2026.webp'].map((p) => `${ORIGIN}/${p}`),
   }),
   entry(`${ORIGIN}/en/`, { extra: `${alternates}\n`, images: [`${ORIGIN}/og-image-en.jpg`] }),
-  entry(`${ORIGIN}/app/`),
+  // /app/ is noindex (app/index.html). The public page is /pilates-lesson-builder/.
   ...pages.map((p) => entry(`${ORIGIN}/${p.path}`)),
 ];
 fs.writeFileSync(

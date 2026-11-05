@@ -1082,12 +1082,12 @@ export default function App() {
                 ניהול גלריה
               </button>
             )}
-            <button onClick={() => navigateTo('privacy')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+            <a href="../privacy/" className="text-on-surface-variant hover:text-secondary transition-colors">
               מדיניות פרטיות
-            </button>
-            <button onClick={() => navigateTo('terms')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+            </a>
+            <a href="../terms/" className="text-on-surface-variant hover:text-secondary transition-colors">
               תנאי שימוש
-            </button>
+            </a>
             <a href="mailto:rotem1980.shapira@gmail.com" className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer" aria-label="יצירת קשר במייל">
               <Mail className="w-5 h-5" />
             </a>
