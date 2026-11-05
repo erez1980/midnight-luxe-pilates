@@ -26,6 +26,7 @@ interface DeclarationRow {
   submitted_at: string;
   answers: { id: string; question: string; answer: 'yes' | 'no' | 'na'; details: string }[];
   has_flags: boolean;
+  personal: { full_name: string; birth_date: string; email: string; emergency_name: string; emergency_phone: string };
   guardian_name: string | null;
   signature_png: string;
 }
@@ -151,7 +152,9 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
         <ul className="space-y-3">
           {shown.map((c) => {
             const decls = byClient[c.id] || [];
-            const latest = decls[0];
+            // Any declaration with a "yes" keeps the badge: a later all-"no"
+            // form does not erase what was declared before.
+            const flagged = decls.some((d) => d.has_flags);
             const expanded = open === c.id;
             const age = yearsOld(c.birth_date);
             return (
@@ -164,7 +167,7 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-ink">{c.full_name}</span>
-                      {latest?.has_flags && (
+                      {flagged && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-900">
                           <AlertTriangle className="w-3 h-3" /> יש הערות בריאות
                         </span>
@@ -199,6 +202,12 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
                           הצהרה מ-{date(d.submitted_at)}{i === 0 && decls.length > 1 ? ' (האחרונה)' : ''}
                           {d.guardian_name && <span className="font-normal text-on-surface-variant"> · נחתם ע״י {d.guardian_name}</span>}
                         </h3>
+                        {d.personal && (d.personal.full_name !== c.full_name || d.personal.emergency_phone !== c.emergency_phone || d.personal.birth_date !== c.birth_date) && (
+                          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-amber-900">
+                            הפרטים בהצהרה הזו שונים מהרשומה: {d.personal.full_name}, תאריך לידה {d.personal.birth_date}, חירום {d.personal.emergency_name} <span dir="ltr">{phone(d.personal.emergency_phone)}</span>
+                            {d.personal.email && `, ${d.personal.email}`}. כדאי לוודא מול הלקוחה.
+                          </p>
+                        )}
                         <ol className="mt-3 space-y-2 list-decimal pr-5">
                           {d.answers.map((a) => (
                             <li key={a.id}>

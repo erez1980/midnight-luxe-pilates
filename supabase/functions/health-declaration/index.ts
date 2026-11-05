@@ -116,7 +116,6 @@ Deno.serve(async (req) => {
   const errors = validateSubmission(s);
   if (Object.keys(errors).length) return json({ error: 'invalid', fields: errors }, 422, headers);
 
-  const now = new Date().toISOString();
   const age = ageOn(s.birthDate);
   const answers = HEALTH_QUESTIONS.map((q) => {
     const a = s.answers[q.id];
@@ -124,35 +123,26 @@ Deno.serve(async (req) => {
   });
 
   try {
-    const [client] = await rest('clients?on_conflict=phone', {
+    // Client + declaration in one transaction (public.submit_health_declaration).
+    await rest('rpc/submit_health_declaration', {
       method: 'POST',
-      prefer: 'resolution=merge-duplicates,return=representation',
       body: JSON.stringify({
-        full_name: s.fullName.trim(),
-        phone: digitsOnly(s.phone),
-        birth_date: s.birthDate,
-        email: s.email.trim() || null,
-        emergency_name: s.emergencyName.trim(),
-        emergency_phone: digitsOnly(s.emergencyPhone),
-        last_declaration_at: now,
-        updated_at: now,
-      }),
-    });
-    await rest('health_declarations', {
-      method: 'POST',
-      prefer: 'return=minimal',
-      body: JSON.stringify({
-        client_id: client.id,
-        form_version: FORM_VERSION,
-        submitted_at: now,
-        answers,
-        has_flags: answers.some((a) => a.answer === 'yes'),
-        signer_name: s.fullName.trim(),
-        guardian_name: s.guardianName.trim() || null,
-        signature_png: s.signature,
-        consent_declaration: true,
-        consent_privacy: true,
-        user_agent: (req.headers.get('User-Agent') || '').slice(0, 300),
+        p: {
+          phone: digitsOnly(s.phone),
+          personal: {
+            full_name: s.fullName.trim(),
+            birth_date: s.birthDate,
+            email: s.email.trim(),
+            emergency_name: s.emergencyName.trim(),
+            emergency_phone: digitsOnly(s.emergencyPhone),
+          },
+          form_version: FORM_VERSION,
+          answers,
+          has_flags: answers.some((a) => a.answer === 'yes'),
+          guardian_name: s.guardianName.trim(),
+          signature_png: s.signature,
+          user_agent: (req.headers.get('User-Agent') || '').slice(0, 300),
+        },
       }),
     });
   } catch (e) {
