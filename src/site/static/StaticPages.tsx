@@ -27,6 +27,27 @@ export const APPARATUS: Record<Exercise['apparatus'], { label: string; title: st
 };
 export const APPARATUS_ORDER: Exercise['apparatus'][] = ['mat', 'reformer', 'cadillac', 'chair', 'props'];
 
+// Mat and chair have their own catalog pages. The other apparatus stay as
+// sections on the library index until they earn a page of their own.
+export function apparatusPath(apparatus: Exercise['apparatus']) {
+  if (apparatus === 'mat' || apparatus === 'chair') return `exercises/${apparatus}/`;
+  return `exercises/#${apparatus}`;
+}
+
+export function apparatusLinkLabel(apparatus: Exercise['apparatus']) {
+  if (apparatus === 'mat') return 'כל תרגילי פילאטיס מזרן';
+  if (apparatus === 'chair') return 'כל תרגילי פילאטיס כיסא';
+  return `עוד תרגילי פילאטיס ${APPARATUS[apparatus].label}`;
+}
+
+const DIFFICULTY_RANK = { beginner: 0, intermediate: 1, advanced: 2 } as const;
+
+export function exercisesForApparatus(all: Exercise[], apparatus: Exercise['apparatus']) {
+  return all
+    .filter((ex) => ex.apparatus === apparatus)
+    .sort((a, b) => DIFFICULTY_RANK[a.difficulty] - DIFFICULTY_RANK[b.difficulty] || a.name.localeCompare(b.name, 'he'));
+}
+
 export function exerciseSlug(ex: Exercise) {
   return ex.englishName
     .toLowerCase()
@@ -153,10 +174,10 @@ export function ExercisePage({ ex, all, root }: { ex: Exercise; all: Exercise[];
   return (
     <Shell
       root={root}
-      breadcrumbs={[
+        breadcrumbs={[
         { href: root, label: 'דף הבית' },
         { href: `${root}exercises/`, label: 'ספריית תרגילים' },
-        { href: `${root}exercises/#${ex.apparatus}`, label: APPARATUS[ex.apparatus].label },
+        { href: `${root}${apparatusPath(ex.apparatus)}`, label: APPARATUS[ex.apparatus].label },
         { label: ex.name },
       ]}
     >
@@ -167,6 +188,11 @@ export function ExercisePage({ ex, all, root }: { ex: Exercise; all: Exercise[];
             {ex.categoryLabel ? ` · ${ex.categoryLabel}` : ''}
           </p>
           <h1 className="mt-3 font-display text-4xl font-light leading-tight text-ink md:text-6xl">{ex.name}</h1>
+          <p className="mt-4">
+            <a href={`${root}${apparatusPath(ex.apparatus)}`} className="inline-block py-1 text-sage underline decoration-gold/50 underline-offset-4 hover:decoration-sage">
+              {apparatusLinkLabel(ex.apparatus)}
+            </a>
+          </p>
           <p className="mt-5 text-lg leading-relaxed text-muted">{ex.benefits}</p>
         </header>
 
@@ -294,7 +320,20 @@ export function ExerciseIndexPage({ all, root }: { all: Exercise[]; root: string
         <p className="mt-5 text-lg leading-relaxed text-muted">
           {all.length} תרגילי פילאטיס מזרן, מכשירים ואביזרים — לכל תרגיל הוראות ביצוע, נשימה ושרירים עיקריים
           {PUBLISH_CONDITION_TABLES ? ', והתאמה לגב תחתון, הריון, אחרי לידה ומצבים נוספים.' : '.'}
+          {' '}הספרייה מתארת ביצוע. היא לא תוכנית אימון ולא המלצה רפואית.
         </p>
+        <nav className="mt-6 flex flex-wrap gap-2" aria-label="נושאים">
+          {[
+            ['exercises/mat/', 'תרגילי פילאטיס מזרן'],
+            ['exercises/chair/', 'פילאטיס כיסא'],
+            ['pilates-pregnancy/', 'תרגילי פילאטיס בהריון'],
+            ['pilates-postnatal/', 'פילאטיס אחרי לידה'],
+          ].map(([href, label]) => (
+            <a key={href} href={`${root}${href}`} className="rounded-full border border-line px-4 py-2 text-sm text-ink hover:border-sage hover:text-sage">
+              {label}
+            </a>
+          ))}
+        </nav>
         <nav className="mt-6 flex flex-wrap gap-2" aria-label="מכשירים">
           {APPARATUS_ORDER.map((a) => (
             <a key={a} href={`#${a}`} className="rounded-full border border-line px-4 py-2 text-sm text-ink hover:border-sage hover:text-sage">
@@ -308,7 +347,13 @@ export function ExerciseIndexPage({ all, root }: { all: Exercise[]; root: string
         if (!list.length) return null;
         return (
           <section key={a} id={a} className="mt-14 scroll-mt-6">
-            <h2 className="font-display text-3xl font-light text-ink">{APPARATUS[a].title}</h2>
+            <h2 className="font-display text-3xl font-light text-ink">
+              {a === 'mat' || a === 'chair' ? (
+                <a href={`${root}${apparatusPath(a)}`} className="underline decoration-gold/40 underline-offset-4 hover:decoration-sage">{APPARATUS[a].title}</a>
+              ) : (
+                APPARATUS[a].title
+              )}
+            </h2>
             <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {list.map((ex) => (
                 <li key={ex.id}><ExerciseLink ex={ex} root={root} /></li>
@@ -378,10 +423,53 @@ function ConditionLists({ all, root, condition, title }: { all: Exercise[]; root
   );
 }
 
+function RelatedLinks({ root, links }: { root: string; links: NonNullable<Landing['related']> }) {
+  return (
+    <section className="mt-14">
+      <h2 className="font-display text-3xl font-light text-ink">עמודים קשורים</h2>
+      <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+        {links.map((item) => (
+          <li key={item.href}>
+            <a href={`${root}${item.href}`} className="group block rounded-2xl border border-line bg-white/60 px-4 py-4 hover:border-sage">
+              <span className="block font-medium text-ink group-hover:text-sage">{item.title}</span>
+              <span className="mt-1 block text-sm leading-relaxed text-muted">{item.text}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function ApparatusCatalog({ all, root, apparatus }: { all: Exercise[]; root: string; apparatus: Exercise['apparatus'] }) {
+  const list = exercisesForApparatus(all, apparatus);
+  return (
+    <section className="mt-14">
+      <h2 className="font-display text-3xl font-light text-ink">כל התרגילים בספרייה</h2>
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted">
+        {list.length} תרגילים, מהקלים יותר אל המתקדמים. כל קישור נפתח לעמוד עם שלבי ביצוע, נשימה ושרירים עיקריים.
+        זו ספרייה, לא שיעור מוכן ולא המלצה רפואית.
+      </p>
+      <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {list.map((ex) => (
+          <li key={ex.id}><ExerciseLink ex={ex} root={root} /></li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[]; root: string }) {
   const ctaHref = page.cta.message ? whatsappHref(page.cta.message) : `${root}app/`;
   return (
-    <Shell root={root} breadcrumbs={[{ href: root, label: 'דף הבית' }, { label: page.h1 }]}>
+    <Shell
+      root={root}
+      breadcrumbs={[
+        { href: root, label: 'דף הבית' },
+        ...(page.parent ? [{ href: `${root}${page.parent.href}`, label: page.parent.label }] : []),
+        { label: page.h1 },
+      ]}
+    >
       <header className="mt-8 max-w-3xl">
         <p className="text-sm font-medium text-gold-deep">{page.eyebrow}</p>
         <h1 className="mt-3 font-display text-4xl font-light leading-tight text-ink md:text-6xl">{page.h1}</h1>
@@ -421,6 +509,10 @@ export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[
           </section>
         ))}
       </div>
+
+      {page.apparatus && <ApparatusCatalog all={all} root={root} apparatus={page.apparatus} />}
+
+      {page.related && page.related.length > 0 && <RelatedLinks root={root} links={page.related} />}
 
       {page.extra === 'conditions' && PUBLISH_CONDITION_TABLES && (
         <>

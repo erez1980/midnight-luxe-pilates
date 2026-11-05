@@ -694,6 +694,30 @@ const CLASS_ICON: Record<string, React.ComponentType<{ className?: string }>> = 
   apparatus: Settings2,
 };
 
+function Guides() {
+  const { GUIDES, ASSET } = useSite();
+  if (!GUIDES.items.length) return null;
+  return (
+    <section className="bg-ivory py-16 md:py-24" aria-labelledby="guides-title">
+      <div className="mx-auto max-w-[1240px] px-5 md:px-8">
+        <Eyebrow>{GUIDES.eyebrow}</Eyebrow>
+        <h2 id="guides-title" className="mt-5 max-w-2xl font-display text-4xl font-light leading-tight md:text-5xl">{GUIDES.title}</h2>
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted">{GUIDES.intro}</p>
+        <ul className="mt-10 grid gap-4 sm:grid-cols-2">
+          {GUIDES.items.map((item) => (
+            <li key={item.href}>
+              <a href={`${ASSET}${item.href}`} className="group block h-full rounded-[28px] border border-line bg-sand/60 p-6 transition-colors hover:border-sage">
+                <h3 className="font-display text-2xl text-ink group-hover:text-sage">{item.label}</h3>
+                <p className="mt-2 leading-relaxed text-muted">{item.text}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function Classes() {
   const { CLASSES, AUDIENCE, UI } = useSite();
   return (
@@ -1567,6 +1591,7 @@ function Page() {
         <Ticker />
         <About />
         <Classes />
+        <Guides />
         <Gallery />
         {SHOW_PRICING && <Pricing />}
         <Booking />

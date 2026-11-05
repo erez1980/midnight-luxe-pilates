@@ -25,8 +25,8 @@ export const areaServed = (lang: 'he' | 'en') =>
 
 // Topics an assistant can match Rotem and the business to.
 const KNOWS_ABOUT = {
-  he: ['פילאטיס', 'פילאטיס מזרן', 'פילאטיס מכשירים', 'רפורמר', 'פילאטיס לאירועים', 'פילאטיס בהריון ואחרי לידה', 'בניית שיעורי פילאטיס'],
-  en: ['Pilates', 'Mat Pilates', 'Apparatus Pilates', 'Reformer Pilates', 'Pilates for events', 'Prenatal and postnatal Pilates', 'Pilates lesson planning'],
+  he: ['פילאטיס', 'פילאטיס מזרן', 'תרגילי פילאטיס מזרן', 'פילאטיס מכשירים', 'פילאטיס כיסא', 'רפורמר', 'פילאטיס לאירועים', 'תרגילי פילאטיס בהריון', 'פילאטיס אחרי לידה', 'בניית שיעורי פילאטיס'],
+  en: ['Pilates', 'Mat Pilates', 'Mat Pilates exercises', 'Apparatus Pilates', 'Wunda Chair Pilates', 'Reformer Pilates', 'Pilates for events', 'Prenatal Pilates exercises', 'Postnatal Pilates', 'Pilates lesson planning'],
 };
 
 const id = (fragment: string) => `${SITE_ORIGIN}/#${fragment}`;
@@ -59,7 +59,9 @@ export function personAndBusiness(content: SiteContent) {
       })),
     },
     {
-      '@type': 'ProfessionalService',
+      // ProfessionalService is a LocalBusiness. Both types are set so the
+      // service-area business is explicit, without a street address.
+      '@type': ['LocalBusiness', 'ProfessionalService'],
       '@id': id('business'),
       name: BRAND.name,
       alternateName: lang === 'he' ? ['Pilates in Motion'] : ['פילאטיס בתנועה'],
