@@ -1520,10 +1520,10 @@ function Footer() {
         </nav>
         <div className="flex flex-col gap-1 text-sm text-muted md:items-end [&_a]:py-2.5 md:[&_a]:py-1.5">
           <div className="flex gap-4">
-            <a href={`${APP_URL}?page=privacy`} className="hover:text-ink">
+            <a href={`${ASSET}privacy/`} className="hover:text-ink">
               {UI.privacy}
             </a>
-            <a href={`${APP_URL}?page=terms`} className="hover:text-ink">
+            <a href={`${ASSET}terms/`} className="hover:text-ink">
               {UI.terms}
             </a>
           </div>

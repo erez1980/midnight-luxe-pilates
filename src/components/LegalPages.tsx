@@ -5,6 +5,16 @@ const LAST_UPDATED = '23 באוקטובר 2026';
 const CONTACT_EMAIL = 'rotem1980.shapira@gmail.com';
 const SERVICE_NAME = 'פילאטיס בתנועה';
 
+export const LEGAL_LAST_UPDATED = LAST_UPDATED;
+
+export function LegalNotice() {
+  return (
+    <>
+      המסמכים בעמוד זה נכתבו כדי לתאר בשקיפות איך {SERVICE_NAME} פועל, ואינם ייעוץ משפטי. מומלץ להיוועץ בעורך/ת דין לפני שימוש מסחרי או הרחבת השירות (למשל לקראת גביית תשלום).
+    </>
+  );
+}
+
 function LegalShell({
   title,
   onBack,
@@ -37,15 +47,15 @@ function LegalShell({
       </div>
 
       <div className="mt-12 rounded-2xl border border-outline/20 bg-surface-container p-5 text-xs text-on-surface-variant leading-relaxed">
-        המסמכים בעמוד זה נכתבו כדי לתאר בשקיפות איך {SERVICE_NAME} פועל, ואינם ייעוץ משפטי. מומלץ להיוועץ בעורך/ת דין לפני שימוש מסחרי או הרחבת השירות (למשל לקראת גביית תשלום).
+        <LegalNotice />
       </div>
     </div>
   );
 }
 
-export function PrivacyPolicy({ onBack }: { onBack: () => void }) {
+export function PrivacyPolicyBody() {
   return (
-    <LegalShell title="מדיניות פרטיות" onBack={onBack}>
+    <>
       <section>
         <h2>1. כללי</h2>
         <p>
@@ -126,13 +136,21 @@ export function PrivacyPolicy({ onBack }: { onBack: () => void }) {
           לשאלות, בקשות עיון או מחיקת מידע — ניתן לפנות במייל: <a className="text-secondary hover:underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
       </section>
+    </>
+  );
+}
+
+export function PrivacyPolicy({ onBack }: { onBack: () => void }) {
+  return (
+    <LegalShell title="מדיניות פרטיות" onBack={onBack}>
+      <PrivacyPolicyBody />
     </LegalShell>
   );
 }
 
-export function TermsOfUse({ onBack }: { onBack: () => void }) {
+export function TermsOfUseBody() {
   return (
-    <LegalShell title="תנאי שימוש" onBack={onBack}>
+    <>
       <section>
         <h2>1. הסכמה לתנאים</h2>
         <p>
@@ -207,6 +225,14 @@ export function TermsOfUse({ onBack }: { onBack: () => void }) {
           לשאלות בנוגע לתנאי השימוש: <a className="text-secondary hover:underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
       </section>
+    </>
+  );
+}
+
+export function TermsOfUse({ onBack }: { onBack: () => void }) {
+  return (
+    <LegalShell title="תנאי שימוש" onBack={onBack}>
+      <TermsOfUseBody />
     </LegalShell>
   );
 }

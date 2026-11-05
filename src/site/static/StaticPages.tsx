@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Exercise } from '../../types';
+import { LEGAL_LAST_UPDATED, LegalNotice, PrivacyPolicyBody, TermsOfUseBody } from '../../components/LegalPages';
 import { HE } from '../content';
 import { CONDITIONS, DISCLAIMER, SUITABILITY_LABEL, assessExercise, type ConditionId, type Suitability } from '../../utils/conditions';
 import { exerciseProps, propLabel } from '../../utils/props';
@@ -118,7 +119,8 @@ function Shell({ root, children, breadcrumbs }: { root: string; children: React.
               <a key={p.href} href={`${root}${p.href}`} className="hover:text-ink">{p.label}</a>
             ))}
             <a href={`${root}app/`} className="hover:text-ink">כלי בניית שיעורים</a>
-            <a href={`${root}app/?page=privacy`} className="hover:text-ink">{UI.privacy}</a>
+            <a href={`${root}privacy/`} className="hover:text-ink">{UI.privacy}</a>
+            <a href={`${root}terms/`} className="hover:text-ink">{UI.terms}</a>
           </nav>
           <div className="flex flex-col gap-1 text-sm text-muted [&_a]:py-1.5">
             <a href={`mailto:${CONTACT.email}`} dir="ltr" className="hover:text-ink">{CONTACT.email}</a>
@@ -549,6 +551,27 @@ export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[
       </section>
 
       <CtaBox title={page.cta.title} text={page.cta.text} href={ctaHref} label={page.cta.label} external={!!page.cta.message} />
+    </Shell>
+  );
+}
+
+// ---------- privacy and terms (same copy as the app) ----------
+
+export function LegalDocumentPage({ kind, root }: { kind: 'privacy' | 'terms'; root: string }) {
+  const title = kind === 'privacy' ? 'מדיניות פרטיות' : 'תנאי שימוש';
+  return (
+    <Shell root={root} breadcrumbs={[{ href: root, label: 'דף הבית' }, { label: title }]}>
+      <article className="mt-8 max-w-3xl">
+        <p className="text-sm font-medium text-gold-deep">פילאטיס בתנועה</p>
+        <h1 className="mt-3 font-display text-4xl font-light leading-tight text-ink md:text-5xl">{title}</h1>
+        <p className="mt-2 text-xs text-muted">עודכן לאחרונה: {LEGAL_LAST_UPDATED}</p>
+        <div className="legal-doc mt-8 text-base leading-relaxed text-muted">
+          {kind === 'privacy' ? <PrivacyPolicyBody /> : <TermsOfUseBody />}
+        </div>
+        <p className="mt-12 rounded-[20px] border border-line bg-sand/60 p-5 text-xs leading-relaxed text-muted">
+          <LegalNotice />
+        </p>
+      </article>
     </Shell>
   );
 }

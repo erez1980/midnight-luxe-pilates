@@ -7,7 +7,7 @@ import { homeStructuredData, faqPage, personAndBusiness, lessonBuilderApp, areaS
 import { llmsTxt } from './llms';
 import { INITIAL_EXERCISES } from '../data';
 import { EXERCISE_DESCRIPTIONS } from './static/exerciseDescriptions';
-import { APPARATUS, PUBLISH_CONDITION_TABLES, ExerciseIndexPage, ExercisePage, LandingPage, NotFoundPage, apparatusPath, exerciseSlug, exercisesForApparatus } from './static/StaticPages';
+import { APPARATUS, PUBLISH_CONDITION_TABLES, ExerciseIndexPage, ExercisePage, LandingPage, LegalDocumentPage, NotFoundPage, apparatusPath, exerciseSlug, exercisesForApparatus } from './static/StaticPages';
 import { LANDINGS } from './static/landings';
 
 // Server entry used only at build time (scripts/prerender.mjs). The home
@@ -196,6 +196,50 @@ export function renderStaticPages(): StaticPage[] {
             { name: 'ספריית תרגילים', url: `${SITE_ORIGIN}/exercises/` },
             { name: apparatus, url: `${SITE_ORIGIN}/${hubPath}` },
             { name: ex.name },
+          ]),
+        ],
+      },
+    });
+  }
+
+  const legal = [
+    {
+      path: 'privacy/',
+      kind: 'privacy' as const,
+      title: 'מדיניות פרטיות | פילאטיס בתנועה',
+      name: 'מדיניות פרטיות',
+      description: 'מדיניות זו מסבירה איזה מידע פילאטיס בתנועה אוסף, איך הוא נשמר ולשם מה הוא משמש.',
+    },
+    {
+      path: 'terms/',
+      kind: 'terms' as const,
+      title: 'תנאי שימוש | פילאטיס בתנועה',
+      name: 'תנאי שימוש',
+      description: 'הגלישה והשימוש ב-פילאטיס בתנועה מהווים הסכמה לתנאי שימוש אלו.',
+    },
+  ];
+  for (const page of legal) {
+    const url = `${SITE_ORIGIN}/${page.path}`;
+    pages.push({
+      path: page.path,
+      title: page.title,
+      description: page.description,
+      html: renderToStaticMarkup(<LegalDocumentPage kind={page.kind} root={pageRoot(page.path)} />),
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebPage',
+            '@id': `${url}#webpage`,
+            url,
+            name: page.name,
+            description: page.description,
+            inLanguage: 'he-IL',
+            isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
+          },
+          breadcrumbList([
+            { name: 'דף הבית', url: `${SITE_ORIGIN}/` },
+            { name: page.name },
           ]),
         ],
       },
