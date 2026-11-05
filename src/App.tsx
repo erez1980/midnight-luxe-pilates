@@ -23,6 +23,7 @@ const LessonBuilder = lazy(() => import('./components/LessonBuilder'));
 const MyLessons = lazy(() => import('./components/MyLessons'));
 const CoachingSession = lazy(() => import('./components/CoachingSession'));
 const GalleryManager = lazy(() => import('./components/GalleryManager'));
+const ClientsAdmin = lazy(() => import('./components/ClientsAdmin'));
 import { PrivacyPolicy, TermsOfUse } from './components/LegalPages';
 import { buildShareUrl, buildShortShareUrl, exportLessonsBundle, importLessonsBundle, readLessons, readSharedLessonFromUrl, readTemplates, writeLessons, writeTemplates } from './utils/storage';
 import { pullCloudLessons, pushCloudLessons, createSharedLesson, fetchSharedLesson } from './utils/cloudSync';
@@ -40,10 +41,10 @@ export default function App() {
   // Feature flag: pricing is hidden until a real payment decision + processor
   // are in place. Flip to true to bring the section back - the markup is kept.
   const SHOW_PRICING = false;
-  const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery'>(() => {
+  const [activeScreen, setActiveScreen] = useState<'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery' | 'clients'>(() => {
     // The marketing site's footer deep-links here with ?page=privacy|terms.
     const page = new URLSearchParams(window.location.search).get('page');
-    return page === 'privacy' || page === 'terms' || page === 'gallery' ? page : 'home';
+    return page === 'privacy' || page === 'terms' || page === 'gallery' || page === 'clients' ? page : 'home';
   });
   const theme = 'light' as const;
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -85,7 +86,7 @@ export default function App() {
   };
 
   const navigateTo = (
-    screen: 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery',
+    screen: 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery' | 'clients',
     options?: { lesson?: Lesson | null; editingLesson?: Lesson | null; replace?: boolean }
   ) => {
     const nextLesson = options?.lesson ?? (screen === 'session' ? activeSessionLesson : null);
@@ -230,7 +231,7 @@ export default function App() {
         return;
       }
 
-      const nextScreen = state.screen as 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery';
+      const nextScreen = state.screen as 'home' | 'library' | 'builder' | 'lessons' | 'session' | 'privacy' | 'terms' | 'gallery' | 'clients';
       setActiveScreen(nextScreen);
 
       if (nextScreen === 'session' && state.lessonId) {
@@ -1052,6 +1053,11 @@ export default function App() {
           <GalleryManager email={authProfile?.email} onGoogleLogin={handleGoogleLogin} />
         </Suspense>
       )}
+      {activeScreen === 'clients' && (
+        <Suspense fallback={<div className="py-20 text-center text-on-surface-variant">טוען…</div>}>
+          <ClientsAdmin email={authProfile?.email} onGoogleLogin={handleGoogleLogin} />
+        </Suspense>
+      )}
 
       </main>
 
@@ -1080,6 +1086,11 @@ export default function App() {
             {isGalleryAdmin(authProfile?.email) && (
               <button onClick={() => navigateTo('gallery')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
                 ניהול גלריה
+              </button>
+            )}
+            {isGalleryAdmin(authProfile?.email) && (
+              <button onClick={() => navigateTo('clients')} className="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+                הלקוחות שלי
               </button>
             )}
             <a href="../privacy/" className="text-on-surface-variant hover:text-secondary transition-colors">

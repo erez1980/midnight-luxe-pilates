@@ -1,0 +1,5 @@
+# Only the settings this repo relies on. The health declaration is a public
+# form, so its function accepts calls without a user JWT and validates input
+# itself (supabase/functions/health-declaration/index.ts).
+[functions.health-declaration]
+verify_jwt = false

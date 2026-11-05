@@ -4,8 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import {defineConfig, type Plugin} from 'vite';
 
-// The marketing site lives at "/" (Hebrew) and "/en/" (English), and the
-// lesson-builder app at "/app/".
+// The marketing site lives at "/" (Hebrew) and "/en/" (English), the
+// lesson-builder app at "/app/", and the online health declaration at "/health/".
 // The app references some public assets with paths relative to its page
 // (e.g. "./covers/mat.svg" — also persisted inside saved lessons), so those
 // folders must resolve under /app/ too: rewritten in dev, copied in build.
@@ -49,6 +49,7 @@ export default defineConfig(({isSsrBuild}) => {
           site: path.resolve(__dirname, 'index.html'),
           app: path.resolve(__dirname, 'app/index.html'),
           en: path.resolve(__dirname, 'en/index.html'),
+          health: path.resolve(__dirname, 'health/index.html'),
         },
         output: {
           // Function form so each vendor lands in exactly one chunk; the
