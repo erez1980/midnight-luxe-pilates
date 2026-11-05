@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpLeft, ChevronLeft, ChevronRight, Globe, ArrowUpRight, Award, Building2, Check, HeartPulse, Library, ListOrdered, MapPin, Menu, Phone, Mail, PartyPopper, Play, Plus, Settings2, Shirt, Smartphone, Users, Wind, X } from 'lucide-react';
+import { ArrowUpLeft, ChevronLeft, ChevronRight, ClipboardCheck, Globe, ArrowUpRight, Award, Building2, Check, HeartPulse, Library, ListOrdered, MapPin, Menu, Phone, Mail, PartyPopper, Play, Plus, Settings2, Shirt, Smartphone, Users, Wind, X } from 'lucide-react';
 import { HE, type SiteContent } from './content';
 import { STATIC_GALLERY } from './gallery';
 import { fetchUploadedGallery, type GalleryItem } from '../utils/gallery';
@@ -338,7 +338,7 @@ function ContactChannels({
 // ---------- sections ----------
 
 function Header() {
-  const { BRAND, NAV_LINKS, APP_PROMO, UI, APP_URL, EMBLEM_LIGHT, BOOK, CONTACT_LABEL, bookLinkProps } = useSite();
+  const { BRAND, NAV_LINKS, APP_PROMO, UI, APP_URL, EMBLEM_LIGHT, BOOK, CONTACT_LABEL, bookLinkProps, ASSET } = useSite();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -389,7 +389,9 @@ function Header() {
       <div className="mx-auto flex h-[72px] max-w-[1240px] items-center justify-between gap-3 px-5 sm:gap-6 md:px-8">
         <a href="#top" className="flex items-center gap-3" aria-label={`${BRAND.name} — ${UI.toTop}`}>
           <img src={EMBLEM_LIGHT} alt="" className="h-9 w-auto" />
-          <span className="whitespace-nowrap font-display text-xl font-medium text-gold-deep max-[359px]:text-base">{BRAND.name}</span>
+          {/* On narrow phones the health-declaration button takes this room;
+              the emblem stays and the hero shows the name right below. */}
+          <span className="whitespace-nowrap font-display text-xl font-medium text-gold-deep max-[459px]:sr-only">{BRAND.name}</span>
         </a>
 
         <nav className="hidden items-center gap-7 xl:flex" aria-label={UI.mainNav}>
@@ -405,6 +407,13 @@ function Header() {
         <div className="hidden items-center gap-3 xl:flex">
           <LangSwitch />
           <a
+            href={`${ASSET}health/`}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-sage/50 px-4 py-2 text-sm font-medium text-sage-deep transition-colors hover:border-sage hover:bg-sage-soft"
+          >
+            <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
+            {UI.healthForm}
+          </a>
+          <a
             href={BOOK.href}
             {...bookLinkProps}
             className="whitespace-nowrap rounded-full bg-sage px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-sage-deep"
@@ -414,6 +423,14 @@ function Header() {
         </div>
 
         <div className="flex items-center gap-1 xl:hidden">
+        {/* Clients open the site mostly on their phone to fill this in. */}
+        <a
+          href={`${ASSET}health/`}
+          className="inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-full bg-sage px-3 text-xs font-medium text-white transition-colors hover:bg-sage-deep"
+        >
+          <ClipboardCheck className="h-3.5 w-3.5 max-[379px]:hidden" aria-hidden="true" />
+          {UI.healthFormShort}
+        </a>
         <LangSwitch compact />
         <button ref={menuButtonRef}
           type="button"
@@ -444,6 +461,13 @@ function Header() {
           </nav>
           <div className="mt-8 flex flex-col gap-3">
             <BookButton className="w-full">{CONTACT_LABEL}</BookButton>
+            <a
+              href={`${ASSET}health/`}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-sage/50 px-7 py-3.5 font-medium text-sage-deep"
+            >
+              <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
+              {UI.healthForm}
+            </a>
             <a
               href={APP_URL}
               className="inline-flex items-center justify-center gap-2 rounded-full border border-line px-7 py-3.5 text-muted"

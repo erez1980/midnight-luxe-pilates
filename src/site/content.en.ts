@@ -300,6 +300,7 @@ export const EN: SiteContent = {
     privacy: 'Privacy (Hebrew)',
     terms: 'Terms (Hebrew)',
     healthForm: 'Health declaration (Hebrew)',
+    healthFormShort: 'Health form',
     healthFormPrompt: 'Already booked a class?',
     healthFormCta: 'Fill in the health declaration (Hebrew)',
     footerSignoff: 'With love,',
