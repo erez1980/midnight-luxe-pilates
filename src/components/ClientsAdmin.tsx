@@ -28,7 +28,6 @@ interface DeclarationRow {
   has_flags: boolean;
   personal: { full_name: string; birth_date: string; email: string; emergency_name: string; emergency_phone: string };
   guardian_name: string | null;
-  signature_png: string;
 }
 
 const FORM_LINK = 'https://rkpilatestudio.com/health/';
@@ -56,17 +55,54 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
   const [copied, setCopied] = useState(false);
   const admin = isGalleryAdmin(email);
 
+  // Signatures are loaded only when a client is opened (they are the heavy part).
+  const [signatures, setSignatures] = useState<Record<string, string>>({});
+
+  // PostgREST caps each response (1000 rows by default), so read page by page.
+  const readAll = async <T,>(table: string, columns: string, order: string): Promise<T[]> => {
+    const PAGE = 500;
+    const rows: T[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error: readError } = await supabase!
+        .from(table)
+        .select(columns)
+        .order(order, { ascending: false, nullsFirst: false })
+        .order('id')
+        .range(from, from + PAGE - 1);
+      if (readError) throw readError;
+      rows.push(...((data as T[]) || []));
+      if (!data || data.length < PAGE) return rows;
+    }
+  };
+
   const load = async () => {
     if (!supabase) return;
     setLoading(true);
-    const [c, d] = await Promise.all([
-      supabase.from('clients').select('*').order('last_declaration_at', { ascending: false, nullsFirst: false }),
-      supabase.from('health_declarations').select('*').order('submitted_at', { ascending: false }),
-    ]);
-    if (c.error || d.error) setError(`לא ניתן לטעון את הלקוחות: ${(c.error || d.error)!.message}`);
-    setClients((c.data as ClientRow[]) || []);
-    setDeclarations((d.data as DeclarationRow[]) || []);
+    try {
+      const [c, d] = await Promise.all([
+        readAll<ClientRow>('clients', '*', 'last_declaration_at'),
+        readAll<DeclarationRow>(
+          'health_declarations',
+          'id, client_id, submitted_at, answers, has_flags, personal, guardian_name',
+          'submitted_at'
+        ),
+      ]);
+      setClients(c);
+      setDeclarations(d);
+    } catch (e) {
+      setError(`לא ניתן לטעון את הלקוחות: ${(e as Error).message}`);
+    }
     setLoading(false);
+  };
+
+  const toggle = async (clientId: string) => {
+    const next = open === clientId ? null : clientId;
+    setOpen(next);
+    if (!next || !supabase) return;
+    const missing = (byClient[next] || []).filter((d) => !(d.id in signatures)).map((d) => d.id);
+    if (!missing.length) return;
+    const { data } = await supabase.from('health_declarations').select('id, signature_png').in('id', missing);
+    setSignatures((all) => ({ ...all, ...Object.fromEntries((data || []).map((r) => [r.id, r.signature_png as string])) }));
   };
 
   useEffect(() => {
@@ -160,7 +196,7 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
             return (
               <li key={c.id} className="rounded-2xl border border-line bg-white/70">
                 <button
-                  onClick={() => setOpen(expanded ? null : c.id)}
+                  onClick={() => toggle(c.id)}
                   aria-expanded={expanded}
                   className="w-full flex items-center gap-3 p-4 text-right cursor-pointer"
                 >
@@ -217,7 +253,11 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
                             </li>
                           ))}
                         </ol>
-                        <img src={d.signature_png} alt={`חתימה של ${c.full_name}`} className="mt-4 h-20 w-auto rounded-lg border border-line bg-white" />
+                        {signatures[d.id] ? (
+                          <img src={signatures[d.id]} alt={`חתימה של ${c.full_name}`} className="mt-4 h-20 w-auto rounded-lg border border-line bg-white" />
+                        ) : (
+                          <p className="mt-4 text-on-surface-variant">טוען חתימה…</p>
+                        )}
                       </section>
                     ))}
 
