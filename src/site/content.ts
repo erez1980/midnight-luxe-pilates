@@ -475,6 +475,7 @@ export const UI = {
   privacy: 'מדיניות פרטיות',
   terms: 'תנאי שימוש',
   healthForm: 'הצהרת בריאות',
+  healthFormShort: 'הצהרת בריאות',
   healthFormPrompt: 'כבר קבעת אימון?',
   healthFormCta: 'למילוי הצהרת בריאות אונליין',
   footerSignoff: 'באהבה,',
