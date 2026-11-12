@@ -76,13 +76,19 @@ alter table public.lesson_templates add constraint lesson_templates_user_lesson_
 אם יש כבר שורות כפולות מהתקופה של ה-delete+insert הישן, ה-`alter table` הזה ייכשל עם שגיאת duplicate key — במקרה כזה יש למחוק ידנית שורות כפולות (Table Editor → למיין לפי `lesson_id` → למחוק כפילויות) לפני הרצת ה-constraint.
 
 ## 3. Auth
-האתר משתמש ב-**Google OAuth** (לא Anonymous Sign-Ins). ב-Supabase Dashboard:
+האתר מתחבר עם **Google Identity Services** על `rkpilatestudio.com` ומעביר את ה-ID token ל-Supabase (`signInWithIdToken`). אם GIS אינו זמין, נשארת נפילה ל-**Google OAuth** הקיים דרך ה-callback של Supabase. לא Anonymous Sign-Ins. **אין להפעיל Skip nonce check** ב-provider — הקוד שולח nonce גולמי ל-Supabase ו-SHA-256 hex ל-GIS.
+
+ב-Supabase Dashboard:
 
 1. Authentication → Providers → הפעל **Google**.
-2. ב-[Google Cloud Console](https://console.cloud.google.com/) — צור OAuth Client ID מסוג Web application.
-3. הוסף ל-Authorized redirect URIs את כתובת ה-callback שמופיעה בעמוד ה-Google provider ב-Supabase (בפורמט `https://YOUR_PROJECT.supabase.co/auth/v1/callback`).
-4. העתק את ה-Client ID וה-Client Secret חזרה לעמוד ה-provider ב-Supabase ושמור.
-5. ב-Authentication → URL Configuration, ודא שכתובת האתר שלך (production + `http://localhost:5173` לפיתוח) מופיעה תחת Redirect URLs — אחרת ה-login יחזיר שגיאה אחרי אישור Google.
+2. ב-[Google Cloud Console](https://console.cloud.google.com/) — צור OAuth Client ID מסוג Web application (או השתמש בקיים, "RK Pilates Studio").
+3. הוסף ל-Authorized redirect URIs את כתובת ה-callback שמופיעה בעמוד ה-Google provider ב-Supabase (בפורמט `https://YOUR_PROJECT.supabase.co/auth/v1/callback`). זה נשאר דרוש לנפילת ה-OAuth.
+4. באותו לקוח, הוסף ל-Authorized JavaScript origins:
+   - `https://rkpilatestudio.com`
+   - `https://www.rkpilatestudio.com`
+   - `http://localhost:3000` (לפיתוח מקומי; `npm run dev` רץ על פורט 3000)
+5. העתק את ה-Client ID וה-Client Secret חזרה לעמוד ה-provider ב-Supabase ושמור. מזהה הלקוח הציבורי כבר מוגדר כברירת מחדל בקוד; אפשר לדרוס ב-`VITE_GOOGLE_CLIENT_ID`.
+6. ב-Authentication → URL Configuration, ודא שכתובת האתר שלך (production + `http://localhost:3000` לפיתוח) מופיעה תחת Redirect URLs — אחרת נפילת ה-OAuth תחזיר שגיאה אחרי אישור Google.
 
 ## 4. Deploy
 לאחר עדכון env, לבצע build+deploy מחדש.

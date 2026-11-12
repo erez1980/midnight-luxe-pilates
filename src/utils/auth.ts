@@ -1,4 +1,5 @@
 import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
+import { signInWithGoogleIdToken } from '../lib/google-id-sign-in';
 import { supabase, supabaseEnabled } from '../lib/supabase';
 
 export type AuthProfile = {
@@ -59,18 +60,13 @@ export function listenToAuthChanges(callback: (profile: AuthProfile | null, even
 export async function signInWithGoogle() {
   if (!supabaseEnabled || !supabase) return { ok: false, reason: 'disabled' };
   const redirectTo = `${window.location.origin}${window.location.pathname}`;
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo,
-      skipBrowserRedirect: false,
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'select_account',
-      },
-    },
-  });
-  return error ? { ok: false, reason: error.message } : { ok: true };
+  // GIS on rkpilatestudio.com first; same OAuth fallback (redirectTo + queryParams)
+  // if the client ID is overridden empty, the script fails, or signInWithIdToken fails.
+  // Cancelling the GIS dialog does not start OAuth (that screen still shows supabase.co).
+  const result = await signInWithGoogleIdToken({ supabase, redirectTo });
+  if (result.method === 'cancelled') return { ok: false, reason: 'cancelled' };
+  if (result.error) return { ok: false, reason: result.error };
+  return { ok: true, method: result.method };
 }
 
 export async function signOut() {

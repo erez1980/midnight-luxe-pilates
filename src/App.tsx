@@ -307,6 +307,7 @@ export default function App() {
   const handleGoogleLogin = async () => {
     const result = await signInWithGoogle();
     if (!result.ok) {
+      if (result.reason === 'cancelled') return;
       setUiNotice(result.reason === 'disabled' ? 'Google דורש חיבור Supabase ו-Google OAuth. כרגע האתר במצב אורח מוגבל.' : `Google login failed: ${result.reason}`);
     }
   };
