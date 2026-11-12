@@ -1,9 +1,11 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 
-const LAST_UPDATED = '5 בנובמבר 2026';
+const LAST_UPDATED = '12.11.2026';
 const CONTACT_EMAIL = 'rotem1980.shapira@gmail.com';
+const GOOGLE_DATA_EMAIL = 'erez1980@gmail.com';
 const SERVICE_NAME = 'פילאטיס בתנועה';
+const LEGAL_NAME = 'RK Pilates Studio';
 
 export const LEGAL_LAST_UPDATED = LAST_UPDATED;
 
@@ -59,8 +61,8 @@ export function PrivacyPolicyBody() {
       <section>
         <h2>1. כללי</h2>
         <p>
-          מדיניות זו מסבירה איזה מידע {SERVICE_NAME} אוסף, איך הוא נשמר ולשם מה הוא משמש. השימוש באתר מהווה הסכמה למדיניות זו.
-          השירות מיועד למדריכות ומדריכי פילאטיס לצורך בניית שיעורים וניהול מאגר עבודה אישי, ואינו מיועד לילדים ולקטינים. הצהרת בריאות של מתאמן/ת מתחת לגיל 18 נחתמת על ידי הורה או אפוטרופוס.
+          מדיניות זו חלה על {LEGAL_NAME} ({SERVICE_NAME}, https://rkpilatestudio.com) ומסבירה איזה מידע האתר אוסף, איך הוא נשמר ולשם מה הוא משמש. השימוש באתר מהווה הסכמה למדיניות זו.
+          השירות מיועד למדריכות ומדריכי פילאטיס לצורך בניית שיעורים וניהול מאגר עבודה אישי, וכן מציג את שיעורי הפילאטיס של רתם שפירא. הוא אינו מיועד לילדים ולקטינים. הצהרת בריאות של מתאמן/ת מתחת לגיל 18 נחתמת על ידי הורה או אפוטרופוס.
         </p>
       </section>
 
@@ -81,10 +83,10 @@ export function PrivacyPolicyBody() {
       <section>
         <h2>3. איך המידע נשמר</h2>
         <p>
-          מידע של משתמשות ומשתמשים מחוברים נשמר בענן דרך <strong>Supabase</strong> (ספק תשתית לאחסון נתונים ואימות), עם הרשאות גישה ברמת שורה (Row Level Security) — כל אדם רואה ויכול לערוך רק את הנתונים שלו/שלה. קישורי שיתוף ציבוריים הם היוצא מהכלל: כל מי שמחזיק בקישור יכול לצפות בשיעור המשותף, גם ללא התחברות.
+          מידע של משתמשות ומשתמשים מחוברים נשמר בענן דרך <strong>Supabase</strong> (ספק תשתית לאחסון נתונים ואימות), באזור eu-central-1 באיחוד האירופי (פרנקפורט), עם הרשאות גישה ברמת שורה (Row Level Security) — כל אדם רואה ויכול לערוך רק את הנתונים שלו/שלה. קישורי שיתוף ציבוריים הם היוצא מהכלל: כל מי שמחזיק בקישור יכול לצפות בשיעור המשותף, גם ללא התחברות.
         </p>
         <p>
-          הצהרות בריאות נשמרות ב-Supabase (שרתים באיחוד האירופי) בטבלה נפרדת שהגישה אליה חסומה לציבור. רק רתם (ומנהל האתר, לצורך תחזוקה) יכולים לצפות בהן, אחרי התחברות. עותק של ההצהרה נשלח גם למייל של רתם. הדפדפן של הממלא/ת אינו שומר את התשובות אחרי השליחה.
+          הצהרות בריאות נשמרות ב-Supabase (אזור eu-central-1 באיחוד האירופי) בטבלה נפרדת שהגישה אליה חסומה לציבור. רק רתם (ומנהל האתר, לצורך תחזוקה) יכולים לצפות בהן, אחרי התחברות. עותק של ההצהרה נשלח גם למייל של רתם. הדפדפן של הממלא/ת אינו שומר את התשובות אחרי השליחה.
         </p>
         <p>
           מידע במצב אורח (ללא התחברות) נשמר רק בדפדפן המקומי של המכשיר, ואינו מועבר לשרת כלל.
@@ -114,30 +116,73 @@ export function PrivacyPolicyBody() {
       </section>
 
       <section>
-        <h2>6. זכויות המשתמש/ת</h2>
+        <h2>6. מידע מחשבון Google</h2>
         <p>
-          ניתן בכל עת לבקש עיון, תיקון או מחיקה מלאה של המידע השמור בחשבון — כולל שיעורים, תבניות, פרטי הפרופיל והצהרות בריאות — על ידי פנייה למייל שבתחתית עמוד זה. מחיקת חשבון היא בלתי הפיכה.
+          ההתחברות לאתר, בעיקר לכלי בניית השיעורים, מתבצעת באמצעות Google Identity Services או Google OAuth, ומועברת ל-Supabase לצורך יצירת חשבון והתחברות. האתר מבקש רק את ההרשאות openid, email ו-profile. הוא אינו מבקש גישה ל-Gmail, ל-Google Drive, ליומן או לנתוני Google אחרים.
+        </p>
+        <p>
+          מהחשבון מתקבלים שם התצוגה, כתובת הדוא"ל ותמונת הפרופיל. הם משמשים רק ליצירת החשבון ולהתחברות, ולהצגת השם והתמונה בפרופיל ובממשק האתר. האתר אינו משתמש במידע מ-Google לפרסום, אינו מוכר אותו, ואינו משתף אותו עם צדדים שלישיים — למעט ספקי השירות הנחוצים להפעלת האתר (Supabase לאחסון נתוני החשבון וההתחברות באזור eu-central-1).
+        </p>
+        <p>
+          שימוש האתר במידע שמתקבל מממשקי Google API, והעברתו ליישום אחר אם תידרש, יעמדו במדיניות נתוני המשתמש של שירותי Google API, לרבות דרישות השימוש המוגבל (Google API Services User Data Policy, Limited Use).
         </p>
       </section>
 
       <section>
-        <h2>7. אבטחת מידע</h2>
+        <h2>7. עוגיות, הפעלה (session) ושמירה בדפדפן</h2>
+        <p>
+          לאחר התחברות עם Google, ה-session נשמר בדפדפן (ב-localStorage, דרך לקוח Supabase) כדי שתישארו מחוברים בין ביקורים, עד שתתנתקו או עד שפג תוקף ההפעלה. שיעורים וטיוטות במצב אורח נשמרים גם הם ב-localStorage של הדפדפן, ואינם מועברים לשרת.
+        </p>
+        <p>
+          Google Analytics שומר עוגייה עם מזהה אקראי כדי להבחין בין ביקור חוזר לביקור חדש, ואינו מקושר לחשבון המשתמש ואינו משמש לפרסום. ניתן לחסום אותה בהגדרות הדפדפן או בתוסף ביטול ההצטרפות של Google Analytics.
+        </p>
+      </section>
+
+      <section>
+        <h2>8. זכויות המשתמש/ת</h2>
+        <p>
+          ניתן בכל עת לבקש עיון, תיקון או מחיקה מלאה של המידע השמור בחשבון — כולל שיעורים, תבניות, פרטי הפרופיל, נתוני התחברות מ-Google והצהרות בריאות — על ידי פנייה ל-<a className="text-secondary hover:underline" href={`mailto:${GOOGLE_DATA_EMAIL}`}>{GOOGLE_DATA_EMAIL}</a>. מחיקת חשבון היא בלתי הפיכה.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. אבטחת מידע</h2>
         <p>
           ננקטים אמצעי אבטחה סבירים (הצפנת תעבורה, הרשאות גישה מבוססות משתמש) כדי להגן על המידע, אך כמו בכל שירות מקוון, לא ניתן להבטיח הגנה מוחלטת מפני כל תרחיש.
         </p>
       </section>
 
       <section>
-        <h2>8. שינויים במדיניות</h2>
+        <h2>10. שינויים במדיניות</h2>
         <p>
           מדיניות זו עשויה להתעדכן מעת לעת. תאריך העדכון האחרון מופיע בראש העמוד. המשך שימוש באתר לאחר עדכון מהווה הסכמה למדיניות המעודכנת.
         </p>
       </section>
 
       <section>
-        <h2>9. יצירת קשר</h2>
+        <h2>11. יצירת קשר</h2>
         <p>
-          לשאלות, בקשות עיון או מחיקת מידע — ניתן לפנות במייל: <a className="text-secondary hover:underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          לבקשות עיון, תיקון או מחיקה של חשבון ושל מידע שהתקבל מ-Google: <a className="text-secondary hover:underline" href={`mailto:${GOOGLE_DATA_EMAIL}`}>{GOOGLE_DATA_EMAIL}</a>.
+          לשאלות אחרות, כולל הצהרות בריאות: <a className="text-secondary hover:underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+        </p>
+      </section>
+
+      <section lang="en" dir="ltr">
+        <h2>Privacy (English)</h2>
+        <p>
+          {LEGAL_NAME} ({SERVICE_NAME}, https://rkpilatestudio.com) is Rotem Shapira’s site for mat and apparatus Pilates classes in the Emek Izrael Valley and northern Israel, and a lesson-planning tool for Pilates instructors. You can browse the public site without an account. Signing in uses Google Identity Services or Google OAuth, and is completed through Supabase to create and access an instructor account.
+        </p>
+        <p>
+          We request only the openid, email, and profile scopes. We do not request Gmail, Google Drive, Calendar, or other Google data. From Google we receive your name, email address, and profile picture. We use this only to create and sign in to your account and to show your display name and photo in the app. We do not use Google user data for advertising, do not sell it, and do not share it except with service providers that operate the service: Supabase (authentication and account data, stored in AWS region eu-central-1 in the EU).
+        </p>
+        <p>
+          {LEGAL_NAME}'s use and transfer to any other app of information received from Google APIs will adhere to the Google API Services User Data Policy, including the Limited Use requirements.
+        </p>
+        <p>
+          After you sign in, the session is stored in your browser (localStorage via the Supabase client) until you sign out or the session expires. Lesson drafts in guest mode stay in localStorage only and are not sent to the server. Google Analytics may set a cookie with a random identifier to distinguish returning visits; this is not linked to your account and is not used for advertising.
+        </p>
+        <p>
+          To request access, correction, or deletion of your account and Google account data, email <a className="text-secondary hover:underline" href={`mailto:${GOOGLE_DATA_EMAIL}`}>{GOOGLE_DATA_EMAIL}</a>. For other questions, including health-declaration inquiries, email <a className="text-secondary hover:underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. This policy was last updated on 12.11.2026.
         </p>
       </section>
     </>

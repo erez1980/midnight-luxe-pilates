@@ -36,9 +36,14 @@ export const EN: SiteContent = {
 
   HERO: {
     eyebrow: 'Rotem · Pilates instructor · Israel',
+    officialName: 'RK Pilates Studio',
     title: ['Movement', 'that begins', 'within.'],
     subtitle:
       'Mat and apparatus Pilates — in the studio, at your event, or wherever your community moves. Open to collaborations with activewear brands.',
+    purpose:
+      'RK Pilates Studio (פילאטיס בתנועה) is Rotem Shapira’s site for mat and apparatus Pilates classes in the Emek Izrael Valley and northern Israel, and a lesson-planning tool for Pilates instructors.',
+    purposeGoogleEn:
+      'Sign in with Google is used to create and access an instructor account on this site.',
     primaryCta: 'Work with me',
     secondaryCta: 'Explore the classes',
     secondaryHref: '#classes',

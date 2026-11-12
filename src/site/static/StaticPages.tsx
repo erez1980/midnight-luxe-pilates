@@ -562,7 +562,7 @@ export function LegalDocumentPage({ kind, root }: { kind: 'privacy' | 'terms'; r
   return (
     <Shell root={root} breadcrumbs={[{ href: root, label: 'דף הבית' }, { label: title }]}>
       <article className="mt-8 max-w-3xl">
-        <p className="text-sm font-medium text-gold-deep">פילאטיס בתנועה</p>
+        <p className="text-sm font-medium text-gold-deep">RK Pilates Studio · פילאטיס בתנועה</p>
         <h1 className="mt-3 font-display text-4xl font-light leading-tight text-ink md:text-5xl">{title}</h1>
         <p className="mt-2 text-xs text-muted">עודכן לאחרונה: {LEGAL_LAST_UPDATED}</p>
         <div className="legal-doc mt-8 text-base leading-relaxed text-muted">

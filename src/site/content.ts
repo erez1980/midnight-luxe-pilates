@@ -44,9 +44,14 @@ export const NAV_LINKS = [
 
 export const HERO = {
   eyebrow: 'רתם · מדריכת פילאטיס עצמאית · עמק יזרעאל',
+  officialName: 'RK Pilates Studio',
   title: ['תנועה', 'שמתחילה', 'מבפנים.'],
   subtitle:
     'שיעורי פילאטיס מזרן ומכשירים — בסטודיו, באירוע או אצלכם. ולמדריכות: כלי לבניית שיעורים, עם התאמה לפציעות ולמצבים מיוחדים.',
+  purpose:
+    'RK Pilates Studio (פילאטיס בתנועה) הוא האתר של רתם שפירא: שיעורי פילאטיס מזרן ומכשירים בעמק יזרעאל ובצפון, וכן כלי לבניית שיעורי פילאטיס למדריכות.',
+  purposeGoogleEn:
+    'Sign in with Google is used to create and access an instructor account on this site.',
   primaryCta: 'להזמנת שיעור',
   secondaryCta: 'לבניית שיעור',
   // 'app' = the lesson builder; otherwise an in-page anchor like '#classes'.

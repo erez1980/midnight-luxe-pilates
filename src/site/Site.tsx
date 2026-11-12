@@ -535,9 +535,24 @@ function Hero() {
                 </React.Fragment>
               ))}
             </h1>
+            <h2
+              className="mt-6 font-display text-xl font-medium tracking-wide text-gold-deep md:text-2xl"
+              lang="en"
+              dir="ltr"
+            >
+              {HERO.officialName}
+            </h2>
           </Reveal>
           <Reveal delay={240}>
             <p className="mt-8 max-w-[34rem] text-lg leading-relaxed text-muted md:text-xl">{HERO.subtitle}</p>
+            <p className="mt-4 max-w-[34rem] text-base leading-relaxed text-muted">
+              {HERO.purpose}{' '}
+              <span lang="en" dir="ltr">{HERO.purposeGoogleEn}</span>
+              {' '}
+              <a href={`${ASSET}privacy/`} className="text-sage underline decoration-sage/40 underline-offset-4 hover:decoration-sage">{UI.privacy}</a>
+              {' · '}
+              <a href={`${ASSET}terms/`} className="text-sage underline decoration-sage/40 underline-offset-4 hover:decoration-sage">{UI.terms}</a>
+            </p>
           </Reveal>
           <Reveal delay={360}>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
