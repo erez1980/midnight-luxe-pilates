@@ -534,6 +534,12 @@ function Hero() {
                   <span className={`block ${i === HERO.title.length - 1 ? 'text-sage' : ''}`}>{line}</span>
                 </React.Fragment>
               ))}
+              {HERO.local && (
+                <>
+                  {' '}
+                  <span className="mt-5 block font-sans text-lg font-normal leading-snug tracking-normal text-ink/80 md:text-xl">{HERO.local}</span>
+                </>
+              )}
             </h1>
             <h2
               className="mt-6 font-display text-xl font-medium tracking-wide text-gold-deep md:text-2xl"

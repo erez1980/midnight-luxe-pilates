@@ -45,6 +45,8 @@ export const NAV_LINKS = [
 export const HERO = {
   eyebrow: 'רתם · מדריכת פילאטיס עצמאית · עמק יזרעאל',
   officialName: 'RK Pilates Studio',
+  // The last line of the H1: what and where, for local searches.
+  local: 'פילאטיס מזרן ומכשירים בעמק יזרעאל ובצפון',
   title: ['תנועה', 'שמתחילה', 'מבפנים.'],
   subtitle:
     'שיעורי פילאטיס מזרן ומכשירים — בסטודיו, באירוע או אצלכם. ולמדריכות: כלי לבניית שיעורים, עם התאמה לפציעות ולמצבים מיוחדים.',

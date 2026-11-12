@@ -28,16 +28,17 @@ export const APPARATUS: Record<Exercise['apparatus'], { label: string; title: st
 };
 export const APPARATUS_ORDER: Exercise['apparatus'][] = ['mat', 'reformer', 'cadillac', 'chair', 'props'];
 
-// Mat and chair have their own catalog pages. The other apparatus stay as
-// sections on the library index until they earn a page of their own.
+// Apparatus with a catalog page of their own (a landing in landings.ts).
+// Props stay as a section on the library index until they earn one.
+export const APPARATUS_HUBS: Exercise['apparatus'][] = ['mat', 'chair', 'reformer', 'cadillac'];
+
 export function apparatusPath(apparatus: Exercise['apparatus']) {
-  if (apparatus === 'mat' || apparatus === 'chair') return `exercises/${apparatus}/`;
+  if (APPARATUS_HUBS.includes(apparatus)) return `exercises/${apparatus}/`;
   return `exercises/#${apparatus}`;
 }
 
 export function apparatusLinkLabel(apparatus: Exercise['apparatus']) {
-  if (apparatus === 'mat') return 'כל תרגילי פילאטיס מזרן';
-  if (apparatus === 'chair') return 'כל תרגילי פילאטיס כיסא';
+  if (APPARATUS_HUBS.includes(apparatus)) return `כל תרגילי פילאטיס ${APPARATUS[apparatus].label}`;
   return `עוד תרגילי פילאטיס ${APPARATUS[apparatus].label}`;
 }
 
@@ -350,7 +351,7 @@ export function ExerciseIndexPage({ all, root }: { all: Exercise[]; root: string
         return (
           <section key={a} id={a} className="mt-14 scroll-mt-6">
             <h2 className="font-display text-3xl font-light text-ink">
-              {a === 'mat' || a === 'chair' ? (
+              {APPARATUS_HUBS.includes(a) ? (
                 <a href={`${root}${apparatusPath(a)}`} className="underline decoration-gold/40 underline-offset-4 hover:decoration-sage">{APPARATUS[a].title}</a>
               ) : (
                 APPARATUS[a].title
@@ -452,14 +453,32 @@ function ApparatusCatalog({ all, root, apparatus }: { all: Exercise[]; root: str
         {list.length} תרגילים, מהקלים יותר אל המתקדמים. כל קישור נפתח לעמוד עם שלבי ביצוע, נשימה ושרירים עיקריים.
         זו ספרייה, לא שיעור מוכן ולא המלצה רפואית.
       </p>
-      <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((ex) => (
-          <li key={ex.id}><ExerciseLink ex={ex} root={root} /></li>
-        ))}
-      </ul>
+      {/* Grouped by level, so a search like "רפורמר למתחילים" lands on a heading. */}
+      {DIFFICULTY_GROUPS.map(({ key, label }) => {
+        const group = list.filter((ex) => ex.difficulty === key);
+        if (!group.length) return null;
+        return (
+          <React.Fragment key={key}>
+            <h3 className="mt-8 font-display text-2xl font-light text-ink">
+              תרגילי {APPARATUS[apparatus].label} {label} <span className="text-base text-muted">({group.length})</span>
+            </h3>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {group.map((ex) => (
+                <li key={ex.id}><ExerciseLink ex={ex} root={root} /></li>
+              ))}
+            </ul>
+          </React.Fragment>
+        );
+      })}
     </section>
   );
 }
+
+const DIFFICULTY_GROUPS: { key: Exercise['difficulty']; label: string }[] = [
+  { key: 'beginner', label: 'למתחילים' },
+  { key: 'intermediate', label: 'ברמה בינונית' },
+  { key: 'advanced', label: 'למתקדמים' },
+];
 
 export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[]; root: string }) {
   const ctaHref = page.cta.message ? whatsappHref(page.cta.message) : `${root}app/`;
