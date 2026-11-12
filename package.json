@@ -8,7 +8,8 @@
     "build": "vite build && vite build --ssr src/site/entry-server.tsx --outDir .ssr && node scripts/prerender.mjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "tsx --test src/lib/google-id-sign-in.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
