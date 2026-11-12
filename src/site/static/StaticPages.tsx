@@ -2,7 +2,7 @@ import React from 'react';
 import type { Exercise } from '../../types';
 import { LEGAL_LAST_UPDATED, LegalNotice, PrivacyPolicyBody, TermsOfUseBody } from '../../components/LegalPages';
 import { HE } from '../content';
-import { CONDITIONS, DISCLAIMER, SUITABILITY_LABEL, assessExercise, type ConditionId, type Suitability } from '../../utils/conditions';
+import { CONDITIONS, DISCLAIMER, REVIEWED_NOTE, SUITABILITY_LABEL, assessExercise, type ConditionId, type Suitability } from '../../utils/conditions';
 import { exerciseProps, propLabel } from '../../utils/props';
 import type { Landing } from './landings';
 
@@ -17,7 +17,7 @@ const { BRAND, CONTACT, FOOTER_PAGES, UI } = HE;
 // Rotem is reviewing (docs/conditions-review.csv). Until she approves it, the
 // public pages point to the lesson-builder tool instead of publishing it.
 // Flip to true to show the tables and the pregnancy/postnatal exercise lists.
-export const PUBLISH_CONDITION_TABLES = false;
+export const PUBLISH_CONDITION_TABLES = true;
 
 export const APPARATUS: Record<Exercise['apparatus'], { label: string; title: string }> = {
   mat: { label: 'מזרן', title: 'תרגילי פילאטיס מזרן' },
@@ -259,7 +259,7 @@ export function ExercisePage({ ex, all, root }: { ex: Exercise; all: Exercise[];
         {PUBLISH_CONDITION_TABLES && (
         <section className="mt-14">
           <h2 className="font-display text-3xl font-light text-ink">התאמה למצבים מיוחדים</h2>
-          <p className="mt-3 max-w-3xl text-sm text-muted">{DISCLAIMER}</p>
+          <p className="mt-3 max-w-3xl text-sm text-muted">{REVIEWED_NOTE} {DISCLAIMER}</p>
           <div className="mt-6 overflow-hidden rounded-[20px] border border-line">
             <table className="w-full text-start text-sm">
               <thead className="bg-sand text-muted">
@@ -535,15 +535,19 @@ export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[
 
       {page.related && page.related.length > 0 && <RelatedLinks root={root} links={page.related} />}
 
-      {page.extra === 'conditions' && PUBLISH_CONDITION_TABLES && (
+      {page.extra && PUBLISH_CONDITION_TABLES && (
         <>
-          <ConditionLists all={all} root={root} condition="pregnancy" title="תרגילי פילאטיס בהריון" />
-          <ConditionLists all={all} root={root} condition="postnatal" title="תרגילי פילאטיס אחרי לידה" />
-          <p className="mt-6 text-sm text-muted">{DISCLAIMER}</p>
+          <ConditionLists
+            all={all}
+            root={root}
+            condition={page.extra}
+            title={page.extra === 'pregnancy' ? 'טבלת התאמה: תרגילי פילאטיס בהריון' : 'טבלת התאמה: תרגילי פילאטיס אחרי לידה'}
+          />
+          <p className="mt-6 text-sm text-muted">{REVIEWED_NOTE} {DISCLAIMER}</p>
         </>
       )}
 
-      {page.extra !== 'conditions' && (
+      {(
         <section className="mt-14 grid items-center gap-8 rounded-[28px] border border-line p-7 md:grid-cols-[160px_1fr]">
           <img src={`${root}photos/rotem.webp`} alt={BRAND.photoAlt} width={160} height={160} loading="lazy" className="h-40 w-40 rounded-full object-cover" />
           <div>

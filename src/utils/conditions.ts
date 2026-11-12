@@ -4,13 +4,14 @@ import { CONDITION_OVERRIDES } from './conditionOverrides';
 // Special-conditions layer: for each exercise and condition (injury, pregnancy,
 // postnatal…) the tool answers "suitable / needs modification / avoid", with
 // the reason. Answers come from two places:
-//   1. A DRAFT rules engine below: each exercise is tagged with movement
-//      patterns (inversion, loaded spinal flexion, prone…) derived from its
-//      name, and each condition maps patterns to a status. These follow common
-//      Pilates contraindication guidelines but are NOT approved yet.
-//   2. Rotem's reviewed decisions in conditionOverrides.ts, which always win
-//      and are marked as approved.
-// The UI must always show the draft/approved state and the medical disclaimer.
+//   1. A rules engine below: each exercise is tagged with movement patterns
+//      (inversion, loaded spinal flexion, prone…) derived from its name, and
+//      each condition maps patterns to a status. Rotem reviewed the full
+//      output (docs/conditions-review.csv) and approved it on 2026-11-12.
+//      A change to the rules changes approved content: export the CSV again
+//      and have her review the diff before shipping.
+//   2. Per-exercise exceptions in conditionOverrides.ts, which always win.
+// The UI must always show the medical disclaimer.
 
 export type ConditionId = 'lower-back' | 'neck-shoulders' | 'knees' | 'osteoporosis' | 'pregnancy' | 'postnatal';
 export type Suitability = 'suitable' | 'modify' | 'avoid';
@@ -36,6 +37,11 @@ export const SUITABILITY_LABEL: Record<Suitability, string> = {
   modify: 'בהתאמה',
   avoid: 'להימנע',
 };
+
+// Date Rotem approved the rules output in docs/conditions-review.csv.
+export const RULES_APPROVED_ON = '2026-11-12';
+
+export const REVIEWED_NOTE = 'הסימון נבדק ואושר על ידי רתם שפירא, מדריכת פילאטיס מזרן ומכשירים מוסמכת (נובמבר 2026).';
 
 export const DISCLAIMER =
   'כלי עזר למדריכות ומדריכים מוסמכים. ההמלצות כלליות, אינן תחליף לייעוץ רפואי, ויש להתאים כל תרגיל למתאמן/ת שמולך.';
@@ -155,7 +161,7 @@ const RULES: Record<ConditionId, Partial<Record<Trait, Rule>>> = {
 export interface Assessment {
   status: Suitability;
   reasons: string[];
-  approved: boolean; // true = reviewed by Rotem (override), false = draft rule
+  approved: boolean; // true = reviewed by Rotem (rules output or override)
 }
 
 const RANK: Record<Suitability, number> = { suitable: 0, modify: 1, avoid: 2 };
@@ -174,7 +180,7 @@ export function assessExercise(ex: Exercise, condition: ConditionId): Assessment
     if (RANK[rule.status] > RANK[status]) status = rule.status;
     if (!reasons.includes(rule.reason)) reasons.push(rule.reason);
   });
-  return { status, reasons, approved: false };
+  return { status, reasons, approved: Boolean(RULES_APPROVED_ON) };
 }
 
 // Combined assessment for several conditions at once (e.g. a lesson for a

@@ -381,7 +381,7 @@ export const FOOTER_PAGES: { href: string; label: string }[] = [
 export const GUIDES: { eyebrow: string; title: string; intro: string; items: { href: string; label: string; text: string }[] } = {
   eyebrow: 'ספרייה ומדריכים',
   title: 'תרגילים לפי נושא',
-  intro: 'עמודים בעברית עם הסבר קצר וקישור לתרגילים. בהריון ואחרי לידה אין רשימת תרגילים מותרים — רק עקרונות זהירות.',
+  intro: 'עמודים בעברית עם הסבר קצר וקישור לתרגילים. בהריון ואחרי לידה: עקרונות זהירות וטבלת התאמה לכל תרגיל, שרתם אישרה.',
   items: [
     { href: 'exercises/chair/', label: 'פילאטיס כיסא', text: 'תרגילי Wunda Chair: דוושה, קפיצים, וביצוע בעברית.' },
     { href: 'exercises/mat/', label: 'תרגילי פילאטיס מזרן', text: 'הרפרטואר על המזרן, עם שלבי ביצוע ונשימה.' },
