@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ChevronDown, Copy, Loader2, LogIn, Search, Trash2 } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Copy, Loader2, LogIn, MessageCircle, Search, Trash2 } from 'lucide-react';
 import { supabase, supabaseEnabled } from '../lib/supabase';
 import { isGalleryAdmin } from '../utils/gallery';
 import Button from './ui/Button';
@@ -42,8 +42,24 @@ const yearsOld = (birth: string | null) => {
   if (now < new Date(now.getFullYear(), b.getMonth(), b.getDate())) age--;
   return age;
 };
-// A declaration older than a year should be renewed.
-const isStale = (iso: string | null) => !iso || Date.now() - new Date(iso).getTime() > 365 * 24 * 3600 * 1000;
+// A declaration is valid for a year; flag it a month before it runs out.
+const DAY = 24 * 3600 * 1000;
+const VALID_DAYS = 365;
+const WARN_DAYS = 30;
+const expiresAt = (iso: string) => new Date(new Date(iso).getTime() + VALID_DAYS * DAY);
+type Validity = 'valid' | 'soon' | 'expired';
+const validity = (iso: string | null): Validity => {
+  if (!iso) return 'expired';
+  const left = expiresAt(iso).getTime() - Date.now();
+  return left <= 0 ? 'expired' : left <= WARN_DAYS * DAY ? 'soon' : 'valid';
+};
+
+// A ready WhatsApp message from Rotem asking the client to renew.
+const renewLink = (c: { full_name: string; phone: string }) => {
+  const first = c.full_name.trim().split(/\s+/)[0];
+  const text = `היי ${first}, כאן רתם 💖\nעברה כמעט שנה מאז הצהרת הבריאות שלך, ואני צריכה אותה מעודכנת לפני האימונים הבאים. ממלאים כאן בכמה דקות:\n${FORM_LINK}\nתודה!`;
+  return `https://wa.me/972${c.phone.replace(/^0/, '')}?text=${encodeURIComponent(text)}`;
+};
 
 export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string | null; onGoogleLogin: () => void }) {
   const [clients, setClients] = useState<ClientRow[]>([]);
@@ -51,6 +67,7 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
+  const [onlyRenewals, setOnlyRenewals] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const admin = isGalleryAdmin(email);
@@ -117,7 +134,9 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
     return map;
   }, [declarations]);
 
+  const renewals = clients.filter((c) => validity(c.last_declaration_at) !== 'valid').length;
   const shown = clients.filter((c) => {
+    if (onlyRenewals && validity(c.last_declaration_at) === 'valid') return false;
     const q = query.trim();
     return !q || c.full_name.includes(q) || c.phone.includes(q.replace(/\D/g, '') || '§');
   });
@@ -179,6 +198,20 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
         />
       </label>
 
+      {(renewals > 0 || onlyRenewals) && (
+        <button
+          onClick={() => setOnlyRenewals((v) => !v)}
+          aria-pressed={onlyRenewals}
+          className={`w-full rounded-2xl px-4 py-3 text-right text-sm transition-colors cursor-pointer ${
+            onlyRenewals ? 'bg-amber-200 text-amber-950' : 'bg-amber-50 text-amber-900 hover:bg-amber-100'
+          }`}
+        >
+          {onlyRenewals
+            ? 'מוצגות רק לקוחות שצריך לחדש להן הצהרה. לחיצה להצגת כולן.'
+            : `${renewals} ${renewals === 1 ? 'לקוחה צריכה' : 'לקוחות צריכות'} לחדש הצהרת בריאות (פג תוקף או יפוג בחודש הקרוב). לחיצה לסינון.`}
+        </button>
+      )}
+
       {error && <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {loading ? (
         <div className="py-16 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-on-surface-variant" /></div>
@@ -193,6 +226,7 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
             const flagged = decls.some((d) => d.has_flags);
             const expanded = open === c.id;
             const age = yearsOld(c.birth_date);
+            const status = validity(c.last_declaration_at);
             return (
               <li key={c.id} className="rounded-2xl border border-line bg-white/70">
                 <button
@@ -208,8 +242,13 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
                           <AlertTriangle className="w-3 h-3" /> יש הערות בריאות
                         </span>
                       )}
-                      {isStale(c.last_declaration_at) && (
-                        <span className="rounded-full bg-surface-container px-2.5 py-0.5 text-xs text-on-surface-variant">הצהרה מעל שנה</span>
+                      {status === 'expired' && (
+                        <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs text-red-900">ההצהרה פגה</span>
+                      )}
+                      {status === 'soon' && c.last_declaration_at && (
+                        <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-900">
+                          בתוקף עד {date(expiresAt(c.last_declaration_at).toISOString())}
+                        </span>
                       )}
                     </div>
                     <p className="text-sm text-on-surface-variant mt-0.5">
@@ -220,6 +259,18 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
                   </div>
                   <ChevronDown className={`w-5 h-5 text-on-surface-variant transition-transform ${expanded ? 'rotate-180' : ''}`} />
                 </button>
+                {status !== 'valid' && (
+                  <div className="px-4 pb-4 -mt-1">
+                    <a
+                      href={renewLink(c)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-sm font-medium text-white hover:brightness-95"
+                    >
+                      <MessageCircle className="w-4 h-4" /> בקשת חידוש בווטסאפ
+                    </a>
+                  </div>
+                )}
 
                 {expanded && (
                   <div className="border-t border-line p-4 space-y-5 text-sm">

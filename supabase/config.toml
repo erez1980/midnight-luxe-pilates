@@ -3,3 +3,8 @@
 # itself (supabase/functions/health-declaration/index.ts).
 [functions.health-declaration]
 verify_jwt = false
+
+# Weekly renewal reminder to Rotem, called by pg_cron. Public but rate-limited
+# to one email per 6 days (supabase/migrations/20261112_renewal_digest.sql).
+[functions.renewal-digest]
+verify_jwt = false
