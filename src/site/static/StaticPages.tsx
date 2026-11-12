@@ -2,7 +2,7 @@ import React from 'react';
 import type { Exercise } from '../../types';
 import { LEGAL_LAST_UPDATED, LegalNotice, PrivacyPolicyBody, TermsOfUseBody } from '../../components/LegalPages';
 import { HE } from '../content';
-import { CONDITIONS, DISCLAIMER, SUITABILITY_LABEL, assessExercise, type ConditionId, type Suitability } from '../../utils/conditions';
+import { CONDITIONS, DISCLAIMER, REVIEWED_NOTE, SUITABILITY_LABEL, assessExercise, type ConditionId, type Suitability } from '../../utils/conditions';
 import { exerciseProps, propLabel } from '../../utils/props';
 import type { Landing } from './landings';
 
@@ -17,7 +17,7 @@ const { BRAND, CONTACT, FOOTER_PAGES, UI } = HE;
 // Rotem is reviewing (docs/conditions-review.csv). Until she approves it, the
 // public pages point to the lesson-builder tool instead of publishing it.
 // Flip to true to show the tables and the pregnancy/postnatal exercise lists.
-export const PUBLISH_CONDITION_TABLES = false;
+export const PUBLISH_CONDITION_TABLES = true;
 
 export const APPARATUS: Record<Exercise['apparatus'], { label: string; title: string }> = {
   mat: { label: 'מזרן', title: 'תרגילי פילאטיס מזרן' },
@@ -28,16 +28,17 @@ export const APPARATUS: Record<Exercise['apparatus'], { label: string; title: st
 };
 export const APPARATUS_ORDER: Exercise['apparatus'][] = ['mat', 'reformer', 'cadillac', 'chair', 'props'];
 
-// Mat and chair have their own catalog pages. The other apparatus stay as
-// sections on the library index until they earn a page of their own.
+// Apparatus with a catalog page of their own (a landing in landings.ts).
+// Props stay as a section on the library index until they earn one.
+export const APPARATUS_HUBS: Exercise['apparatus'][] = ['mat', 'chair', 'reformer', 'cadillac'];
+
 export function apparatusPath(apparatus: Exercise['apparatus']) {
-  if (apparatus === 'mat' || apparatus === 'chair') return `exercises/${apparatus}/`;
+  if (APPARATUS_HUBS.includes(apparatus)) return `exercises/${apparatus}/`;
   return `exercises/#${apparatus}`;
 }
 
 export function apparatusLinkLabel(apparatus: Exercise['apparatus']) {
-  if (apparatus === 'mat') return 'כל תרגילי פילאטיס מזרן';
-  if (apparatus === 'chair') return 'כל תרגילי פילאטיס כיסא';
+  if (APPARATUS_HUBS.includes(apparatus)) return `כל תרגילי פילאטיס ${APPARATUS[apparatus].label}`;
   return `עוד תרגילי פילאטיס ${APPARATUS[apparatus].label}`;
 }
 
@@ -258,7 +259,7 @@ export function ExercisePage({ ex, all, root }: { ex: Exercise; all: Exercise[];
         {PUBLISH_CONDITION_TABLES && (
         <section className="mt-14">
           <h2 className="font-display text-3xl font-light text-ink">התאמה למצבים מיוחדים</h2>
-          <p className="mt-3 max-w-3xl text-sm text-muted">{DISCLAIMER}</p>
+          <p className="mt-3 max-w-3xl text-sm text-muted">{REVIEWED_NOTE} {DISCLAIMER}</p>
           <div className="mt-6 overflow-hidden rounded-[20px] border border-line">
             <table className="w-full text-start text-sm">
               <thead className="bg-sand text-muted">
@@ -350,7 +351,7 @@ export function ExerciseIndexPage({ all, root }: { all: Exercise[]; root: string
         return (
           <section key={a} id={a} className="mt-14 scroll-mt-6">
             <h2 className="font-display text-3xl font-light text-ink">
-              {a === 'mat' || a === 'chair' ? (
+              {APPARATUS_HUBS.includes(a) ? (
                 <a href={`${root}${apparatusPath(a)}`} className="underline decoration-gold/40 underline-offset-4 hover:decoration-sage">{APPARATUS[a].title}</a>
               ) : (
                 APPARATUS[a].title
@@ -452,14 +453,32 @@ function ApparatusCatalog({ all, root, apparatus }: { all: Exercise[]; root: str
         {list.length} תרגילים, מהקלים יותר אל המתקדמים. כל קישור נפתח לעמוד עם שלבי ביצוע, נשימה ושרירים עיקריים.
         זו ספרייה, לא שיעור מוכן ולא המלצה רפואית.
       </p>
-      <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((ex) => (
-          <li key={ex.id}><ExerciseLink ex={ex} root={root} /></li>
-        ))}
-      </ul>
+      {/* Grouped by level, so a search like "רפורמר למתחילים" lands on a heading. */}
+      {DIFFICULTY_GROUPS.map(({ key, label }) => {
+        const group = list.filter((ex) => ex.difficulty === key);
+        if (!group.length) return null;
+        return (
+          <React.Fragment key={key}>
+            <h3 className="mt-8 font-display text-2xl font-light text-ink">
+              תרגילי {APPARATUS[apparatus].label} {label} <span className="text-base text-muted">({group.length})</span>
+            </h3>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {group.map((ex) => (
+                <li key={ex.id}><ExerciseLink ex={ex} root={root} /></li>
+              ))}
+            </ul>
+          </React.Fragment>
+        );
+      })}
     </section>
   );
 }
+
+const DIFFICULTY_GROUPS: { key: Exercise['difficulty']; label: string }[] = [
+  { key: 'beginner', label: 'למתחילים' },
+  { key: 'intermediate', label: 'ברמה בינונית' },
+  { key: 'advanced', label: 'למתקדמים' },
+];
 
 export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[]; root: string }) {
   const ctaHref = page.cta.message ? whatsappHref(page.cta.message) : `${root}app/`;
@@ -516,15 +535,19 @@ export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[
 
       {page.related && page.related.length > 0 && <RelatedLinks root={root} links={page.related} />}
 
-      {page.extra === 'conditions' && PUBLISH_CONDITION_TABLES && (
+      {page.extra && PUBLISH_CONDITION_TABLES && (
         <>
-          <ConditionLists all={all} root={root} condition="pregnancy" title="תרגילי פילאטיס בהריון" />
-          <ConditionLists all={all} root={root} condition="postnatal" title="תרגילי פילאטיס אחרי לידה" />
-          <p className="mt-6 text-sm text-muted">{DISCLAIMER}</p>
+          <ConditionLists
+            all={all}
+            root={root}
+            condition={page.extra}
+            title={page.extra === 'pregnancy' ? 'טבלת התאמה: תרגילי פילאטיס בהריון' : 'טבלת התאמה: תרגילי פילאטיס אחרי לידה'}
+          />
+          <p className="mt-6 text-sm text-muted">{REVIEWED_NOTE} {DISCLAIMER}</p>
         </>
       )}
 
-      {page.extra !== 'conditions' && (
+      {(
         <section className="mt-14 grid items-center gap-8 rounded-[28px] border border-line p-7 md:grid-cols-[160px_1fr]">
           <img src={`${root}photos/rotem.webp`} alt={BRAND.photoAlt} width={160} height={160} loading="lazy" className="h-40 w-40 rounded-full object-cover" />
           <div>

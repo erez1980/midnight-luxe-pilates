@@ -45,6 +45,8 @@ export const NAV_LINKS = [
 export const HERO = {
   eyebrow: 'רתם · מדריכת פילאטיס עצמאית · עמק יזרעאל',
   officialName: 'RK Pilates Studio',
+  // The last line of the H1: what and where, for local searches.
+  local: 'פילאטיס מזרן ומכשירים בעמק יזרעאל ובצפון',
   title: ['תנועה', 'שמתחילה', 'מבפנים.'],
   subtitle:
     'שיעורי פילאטיס מזרן ומכשירים — בסטודיו, באירוע או אצלכם. ולמדריכות: כלי לבניית שיעורים, עם התאמה לפציעות ולמצבים מיוחדים.',
@@ -379,7 +381,7 @@ export const FOOTER_PAGES: { href: string; label: string }[] = [
 export const GUIDES: { eyebrow: string; title: string; intro: string; items: { href: string; label: string; text: string }[] } = {
   eyebrow: 'ספרייה ומדריכים',
   title: 'תרגילים לפי נושא',
-  intro: 'עמודים בעברית עם הסבר קצר וקישור לתרגילים. בהריון ואחרי לידה אין רשימת תרגילים מותרים — רק עקרונות זהירות.',
+  intro: 'עמודים בעברית עם הסבר קצר וקישור לתרגילים. בהריון ואחרי לידה: עקרונות זהירות וטבלת התאמה לכל תרגיל, שרתם אישרה.',
   items: [
     { href: 'exercises/chair/', label: 'פילאטיס כיסא', text: 'תרגילי Wunda Chair: דוושה, קפיצים, וביצוע בעברית.' },
     { href: 'exercises/mat/', label: 'תרגילי פילאטיס מזרן', text: 'הרפרטואר על המזרן, עם שלבי ביצוע ונשימה.' },
