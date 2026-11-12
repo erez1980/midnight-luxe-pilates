@@ -198,7 +198,7 @@ export default function ClientsAdmin({ email, onGoogleLogin }: { email?: string 
         />
       </label>
 
-      {renewals > 0 && (
+      {(renewals > 0 || onlyRenewals) && (
         <button
           onClick={() => setOnlyRenewals((v) => !v)}
           aria-pressed={onlyRenewals}
