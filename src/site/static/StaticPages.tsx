@@ -165,6 +165,12 @@ function ExerciseLink({ ex, root, meta = true }: { ex: Exercise; root: string; m
 
 // ---------- exercise page ----------
 
+// Conditions that have a guide page of their own.
+const CONDITION_GUIDE: Partial<Record<ConditionId, { href: string; title: string }>> = {
+  pregnancy: { href: 'pilates-pregnancy/', title: 'פילאטיס בהריון: מזרן ומכשירים' },
+  postnatal: { href: 'pilates-postnatal/', title: 'פילאטיס אחרי לידה' },
+};
+
 export function relatedExercises(ex: Exercise, all: Exercise[], count = 6) {
   const same = all.filter((o) => o.id !== ex.id && o.apparatus === ex.apparatus);
   const score = (o: Exercise) => (o.category === ex.category ? 2 : 0) + (o.difficulty === ex.difficulty ? 1 : 0);
@@ -274,7 +280,15 @@ export function ExercisePage({ ex, all, root }: { ex: Exercise; all: Exercise[];
                   const a = assessExercise(ex, c.id);
                   return (
                     <tr key={c.id} className="border-t border-line">
-                      <th scope="row" className="px-4 py-3 text-start font-medium text-ink">{c.label}</th>
+                      <th scope="row" className="px-4 py-3 text-start font-medium text-ink">
+                        {CONDITION_GUIDE[c.id] ? (
+                          <a href={`${root}${CONDITION_GUIDE[c.id]!.href}`} title={CONDITION_GUIDE[c.id]!.title} className="underline decoration-gold/40 underline-offset-4 hover:text-sage">
+                            {c.label}
+                          </a>
+                        ) : (
+                          c.label
+                        )}
+                      </th>
                       <td className="px-4 py-3">
                         <span className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_TONE[a.status]}`}>
                           {SUITABILITY_LABEL[a.status]}
@@ -331,6 +345,7 @@ export function ExerciseIndexPage({ all, root }: { all: Exercise[]; root: string
             ['exercises/chair/', 'פילאטיס כיסא'],
             ['pilates-pregnancy/', 'תרגילי פילאטיס בהריון'],
             ['pilates-postnatal/', 'פילאטיס אחרי לידה'],
+            ['exercises/stretching/', 'פילאטיס מתיחות'],
           ].map(([href, label]) => (
             <a key={href} href={`${root}${href}`} className="rounded-full border border-line px-4 py-2 text-sm text-ink hover:border-sage hover:text-sage">
               {label}
@@ -444,6 +459,52 @@ function RelatedLinks({ root, links }: { root: string; links: NonNullable<Landin
   );
 }
 
+const CATEGORY_TITLE: Partial<Record<NonNullable<Exercise['category']>, string>> = {
+  cooldown: 'תרגילי מתיחות ושחרור',
+  mobility: 'תרגילי תנועתיות (מוביליות)',
+};
+
+export function exercisesForCategories(all: Exercise[], categories: NonNullable<Exercise['category']>[]) {
+  const apparatusRank = (a: Exercise['apparatus']) => APPARATUS_ORDER.indexOf(a);
+  return all
+    .filter((ex) => ex.category && categories.includes(ex.category))
+    .sort(
+      (a, b) =>
+        categories.indexOf(a.category!) - categories.indexOf(b.category!) ||
+        apparatusRank(a.apparatus) - apparatusRank(b.apparatus) ||
+        DIFFICULTY_RANK[a.difficulty] - DIFFICULTY_RANK[b.difficulty] ||
+        a.name.localeCompare(b.name, 'he')
+    );
+}
+
+function CategoryCatalog({ all, root, categories }: { all: Exercise[]; root: string; categories: NonNullable<Exercise['category']>[] }) {
+  const list = exercisesForCategories(all, categories);
+  return (
+    <section className="mt-14">
+      <h2 className="font-display text-3xl font-light text-ink">כל התרגילים בספרייה</h2>
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted">
+        {list.length} תרגילים, לפי מכשיר. כל קישור נפתח לעמוד עם שלבי ביצוע, נשימה ושרירים עיקריים. זו ספרייה, לא שיעור מוכן ולא המלצה רפואית.
+      </p>
+      {categories.map((cat) => {
+        const group = list.filter((ex) => ex.category === cat);
+        if (!group.length) return null;
+        return (
+          <React.Fragment key={cat}>
+            <h3 className="mt-8 font-display text-2xl font-light text-ink">
+              {CATEGORY_TITLE[cat] ?? group[0].categoryLabel} <span className="text-base text-muted">({group.length})</span>
+            </h3>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {group.map((ex) => (
+                <li key={ex.id}><ExerciseLink ex={ex} root={root} meta /></li>
+              ))}
+            </ul>
+          </React.Fragment>
+        );
+      })}
+    </section>
+  );
+}
+
 function ApparatusCatalog({ all, root, apparatus }: { all: Exercise[]; root: string; apparatus: Exercise['apparatus'] }) {
   const list = exercisesForApparatus(all, apparatus);
   return (
@@ -532,6 +593,7 @@ export function LandingPage({ page, all, root }: { page: Landing; all: Exercise[
       </div>
 
       {page.apparatus && <ApparatusCatalog all={all} root={root} apparatus={page.apparatus} />}
+      {page.categories && <CategoryCatalog all={all} root={root} categories={page.categories} />}
 
       {page.related && page.related.length > 0 && <RelatedLinks root={root} links={page.related} />}
 

@@ -372,6 +372,7 @@ export const FOOTER_PAGES: { href: string; label: string }[] = [
   { href: 'pilates-postnatal/', label: 'פילאטיס אחרי לידה' },
   { href: 'exercises/mat/', label: 'תרגילי מזרן' },
   { href: 'exercises/chair/', label: 'פילאטיס כיסא' },
+  { href: 'exercises/stretching/', label: 'פילאטיס מתיחות' },
   { href: 'pilates-lesson-builder/', label: 'בניית שיעורי פילאטיס' },
   { href: 'exercises/', label: 'ספריית תרגילים' },
 ];
@@ -385,7 +386,7 @@ export const GUIDES: { eyebrow: string; title: string; intro: string; items: { h
   items: [
     { href: 'exercises/chair/', label: 'פילאטיס כיסא', text: 'תרגילי Wunda Chair: דוושה, קפיצים, וביצוע בעברית.' },
     { href: 'exercises/mat/', label: 'תרגילי פילאטיס מזרן', text: 'הרפרטואר על המזרן, עם שלבי ביצוע ונשימה.' },
-    { href: 'pilates-pregnancy/', label: 'תרגילי פילאטיס בהריון', text: 'מזרן ומכשירים בהריון, רק באישור רופא/ה.' },
+    { href: 'pilates-pregnancy/', label: 'פילאטיס בהריון', text: 'מזרן ומכשירים בהריון: מה עדיף להימנע ממנו ומה דורש התאמה. רק באישור רופא/ה.' },
     { href: 'pilates-postnatal/', label: 'פילאטיס אחרי לידה', text: 'חזרה הדרגתית אחרי אישור רפואי, לא תוכנית שיקום.' },
   ],
 };
