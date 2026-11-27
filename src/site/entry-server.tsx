@@ -47,11 +47,17 @@ export interface StaticPage {
 
 const pageRoot = (path: string) => '../'.repeat(path.split('/').filter(Boolean).length);
 
+const LEVEL_PHRASE = { beginner: 'למתחילים', intermediate: 'ברמה בינונית', advanced: 'למתקדמים' } as const;
+
 function exerciseMetaDescription(ex: (typeof INITIAL_EXERCISES)[number]) {
   const custom = EXERCISE_DESCRIPTIONS[ex.id];
   if (custom) return custom;
   const benefits = ex.benefits.replace(/[.\s]+$/, '');
-  return `${benefits}. שלבי ביצוע, נשימה ושרירים עיקריים.`;
+  const apparatus = APPARATUS[ex.apparatus].label;
+  const muscles = ex.targetMuscles.slice(0, 2).join(' ו');
+  // Lead with what the searcher gets (how to do it), then the specifics that
+  // make the snippet stand out: apparatus, level and the main muscles.
+  return `איך מבצעים ${ex.name}, תרגיל פילאטיס ${apparatus} ${LEVEL_PHRASE[ex.difficulty]}: ${benefits}. שלבי ביצוע ונשימה${muscles ? `, עבודה על ${muscles}` : ''}.`;
 }
 
 export function renderStaticPages(): StaticPage[] {
