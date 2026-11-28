@@ -37,6 +37,7 @@ export const EN: SiteContent = {
   HERO: {
     eyebrow: 'Rotem · Pilates instructor · Israel',
     officialName: 'RK Pilates Studio',
+    local: 'Mat and apparatus Pilates in the Jezreel Valley, northern Israel',
     title: ['Movement', 'that begins', 'within.'],
     subtitle:
       'Mat and apparatus Pilates — in the studio, at your event, or wherever your community moves. Open to collaborations with activewear brands.',

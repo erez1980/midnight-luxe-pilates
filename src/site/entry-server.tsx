@@ -7,7 +7,7 @@ import { homeStructuredData, faqPage, personAndBusiness, lessonBuilderApp, areaS
 import { llmsTxt } from './llms';
 import { INITIAL_EXERCISES } from '../data';
 import { EXERCISE_DESCRIPTIONS } from './static/exerciseDescriptions';
-import { APPARATUS, PUBLISH_CONDITION_TABLES, ExerciseIndexPage, ExercisePage, LandingPage, LegalDocumentPage, NotFoundPage, apparatusPath, exerciseSlug, exercisesForApparatus } from './static/StaticPages';
+import { APPARATUS, PUBLISH_CONDITION_TABLES, ExerciseIndexPage, ExercisePage, LandingPage, LegalDocumentPage, NotFoundPage, apparatusPath, exerciseSlug, exercisesForApparatus, exercisesForCategories } from './static/StaticPages';
 import { LANDINGS } from './static/landings';
 
 // Server entry used only at build time (scripts/prerender.mjs). The home
@@ -47,11 +47,17 @@ export interface StaticPage {
 
 const pageRoot = (path: string) => '../'.repeat(path.split('/').filter(Boolean).length);
 
+const LEVEL_PHRASE = { beginner: 'למתחילים', intermediate: 'ברמה בינונית', advanced: 'למתקדמים' } as const;
+
 function exerciseMetaDescription(ex: (typeof INITIAL_EXERCISES)[number]) {
   const custom = EXERCISE_DESCRIPTIONS[ex.id];
   if (custom) return custom;
   const benefits = ex.benefits.replace(/[.\s]+$/, '');
-  return `${benefits}. שלבי ביצוע, נשימה ושרירים עיקריים.`;
+  const apparatus = APPARATUS[ex.apparatus].label;
+  const muscles = ex.targetMuscles.slice(0, 2).join(' ו');
+  // Lead with what the searcher gets (how to do it), then the specifics that
+  // make the snippet stand out: apparatus, level and the main muscles.
+  return `איך מבצעים ${ex.name}, תרגיל פילאטיס ${apparatus} ${LEVEL_PHRASE[ex.difficulty]}: ${benefits}. שלבי ביצוע ונשימה${muscles ? `, עבודה על ${muscles}` : ''}.`;
 }
 
 export function renderStaticPages(): StaticPage[] {
@@ -61,9 +67,13 @@ export function renderStaticPages(): StaticPage[] {
   for (const page of LANDINGS) {
     const path = `${page.slug}/`;
     const url = `${SITE_ORIGIN}/${path}`;
-    const catalog = page.apparatus ? exercisesForApparatus(all, page.apparatus) : [];
-    if (page.apparatus && catalog.length === 0) {
-      throw new Error(`landing ${page.slug} lists no ${page.apparatus} exercises`);
+    const catalog = page.apparatus
+      ? exercisesForApparatus(all, page.apparatus)
+      : page.categories
+        ? exercisesForCategories(all, page.categories)
+        : [];
+    if ((page.apparatus || page.categories) && catalog.length === 0) {
+      throw new Error(`landing ${page.slug} lists no exercises`);
     }
     const crumbs = [
       { name: 'דף הבית', url: `${SITE_ORIGIN}/` },
@@ -80,7 +90,7 @@ export function renderStaticPages(): StaticPage[] {
         '@graph': [
           ...personAndBusiness(HE),
           {
-            '@type': page.apparatus ? 'CollectionPage' : 'WebPage',
+            '@type': catalog.length ? 'CollectionPage' : 'WebPage',
             '@id': `${url}#webpage`,
             url,
             name: page.h1,
@@ -88,7 +98,7 @@ export function renderStaticPages(): StaticPage[] {
             inLanguage: 'he-IL',
             isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
             about: { '@id': page.app ? `${SITE_ORIGIN}/app/#app` : `${SITE_ORIGIN}/#business` },
-            ...(page.apparatus
+            ...(catalog.length
               ? {
                   mainEntity: {
                     '@type': 'ItemList',
@@ -139,6 +149,7 @@ export function renderStaticPages(): StaticPage[] {
           relatedLink: [
             `${SITE_ORIGIN}/exercises/mat/`,
             `${SITE_ORIGIN}/exercises/chair/`,
+            `${SITE_ORIGIN}/exercises/stretching/`,
             `${SITE_ORIGIN}/pilates-pregnancy/`,
             `${SITE_ORIGIN}/pilates-postnatal/`,
           ],
@@ -156,7 +167,7 @@ export function renderStaticPages(): StaticPage[] {
     const description = exerciseMetaDescription(ex);
     pages.push({
       path: `exercises/${slug}/`,
-      title: `${ex.name} | תרגיל פילאטיס ${apparatus}`,
+      title: `${ex.name}: איך מבצעים | תרגיל פילאטיס ${apparatus}`,
       description,
       html: renderToStaticMarkup(<ExercisePage ex={ex} all={all} root={pageRoot(`exercises/${slug}/`)} />),
       jsonLd: {
